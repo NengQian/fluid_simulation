@@ -1,0 +1,100 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton.h
+morton2D.h
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton2D.h
+morton3D.h
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton3D.h
+
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton2D.h
+stdint.h
+-
+math.h
+-
+morton2D_LUTs.h
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton2D_LUTs.h
+morton_common.h
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton_common.h
+
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton2D_LUTs.h
+stdint.h
+-
+
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton3D.h
+stdint.h
+-
+math.h
+-
+morton3D_LUTs.h
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton3D_LUTs.h
+morton_common.h
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton_common.h
+
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton3D_LUTs.h
+stdint.h
+-
+
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton_common.h
+stdint.h
+-
+intrin.h
+-
+
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/src/CompactNSearch.cpp
+CompactNSearch/CompactNSearch
+-
+../extern/libmorton/libmorton/include/morton.h
+/Users/chui/Desktop/Master/WS 18:19/FluidSimulation/framework/extern/CompactNSearch/extern/libmorton/libmorton/include/morton.h
+iostream
+-
+numeric
+-
+array
+-
+cstdint
+-
+limits
+-
+algorithm
+-
+
+extern/CompactNSearch/include/CompactNSearch/CompactNSearch
+CompactNSearch.h
+extern/CompactNSearch/include/CompactNSearch/CompactNSearch.h
+
+extern/CompactNSearch/include/CompactNSearch/CompactNSearch.h
+Config.h
+extern/CompactNSearch/include/CompactNSearch/Config.h
+DataStructures.h
+extern/CompactNSearch/include/CompactNSearch/DataStructures.h
+PointSet.h
+extern/CompactNSearch/include/CompactNSearch/PointSet.h
+unordered_map
+-
+
+extern/CompactNSearch/include/CompactNSearch/Config.h
+ppl.h
+-
+parallel/algorithm
+-
+
+extern/CompactNSearch/include/CompactNSearch/DataStructures.h
+Config.h
+extern/CompactNSearch/include/CompactNSearch/Config.h
+atomic
+-
+vector
+-
+
+extern/CompactNSearch/include/CompactNSearch/PointSet.h
+Config.h
+extern/CompactNSearch/include/CompactNSearch/Config.h
+iostream
+-
+
