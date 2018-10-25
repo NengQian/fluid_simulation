@@ -73,9 +73,9 @@ namespace Simulator
 
         	for (size_t i=0; i < sphSimulator.neighbors.size(); ++i)
         	{
-            	std::cout << "error of M4 gradient approx.: " << sphSimulator.kernelHandler.test_M4_gradient(sphSimulator.particles[sphSimulator.index_of_source_particle], sphSimulator.particles[sphSimulator.neighbors[i]], (double)sphSimulator.neighbor_search_radius, 3) << std::endl;
-            	std::cout << "error of M5 gradient approx.: " << sphSimulator.kernelHandler.test_M5_gradient(sphSimulator.particles[sphSimulator.index_of_source_particle], sphSimulator.particles[sphSimulator.neighbors[i]], (double)sphSimulator.neighbor_search_radius, 3) << std::endl;
-            	std::cout << "error of M6 gradient approx.: " << sphSimulator.kernelHandler.test_M6_gradient(sphSimulator.particles[sphSimulator.index_of_source_particle], sphSimulator.particles[sphSimulator.neighbors[i]], (double)sphSimulator.neighbor_search_radius, 3) << std::endl;
+            	std::cout << "error of M4 gradient approx.: " << sphSimulator.kernelHandler.test_gradient(sphSimulator.particles[sphSimulator.index_of_source_particle], sphSimulator.particles[sphSimulator.neighbors[i]], 4) << std::endl;
+            	std::cout << "error of M5 gradient approx.: " << sphSimulator.kernelHandler.test_gradient(sphSimulator.particles[sphSimulator.index_of_source_particle], sphSimulator.particles[sphSimulator.neighbors[i]], 5) << std::endl;
+            	std::cout << "error of M6 gradient approx.: " << sphSimulator.kernelHandler.test_gradient(sphSimulator.particles[sphSimulator.index_of_source_particle], sphSimulator.particles[sphSimulator.neighbors[i]], 6) << std::endl;
         	}
         	printf("\n");
 

@@ -10,21 +10,24 @@ class KernelHandler
 {
 public:
 	KernelHandler();
+	KernelHandler(Real radius);
 
-	Real compute_M4_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, Real neighbor_search_radius, int number_of_dimension );
-	Real compute_M5_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, Real neighbor_search_radius, int number_of_dimension );
-	Real compute_M6_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, Real neighbor_search_radius, int number_of_dimension );
+	void set_neighbor_search_radius(Real radius);
 
-	RealVectorX gradient_of_M4_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, Real neighbor_search_radius, int number_of_dimension, bool analytical_solution=true, Real epsilon=0.000001 );
-	RealVectorX gradient_of_M5_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, Real neighbor_search_radius, int number_of_dimension, bool analytical_solution=true, Real epsilon=0.000001 );
-	RealVectorX gradient_of_M6_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, Real neighbor_search_radius, int number_of_dimension, bool analytical_solution=true, Real epsilon=0.000001 );
-
-	Real test_M4_gradient( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, Real neighbor_search_radius, int number_of_dimension, Real epsilon=0.000001 );
-	Real test_M5_gradient( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, Real neighbor_search_radius, int number_of_dimension, Real epsilon=0.000001 );
-	Real test_M6_gradient( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, Real neighbor_search_radius, int number_of_dimension, Real epsilon=0.000001 );
-
-	Real integrate_M4_kernel(Real h, int number_of_dimension);
+	Real compute_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, int kernel_type );
+	RealVectorX gradient_of_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, int kernel_type, bool analytical_solution=true );
+	Real test_gradient( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, int kernel_type );
+	Real integrate_kernel( int kernel_type, int number_of_dimension );
 
 private:
+	Real neighbor_search_radius = 5.0;
+	Real epsilon = 0.000001;
 
+	Real compute_M4_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle );
+	Real compute_M5_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle );
+	Real compute_M6_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle );
+
+	RealVectorX gradient_of_M4_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle );
+	RealVectorX gradient_of_M5_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle );
+	RealVectorX gradient_of_M6_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle );
 };

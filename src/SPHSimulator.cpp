@@ -20,7 +20,7 @@ using merely3d::Particle;
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
 
-SPHSimulator::SPHSimulator()
+SPHSimulator::SPHSimulator() : kernelHandler((Real)neighbor_search_radius)
 {
 
 }
