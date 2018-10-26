@@ -58,7 +58,7 @@ int main()
     double radius = simulation.sphSimulator.neighbor_search_radius;
 
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    simulation.sphSimulator.neighborSearcher.brute_force_search(simulation.sphSimulator.particles, n_neighbors_indices, radius);
+    simulation.sphSimulator.neighborSearcher.brute_force_search( n_neighbors_indices );
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
     auto dura = duration_cast<microseconds>( t2 - t1 ).count();
@@ -75,7 +75,7 @@ int main()
 
     // try the CompactNSearch
     CompactNSearch::NeighborhoodSearch nsearch(radius);
-	std::vector<std::array<CompactNSearch::Real, 3>> positions = simulation.sphSimulator.neighborSearcher.convect_to_CompactN_position(simulation.sphSimulator.particles);
+	std::vector<std::array<CompactNSearch::Real, 3>> positions = simulation.sphSimulator.neighborSearcher.convect_to_CompactN_position();
 
     t1 = high_resolution_clock::now();
 
@@ -123,7 +123,7 @@ int main()
             std::cout<<"radius is "<< radius_num_vector[j] <<std::endl;
             // try compactNSearch
             CompactNSearch::NeighborhoodSearch nsearch(radius_num_vector[j]);
-           	std::vector<std::array<CompactNSearch::Real, 3>> particles_for_CNSearch = compare_nb.neighborSearcher.convect_to_CompactN_position(compare_nb.particles);
+           	std::vector<std::array<CompactNSearch::Real, 3>> particles_for_CNSearch = compare_nb.neighborSearcher.convect_to_CompactN_position();
 
             t1 = high_resolution_clock::now();
         	nsearch.add_point_set(particles_for_CNSearch.front().data(), particles_for_CNSearch.size());
@@ -133,8 +133,9 @@ int main()
             cns_runtime_vector.push_back(dura);
             std::cout<<"cns duration:"<< dura.count() << std::endl;
 
+            compare_nb.neighborSearcher.set_neighbor_search_radius(radius_num_vector[j]);
             high_resolution_clock::time_point t1 = high_resolution_clock::now();
-            compare_nb.neighborSearcher.brute_force_search(compare_nb.particles, n_neighbors_indices, radius_num_vector[j]);
+            compare_nb.neighborSearcher.brute_force_search( n_neighbors_indices );
             high_resolution_clock::time_point t2 = high_resolution_clock::now();
             dura = duration_cast<microseconds>( t2 - t1 );
             bfs_runtime_vector.push_back(dura);

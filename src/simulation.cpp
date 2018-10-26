@@ -65,12 +65,14 @@ namespace Simulator
 
         	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-        	sphSimulator.neighbors = sphSimulator.neighborSearcher.find_neighbors_within_radius(sphSimulator.particles, sphSimulator.index_of_source_particle, (double)sphSimulator.neighbor_search_radius, do_compactN);
+        	sphSimulator.neighborSearcher.set_neighbor_search_radius((Real) sphSimulator.neighbor_search_radius);
+        	sphSimulator.neighbors = sphSimulator.neighborSearcher.find_neighbors_within_radius( sphSimulator.index_of_source_particle, do_compactN );
 
         	std::chrono::steady_clock::time_point end= std::chrono::steady_clock::now();
         	auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
         	time_string = std::to_string(elapsed_time.count());
 
+        	sphSimulator.kernelHandler.set_neighbor_search_radius((Real) sphSimulator.neighbor_search_radius);
         	for (size_t i=0; i < sphSimulator.neighbors.size(); ++i)
         	{
             	std::cout << "error of M4 gradient approx.: " << sphSimulator.kernelHandler.test_gradient(sphSimulator.particles[sphSimulator.index_of_source_particle], sphSimulator.particles[sphSimulator.neighbors[i]], 4) << std::endl;

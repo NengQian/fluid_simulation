@@ -1,5 +1,4 @@
 #include "NeighborSearcher.hpp"
-
 #include "math_types.hpp"
 
 #include <merely3d/merely3d.hpp>
@@ -7,22 +6,7 @@
 
 #include <algorithm>    // std::sort
 #include <numeric>
-
 #include <iostream>
-
-
-using merely3d::renderable;
-using merely3d::Rectangle;
-using merely3d::Box;
-using merely3d::Line;
-using merely3d::Color;
-using merely3d::Material;
-using merely3d::Sphere;
-using merely3d::red;
-using merely3d::Particle;
-
-using Eigen::AngleAxisf;
-using Eigen::Vector3f;
 
 using namespace Simulator;
 
@@ -31,31 +15,47 @@ NeighborSearcher::NeighborSearcher()
 
 }
 
-std::vector<size_t> NeighborSearcher::find_neighbors_within_radius(std::vector<RealVector3> &particles, size_t selected_particle_index, double radius, bool use_compactN)
+NeighborSearcher::NeighborSearcher(Real radius)
+{
+	set_neighbor_search_radius(radius);
+}
+
+
+void NeighborSearcher::set_neighbor_search_radius(Real radius)
+{
+	neighbor_search_radius = radius;
+}
+
+void NeighborSearcher::set_particles_ptr(std::vector<RealVector3>& particles)
+{
+	particles_ptr = std::make_shared<std::vector<RealVector3>>(particles);
+}
+
+std::vector<size_t> NeighborSearcher::find_neighbors_within_radius( size_t selected_particle_index, bool use_compactN )
 {
 	std::vector<size_t> m_neighbors;
 	if (use_compactN)
-		m_neighbors = compactN_neighbor_search(particles, selected_particle_index, radius);
+		m_neighbors = compactN_neighbor_search( selected_particle_index );
 	else
-		m_neighbors = brute_force_neighbor_search(particles, selected_particle_index, radius);
+		m_neighbors = brute_force_neighbor_search( selected_particle_index );
 
 	return m_neighbors;
 }
 
-std::vector<std::array<CompactNSearch::Real, 3>> NeighborSearcher::convect_to_CompactN_position(std::vector<RealVector3> &particles)
+std::vector<std::array<CompactNSearch::Real, 3>> NeighborSearcher::convect_to_CompactN_position()
 {
 	std::vector<std::array<CompactNSearch::Real, 3>> CompactN_particles;
-	for (size_t i=0; i<particles.size(); ++i)
+	for (size_t i=0; i<particles_ptr->size(); ++i)
 	{
-		CompactN_particles.push_back(std::array<CompactNSearch::Real, 3>{ particles[i][0], particles[i][1], particles[i][2] });
+		CompactN_particles.push_back(std::array<CompactNSearch::Real, 3>{ (*particles_ptr)[i][0], (*particles_ptr)[i][1], (*particles_ptr)[i][2] });
 	}
 	return CompactN_particles;
 }
 
-std::vector<size_t> NeighborSearcher::compactN_neighbor_search(std::vector<RealVector3> &particles, size_t selected_particle_index, double radius)
+std::vector<size_t> NeighborSearcher::compactN_neighbor_search( size_t selected_particle_index )
 {
-	CompactNSearch::NeighborhoodSearch nsearch(radius);
-	std::vector<std::array<CompactNSearch::Real, 3>> positions = convect_to_CompactN_position(particles);
+	CompactNSearch::NeighborhoodSearch nsearch(neighbor_search_radius);
+	std::vector<std::array<CompactNSearch::Real, 3>> positions = convect_to_CompactN_position();
 
 	// ... Fill array with 3 * n real numbers representing three-dimensional point positions.
 	unsigned int point_set_id = nsearch.add_point_set(positions.front().data(), positions.size());
@@ -74,13 +74,13 @@ std::vector<size_t> NeighborSearcher::compactN_neighbor_search(std::vector<RealV
 	return m_neighbors;
 }
 
-std::vector<size_t> NeighborSearcher::brute_force_neighbor_search(std::vector<RealVector3> &particles, size_t selected_particle_index, double radius)
+std::vector<size_t> NeighborSearcher::brute_force_neighbor_search( size_t selected_particle_index )
 {
 	// Brute Force
-	std::vector<double> distances_to_selected_particle;
-	for (size_t i=0; i<particles.size(); ++i)
+	std::vector<Real> distances_to_selected_particle;
+	for (size_t i=0; i<particles_ptr->size(); ++i)
 	{
-		RealVector3 distance_vector = particles[i] - particles[selected_particle_index];
+		RealVector3 distance_vector = (*particles_ptr)[i] - (*particles_ptr)[selected_particle_index];
 		distances_to_selected_particle.push_back(distance_vector.squaredNorm());
 	}
 
@@ -93,9 +93,9 @@ std::vector<size_t> NeighborSearcher::brute_force_neighbor_search(std::vector<Re
 		   [&distances_to_selected_particle](size_t i1, size_t i2) {return distances_to_selected_particle[i1] < distances_to_selected_particle[i2];});
 
 	size_t boundary = 0;
-	for (size_t i=0; i<particles.size(); ++i)
+	for (size_t i=0; i<particles_ptr->size(); ++i)
 	{
-		if (distances_to_selected_particle[indices[i]] > (radius*radius))
+		if (distances_to_selected_particle[indices[i]] > (neighbor_search_radius*neighbor_search_radius))
 		{
 			boundary = i;
 			break;
@@ -105,9 +105,9 @@ std::vector<size_t> NeighborSearcher::brute_force_neighbor_search(std::vector<Re
 	return m_neighbors;
 }
 
-void NeighborSearcher::brute_force_search(std::vector<RealVector3> &particles, std::vector<std::vector<int> >& n_neighbors_indices, double radius)
+void NeighborSearcher::brute_force_search( std::vector<std::vector<int> >& n_neighbors_indices )
 {
-    int k(particles.size());
+    int k(particles_ptr->size());
     n_neighbors_indices.reserve(k);
 
     RealVector3 vec1,vec2;
@@ -117,12 +117,12 @@ void NeighborSearcher::brute_force_search(std::vector<RealVector3> &particles, s
         std::vector<int> neighbors_indices;
         for(int j = 0; j < k; j++)
         {
-        	vec1 = particles[i];
+        	vec1 = (*particles_ptr)[i];
             if(j != i)
             {
-                vec2 = particles[j];
+                vec2 = (*particles_ptr)[j];
                 RealVector3 diff_vec = vec2 - vec1;
-                if(diff_vec.dot(diff_vec) <= radius*radius)
+                if(diff_vec.dot(diff_vec) <= neighbor_search_radius*neighbor_search_radius)
                     neighbors_indices.push_back(j);
             }
         }

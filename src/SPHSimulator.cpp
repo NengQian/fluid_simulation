@@ -20,9 +20,10 @@ using merely3d::Particle;
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
 
-SPHSimulator::SPHSimulator() : kernelHandler((Real)neighbor_search_radius)
+SPHSimulator::SPHSimulator() : kernelHandler((Real)neighbor_search_radius), neighborSearcher((Real)neighbor_search_radius)
 {
-
+	generate_random_particles();
+	neighborSearcher.set_particles_ptr(particles);
 }
 
 void SPHSimulator::generate_random_particles()
@@ -42,6 +43,8 @@ void SPHSimulator::generate_random_particles()
 		const auto z = distribution(random_number_generator)+10.0;
 		particles.push_back(RealVector3(x,y,z));
 	}
+
+	neighborSearcher.set_particles_ptr(particles);
 }
 
 
