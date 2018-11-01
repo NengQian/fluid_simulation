@@ -105,17 +105,18 @@ std::vector<size_t> NeighborSearcher::brute_force_neighbor_search( size_t select
 	return m_neighbors;
 }
 
-void NeighborSearcher::brute_force_search( std::vector<std::vector<int> >& n_neighbors_indices )
+std::vector< std::vector<size_t> > NeighborSearcher::brute_force_neighbor_search( )
 {
-    int k(particles_ptr->size());
-    n_neighbors_indices.reserve(k);
+    size_t k = particles_ptr->size();
+	std::vector< std::vector<size_t> > neighbors;
+	neighbors.reserve(k);
 
     RealVector3 vec1,vec2;
 
-    for(int i = 0; i < k; i++ )
+    for(size_t i = 0; i < k; i++ )
     {
-        std::vector<int> neighbors_indices;
-        for(int j = 0; j < k; j++)
+        std::vector<size_t> neighbors_of_i;
+        for(size_t j = 0; j < k; j++)
         {
         	vec1 = (*particles_ptr)[i];
             if(j != i)
@@ -123,10 +124,12 @@ void NeighborSearcher::brute_force_search( std::vector<std::vector<int> >& n_nei
                 vec2 = (*particles_ptr)[j];
                 RealVector3 diff_vec = vec2 - vec1;
                 if(diff_vec.dot(diff_vec) <= neighbor_search_radius*neighbor_search_radius)
-                    neighbors_indices.push_back(j);
+                	neighbors_of_i.push_back(j);
             }
         }
-        n_neighbors_indices.push_back(neighbors_indices);
+        neighbors.push_back(neighbors_of_i);
     }
+
+    return neighbors;
 }
 

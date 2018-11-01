@@ -54,20 +54,20 @@ int main()
     Simulation simulation;
     simulation.sphSimulator.generate_random_particles();
 
-    std::vector<std::vector<int> > n_neighbors_indices;
+    std::vector<std::vector<size_t> > n_neighbors_indices;
     double radius = simulation.sphSimulator.neighbor_search_radius;
 
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    simulation.sphSimulator.neighborSearcher.brute_force_search( n_neighbors_indices );
+    n_neighbors_indices = simulation.sphSimulator.neighborSearcher.brute_force_neighbor_search( );
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
     auto dura = duration_cast<microseconds>( t2 - t1 ).count();
 
     std::cout<< "the neighbor indices is:"<< std::endl;
-    for(int i=0;i<n_neighbors_indices.size();i++)
+    for(size_t i=0;i<n_neighbors_indices.size();i++)
     {
         std::cout<< " "<< i;
-        for(int j=0; j<n_neighbors_indices[i].size();j++)
+        for(size_t j=0; j<n_neighbors_indices[i].size();j++)
             std::cout<<" - "<< n_neighbors_indices[i][j];
         std::cout<<std::endl;
     }
@@ -135,7 +135,7 @@ int main()
 
             compare_nb.neighborSearcher.set_neighbor_search_radius(radius_num_vector[j]);
             high_resolution_clock::time_point t1 = high_resolution_clock::now();
-            compare_nb.neighborSearcher.brute_force_search( n_neighbors_indices );
+            n_neighbors_indices = compare_nb.neighborSearcher.brute_force_neighbor_search( );
             high_resolution_clock::time_point t2 = high_resolution_clock::now();
             dura = duration_cast<microseconds>( t2 - t1 );
             bfs_runtime_vector.push_back(dura);

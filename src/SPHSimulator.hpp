@@ -15,7 +15,7 @@ public:
 	SPHSimulator();
 
 	std::vector<RealVector3> particles;
-	size_t number_of_particles = 10000;
+	size_t number_of_particles = 100;
 	const Real particle_radius = 0.1;
 
     float neighbor_search_radius = 5.0;

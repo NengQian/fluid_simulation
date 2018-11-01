@@ -19,7 +19,9 @@ public:
 	std::vector<size_t> find_neighbors_within_radius( size_t selected_particle_index, bool use_compactN );
 	std::vector<size_t> compactN_neighbor_search( size_t selected_particle_index );
 	std::vector<size_t> brute_force_neighbor_search( size_t selected_particle_index );
-	void brute_force_search( std::vector<std::vector<int> >& n_neighbors_indices );
+	std::vector< std::vector<size_t> > brute_force_neighbor_search( );
+	//std::vector< std::vector<size_t> > compactN_neighbor_search( );
+	//void brute_force_search( std::vector<std::vector<int> >& n_neighbors_indices );
 
 	std::vector<std::array<CompactNSearch::Real, 3>> convect_to_CompactN_position();
 private:
