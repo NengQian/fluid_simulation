@@ -31,11 +31,8 @@ public:
     void 			    set_neighbors(std::vector<size_t>& ns);
     std::vector<size_t> get_neighbors();
 
-	void generate_random_particles();
-
-	void find_and_set_neighbors(bool do_compactN);
-
-	std::vector< std::vector<size_t> > find_neighbors_of_all(bool do_compactN);
+	void 							 find_and_set_neighbors(bool do_compactN);
+	std::vector<std::vector<size_t>> find_neighbors_of_all(bool do_compactN);
 
 	Real compute_average_error_of_kernel_gradient(int kernel_type);
 
@@ -49,4 +46,6 @@ private:
 	float neighbor_search_radius;
     int index_of_source_particle;
     std::vector<size_t> neighbors;
+
+	void generate_random_particles();
 };
