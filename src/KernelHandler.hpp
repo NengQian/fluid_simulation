@@ -14,10 +14,10 @@ public:
 
 	void set_neighbor_search_radius(Real radius);
 
-	Real compute_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, int kernel_type );
+	Real 		compute_kernel	  ( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, int kernel_type );
 	RealVectorX gradient_of_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, int kernel_type, bool analytical_solution=true );
-	Real test_gradient( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, int kernel_type );
-	Real integrate_kernel( int kernel_type, int number_of_dimension );
+	Real 		test_gradient     ( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle, int kernel_type );
+	Real 		integrate_kernel  ( int kernel_type, int number_of_dimension );
 
 private:
 	Real neighbor_search_radius = 5.0;

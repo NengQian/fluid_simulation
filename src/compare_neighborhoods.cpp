@@ -51,57 +51,53 @@ int main()
     using Simulator::Simulation;
     using Simulator::Real;
 
-    Simulation simulation;
-    simulation.sphSimulator.generate_random_particles();
+    float m_radius = 5.0f;
 
-    std::vector<std::vector<size_t> > n_neighbors_indices;
-    double radius = simulation.sphSimulator.neighbor_search_radius;
+    SPHSimulator sphSimulator(m_radius);
+    sphSimulator.generate_particles();
 
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    n_neighbors_indices = simulation.sphSimulator.neighborSearcher.brute_force_neighbor_search( );
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+	//Real radius = static_cast<Real>(sphSimulator.get_neighbor_search_radius);
+	high_resolution_clock::time_point t1, t2;
 
-    auto dura = duration_cast<microseconds>( t2 - t1 ).count();
-
-    std::cout<< "the neighbor indices is:"<< std::endl;
-    for(size_t i=0;i<n_neighbors_indices.size();i++)
     {
-        std::cout<< " "<< i;
-        for(size_t j=0; j<n_neighbors_indices[i].size();j++)
-            std::cout<<" - "<< n_neighbors_indices[i][j];
-        std::cout<<std::endl;
+		std::vector<std::vector<size_t> > n_neighbors_indices;
+
+		high_resolution_clock::time_point t1 = high_resolution_clock::now();
+		n_neighbors_indices = sphSimulator.find_neighbors_of_all( false );
+		high_resolution_clock::time_point t2 = high_resolution_clock::now();
+
+		auto dura = duration_cast<microseconds>( t2 - t1 ).count();
+
+		std::cout<< "the neighbor indices is:"<< std::endl;
+		for(size_t i=0;i<n_neighbors_indices.size();i++)
+		{
+			std::cout<< " "<< i;
+			for(size_t j=0; j<n_neighbors_indices[i].size();j++)
+				std::cout<<" - "<< n_neighbors_indices[i][j];
+			std::cout<<std::endl;
+		}
+		std::cout<< "Brute_force_search duration "<< dura << std::endl;
     }
-    std::cout<< "Brute_force_search duration "<< dura << std::endl;
 
-    // try the CompactNSearch
-    CompactNSearch::NeighborhoodSearch nsearch(radius);
-	std::vector<std::array<CompactNSearch::Real, 3>> positions = simulation.sphSimulator.neighborSearcher.convect_to_CompactN_position();
-
-    t1 = high_resolution_clock::now();
-
-	// ... Fill array with 3 * n real numbers representing three-dimensional point positions.
-	unsigned int point_set_id = nsearch.add_point_set(positions.front().data(), positions.size());
-    nsearch.find_neighbors();
-
-    t2 = high_resolution_clock::now();
-    dura = duration_cast<microseconds>( t2 - t1 ).count();
-
-    CompactNSearch::PointSet const& ps = nsearch.point_set(point_set_id);
-
-    std::cout<< "the neighbor indices from CompactNSearch is:"<< std::endl;
-    for (int i = 0; i < ps.n_points(); ++i)
     {
-        std::cout<< " "<< i;
+		std::vector<std::vector<size_t> > n_neighbors_indices;
 
-        for (int j = 0; j < ps.n_neighbors(point_set_id,i); ++j)
-        {
-            auto pid = ps.neighbor(point_set_id, i, j);
-            std::cout<<" - "<< pid;
-        }
-        std::cout<<std::endl;
+		t1 = high_resolution_clock::now();
+		n_neighbors_indices = sphSimulator.find_neighbors_of_all( true );
+		t2 = high_resolution_clock::now();
+
+        auto dura = duration_cast<microseconds>( t2 - t1 ).count();
+
+        std::cout<< "the neighbor indices from CompactNSearch is:"<< std::endl;
+		for(size_t i=0;i<n_neighbors_indices.size();i++)
+		{
+			std::cout<< " "<< i;
+			for(size_t j=0; j<n_neighbors_indices[i].size();j++)
+				std::cout<<" - "<< n_neighbors_indices[i][j];
+			std::cout<<std::endl;
+		}
+        std::cout<< "compactNsearch duration "<< dura << std::endl;
     }
-    std::cout<< "compactNsearch duration "<< dura << std::endl;
-
 
     // so now is try to run more case with different radius and number of particles
     std::vector<int> particles_num_vector({10,100,1000,10000});
@@ -111,10 +107,12 @@ int main()
 
     for(int i=0;i<particles_num_vector.size();++i)
     {
-    	SPHSimulator compare_nb;
-        compare_nb.number_of_particles = particles_num_vector[i];
-        compare_nb.generate_random_particles();
-        std::cout<<"particles number is "<< particles_num_vector[i] <<std::endl;
+    	SPHSimulator compare_nb(m_radius);
+        compare_nb.set_number_of_particles(static_cast<size_t>(particles_num_vector[i]));
+        compare_nb.generate_particles();
+        std::cout<<"particles number is "<< compare_nb.get_number_of_particles() <<std::endl;
+
+        //std::cout<<"particles number is "<< particles_num_vector[i] <<std::endl;
         std::vector<microseconds> cns_runtime_vector;
         std::vector<microseconds> bfs_runtime_vector;
         for(int j=0;j<radius_num_vector.size();++j)
@@ -122,21 +120,18 @@ int main()
 
             std::cout<<"radius is "<< radius_num_vector[j] <<std::endl;
             // try compactNSearch
-            CompactNSearch::NeighborhoodSearch nsearch(radius_num_vector[j]);
-           	std::vector<std::array<CompactNSearch::Real, 3>> particles_for_CNSearch = compare_nb.neighborSearcher.convect_to_CompactN_position();
+            compare_nb.set_neighbor_search_radius(static_cast<float>(radius_num_vector[j]));
 
             t1 = high_resolution_clock::now();
-        	nsearch.add_point_set(particles_for_CNSearch.front().data(), particles_for_CNSearch.size());
-            nsearch.find_neighbors();
+            compare_nb.find_neighbors_of_all( true );
             t2 = high_resolution_clock::now();
             auto dura = duration_cast<microseconds>( t2 - t1 );
             cns_runtime_vector.push_back(dura);
             std::cout<<"cns duration:"<< dura.count() << std::endl;
 
-            compare_nb.neighborSearcher.set_neighbor_search_radius(radius_num_vector[j]);
-            high_resolution_clock::time_point t1 = high_resolution_clock::now();
-            n_neighbors_indices = compare_nb.neighborSearcher.brute_force_neighbor_search( );
-            high_resolution_clock::time_point t2 = high_resolution_clock::now();
+            t1 = high_resolution_clock::now();
+            compare_nb.find_neighbors_of_all( false );
+            t2 = high_resolution_clock::now();
             dura = duration_cast<microseconds>( t2 - t1 );
             bfs_runtime_vector.push_back(dura);
             std::cout<<"bf duration:"<< dura.count() << std::endl;

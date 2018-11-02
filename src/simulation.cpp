@@ -32,9 +32,9 @@ namespace Simulator
     }
 
 
-    Simulation::Simulation()
+    Simulation::Simulation(float radius) : sphSimulator(radius)
     {
-
+    	neighbor_search_radius = radius;
     }
 
     void Simulation::render(merely3d::Frame &frame)
@@ -49,7 +49,8 @@ namespace Simulator
 
         if (do_particle_generating)
         {
-        	sphSimulator.generate_random_particles();
+        	sphSimulator.set_neighbor_search_radius(neighbor_search_radius);
+        	sphSimulator.generate_particles();
 
         	do_neighbor_searching = true;
         	do_particle_generating = false;
@@ -59,26 +60,26 @@ namespace Simulator
         {
         	if (change_center)
         	{
-        		sphSimulator.index_of_source_particle = (sphSimulator.index_of_source_particle + 1) % sphSimulator.number_of_particles;
+        		int current_idx = sphSimulator.get_index_of_source_particle();
+        		size_t number_of_particles = sphSimulator.get_number_of_particles();
+        		sphSimulator.set_index_of_source_particle((current_idx + 1) % number_of_particles);
         		change_center = false;
         	}
 
         	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-        	sphSimulator.neighborSearcher.set_neighbor_search_radius((Real) sphSimulator.neighbor_search_radius);
-        	sphSimulator.neighbors = sphSimulator.neighborSearcher.find_neighbors_within_radius( sphSimulator.index_of_source_particle, do_compactN );
+        	sphSimulator.set_neighbor_search_radius(neighbor_search_radius);
+        	sphSimulator.find_and_set_neighbors( do_compactN );
 
         	std::chrono::steady_clock::time_point end= std::chrono::steady_clock::now();
         	auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
         	time_string = std::to_string(elapsed_time.count());
 
-        	sphSimulator.kernelHandler.set_neighbor_search_radius((Real) sphSimulator.neighbor_search_radius);
-        	for (size_t i=0; i < sphSimulator.neighbors.size(); ++i)
-        	{
-            	std::cout << "error of M4 gradient approx.: " << sphSimulator.kernelHandler.test_gradient(sphSimulator.particles[sphSimulator.index_of_source_particle], sphSimulator.particles[sphSimulator.neighbors[i]], 4) << std::endl;
-            	std::cout << "error of M5 gradient approx.: " << sphSimulator.kernelHandler.test_gradient(sphSimulator.particles[sphSimulator.index_of_source_particle], sphSimulator.particles[sphSimulator.neighbors[i]], 5) << std::endl;
-            	std::cout << "error of M6 gradient approx.: " << sphSimulator.kernelHandler.test_gradient(sphSimulator.particles[sphSimulator.index_of_source_particle], sphSimulator.particles[sphSimulator.neighbors[i]], 6) << std::endl;
-        	}
+
+        	std::cout << "average error of M4 gradient approx.: " << sphSimulator.compute_average_error_of_kernel_gradient( 4 ) << std::endl;
+        	std::cout << "average error of M5 gradient approx.: " << sphSimulator.compute_average_error_of_kernel_gradient( 5 ) << std::endl;
+        	std::cout << "average error of M6 gradient approx.: " << sphSimulator.compute_average_error_of_kernel_gradient( 6 ) << std::endl;
+
         	printf("\n");
 
         	do_neighbor_searching = false;
@@ -90,7 +91,7 @@ namespace Simulator
         if (ImGui::Begin("Settings", NULL, ImVec2(300, 200)))
         {
             ImGui::TextWrapped("Find neighbors with radius r");
-            ImGui::SliderFloat("r", &sphSimulator.neighbor_search_radius, 0.0, 20.0);
+            ImGui::SliderFloat("r", &neighbor_search_radius, 0.0, 20.0);
             if (ImGui::Button("reset radius"))
             	do_neighbor_searching = true;
 
@@ -134,26 +135,29 @@ namespace Simulator
 
     void Simulation::render_random_particles(merely3d::Frame &frame)
     {
-        std::vector<bool> drawn(sphSimulator.particles.size(), false);
-    	for (size_t i = 0; i < sphSimulator.neighbors.size(); ++i)
+    	std::vector<RealVector3> particles = sphSimulator.get_particles();
+        std::vector<bool> drawn(particles.size(), false);
+
+        size_t source_index = sphSimulator.get_index_of_source_particle();
+
+		Eigen::Vector3f s(static_cast<float>(particles[source_index][0]), static_cast<float>(particles[source_index][1]), static_cast<float>(particles[source_index][2]));
+		frame.draw_particle(Particle(s).with_radius(sphSimulator.particle_radius).with_color(Color(1.0f, 0.0f, 0.0f)));
+    	drawn[source_index] = true;
+
+        std::vector<size_t> neighbors = sphSimulator.get_neighbors();
+
+        for (size_t i = 0; i < neighbors.size(); ++i)
         {
-    		Eigen::Vector3f n((float)sphSimulator.particles[sphSimulator.neighbors[i]][0], (float)sphSimulator.particles[sphSimulator.neighbors[i]][1], (float)sphSimulator.particles[sphSimulator.neighbors[i]][2]);
-        	if (i == 0)
-        	{
-            	frame.draw_particle(Particle(n).with_radius(sphSimulator.particle_radius).with_color(Color(1.0f, 0.0f, 0.0f)));
-        	}
-        	else
-        	{
-            	frame.draw_particle(Particle(n).with_radius(sphSimulator.particle_radius).with_color(Color(0.0f, 1.0f, 0.0f)));
-        	}
-        	drawn[sphSimulator.neighbors[i]] = true;
+    		Eigen::Vector3f n(static_cast<float>(particles[neighbors[i]][0]), static_cast<float>(particles[neighbors[i]][1]), static_cast<float>(particles[neighbors[i]][2]));
+    		frame.draw_particle(Particle(n).with_radius(sphSimulator.particle_radius).with_color(Color(0.0f, 1.0f, 0.0f)));
+        	drawn[neighbors[i]] = true;
         }
 
-    	for (size_t i = 0; i < sphSimulator.particles.size(); ++i)
+    	for (size_t i = 0; i < particles.size(); ++i)
         {
         	if (!drawn[i])
         	{
-        		Eigen::Vector3f p((float)sphSimulator.particles[i][0], (float)sphSimulator.particles[i][1], (float)sphSimulator.particles[i][2]);
+        		Eigen::Vector3f p(static_cast<float>(particles[i][0]), static_cast<float>(particles[i][1]), static_cast<float>(particles[i][2]));
         		frame.draw_particle(Particle(p).with_radius(sphSimulator.particle_radius).with_color(Color(0.0f, 0.0f, 1.0f)));
         	}
         }

@@ -12,12 +12,13 @@ namespace Simulator
     class Simulation
     {
     public:
-        Simulation();
+        Simulation(float radius);
 
         void timestep(Real dt);
         void render(merely3d::Frame &frame);
 
         SPHSimulator sphSimulator;
+        float neighbor_search_radius;
 
         // You probably want some methods to add bodies to the system
         // void addBody(const RigidBody & body);

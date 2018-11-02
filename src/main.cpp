@@ -116,7 +116,7 @@ int main()
     window.add_event_handler(std::shared_ptr<EventHandler>(new Simulator::ImGuiEventHandler));
     window.add_event_handler(std::shared_ptr<EventHandler>(new CameraController));
 
-    Simulation simulation;
+    Simulation simulation(5.0f);
 
     // Here we currently only load a single scene at startup,
     // but you probably want to be able to dynamically reload different
