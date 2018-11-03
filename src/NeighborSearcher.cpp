@@ -42,6 +42,33 @@ std::vector<size_t> NeighborSearcher::find_neighbors_within_radius( size_t selec
 	return m_neighbors;
 }
 
+std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_within_radius( std::vector<size_t> point_set )
+{
+	CompactNSearch::NeighborhoodSearch nsearch(neighbor_search_radius);
+	std::vector<std::array<CompactNSearch::Real, 3>> positions = convect_to_CompactN_position();
+
+	unsigned int point_set_id = nsearch.add_point_set(positions.front().data(), positions.size());
+	nsearch.find_neighbors();
+
+    CompactNSearch::PointSet const& ps = nsearch.point_set(point_set_id);
+    std::vector< std::vector<size_t> > m_neighbors;
+    m_neighbors.reserve(point_set.size());
+
+	for (size_t i =0; i < point_set.size(); ++i)
+	{
+		std::vector<size_t> ns;
+		for (size_t j = 0; j < ps.n_neighbors(point_set_id, point_set[i]); ++j)
+		{
+			// Return PointID of the jth neighbor of the ith particle in the 0th point set.
+			unsigned int pid = ps.neighbor(point_set_id, point_set[i], j);
+			ns.push_back(pid);
+		}
+		m_neighbors.push_back(ns);
+	}
+
+	return m_neighbors;
+}
+
 std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_within_radius( bool use_compactN )
 {
 	std::vector< std::vector<size_t> > m_neighbors;
@@ -53,8 +80,46 @@ std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_within_radiu
 	return m_neighbors;
 }
 
+std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_within_radius( std::vector<RealVector3>& point_set )
+{
+	CompactNSearch::NeighborhoodSearch nsearch(neighbor_search_radius);
+	std::vector<std::array<CompactNSearch::Real, 3>> sample_positions = convect_to_CompactN_position(point_set);
+	std::vector<std::array<CompactNSearch::Real, 3>> particle_positions = convect_to_CompactN_position();
 
-std::vector<std::array<CompactNSearch::Real, 3>> NeighborSearcher::convect_to_CompactN_position()
+	unsigned int point_set_id_1 = nsearch.add_point_set(particle_positions.front().data(), particle_positions.size());
+	unsigned int point_set_id_2 = nsearch.add_point_set(sample_positions.front().data(), sample_positions.size());
+	nsearch.find_neighbors();
+
+    CompactNSearch::PointSet const& ps = nsearch.point_set(point_set_id_2);
+    std::vector< std::vector<size_t> > m_neighbors;
+    m_neighbors.reserve(point_set.size());
+
+	for (size_t i =0; i < point_set.size(); ++i)
+	{
+		std::vector<size_t> ns;
+		for (size_t j = 0; j < ps.n_neighbors(point_set_id_1, i); ++j)
+		{
+			// Return PointID of the jth neighbor of the ith particle in the 0th point set.
+			unsigned int pid = ps.neighbor(point_set_id_1, i, j);
+			ns.push_back(pid);
+		}
+		m_neighbors.push_back(ns);
+	}
+
+	return m_neighbors;
+}
+
+std::vector<std::array<CompactNSearch::Real, 3>> NeighborSearcher::convect_to_CompactN_position( std::vector<RealVector3>& point_set )
+{
+	std::vector<std::array<CompactNSearch::Real, 3>> CompactN_particles;
+	for (size_t i=0; i<point_set.size(); ++i)
+	{
+		CompactN_particles.push_back(std::array<CompactNSearch::Real, 3>{ point_set[i][0], point_set[i][1], point_set[i][2] });
+	}
+	return CompactN_particles;
+}
+
+std::vector<std::array<CompactNSearch::Real, 3>> NeighborSearcher::convect_to_CompactN_position( )
 {
 	std::vector<std::array<CompactNSearch::Real, 3>> CompactN_particles;
 	for (size_t i=0; i<particles_ptr->size(); ++i)
@@ -69,9 +134,8 @@ std::vector<size_t> NeighborSearcher::compactN_neighbor_search( size_t selected_
 	CompactNSearch::NeighborhoodSearch nsearch(neighbor_search_radius);
 	std::vector<std::array<CompactNSearch::Real, 3>> positions = convect_to_CompactN_position();
 
-	// ... Fill array with 3 * n real numbers representing three-dimensional point positions.
 	unsigned int point_set_id = nsearch.add_point_set(positions.front().data(), positions.size());
-    nsearch.find_neighbors();
+	nsearch.find_neighbors();
 
     CompactNSearch::PointSet const& ps = nsearch.point_set(point_set_id);
 	std::vector<size_t> m_neighbors;

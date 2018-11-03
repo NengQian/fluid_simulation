@@ -26,5 +26,6 @@ namespace Simulator
     private:
         void render_bounding_box(merely3d::Frame &frame);
         void render_random_particles(merely3d::Frame &frame);
+        void render_sweep_line(merely3d::Frame &frame);
     };
 }
