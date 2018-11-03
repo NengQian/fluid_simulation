@@ -58,5 +58,6 @@ private:
     //std::array<RealVector3 sweep_line{{ RealVector3(-2.0, 0.0, 0.0), RealVector3(2.0, 0.0, 0.0) }};
 
 	void generate_random_particles();
-	void generate_celling_particles();
+	void randomly_generate_celling_particles();
+	void generate_celling_particles_at_center();
 };

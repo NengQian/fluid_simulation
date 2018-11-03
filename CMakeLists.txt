@@ -87,3 +87,6 @@ add_executable(compare_neighborhoods src/compare_neighborhoods.cpp)
 target_link_libraries(compare_neighborhoods CompactNSearch simulator_lib)
 target_include_directories(compare_neighborhoods PRIVATE ${EIGEN3_ROOT})
 
+add_executable(sweep_density src/sweep_density.cpp)
+target_link_libraries(sweep_density CompactNSearch simulator_lib)
+target_include_directories(sweep_density PRIVATE ${EIGEN3_ROOT})

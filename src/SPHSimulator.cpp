@@ -22,7 +22,7 @@ using Eigen::Vector3f;
 
 SPHSimulator::SPHSimulator(float neighbor_search_radius) : kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
 {
-	set_N(50);
+	set_N(100);
 	set_particle_radius(1.0/N);
 	generate_particles();
 	set_neighbor_search_radius(neighbor_search_radius);
@@ -32,7 +32,7 @@ SPHSimulator::SPHSimulator(float neighbor_search_radius) : kernelHandler(static_
 void SPHSimulator::generate_particles()
 {
 	//generate_random_particles();
-	generate_celling_particles();
+	randomly_generate_celling_particles();
 	neighborSearcher.set_particles_ptr(particles);
 }
 
@@ -138,7 +138,7 @@ void SPHSimulator::intersection_with_sweep_line()
 		sample_particles.push_back(vec);
 	}
 
-	set_neighbor_search_radius(2.4/N);
+	set_neighbor_search_radius( 2.4/N * 2 );
 	std::vector< std::vector<size_t> > neighbors_of_samples = neighborSearcher.find_neighbors_within_radius(sample_particles);
 
 	std::vector<Real> densities;
@@ -150,7 +150,7 @@ void SPHSimulator::intersection_with_sweep_line()
 		{
 			d += m * kernelHandler.compute_kernel( sample_particles[i], particles[neighbors_of_samples[i][j]], 4 );
 		}
-		std::cout << "density at point: " << d << std::endl;
+		std::cout << sample_particles[i][0] << " " << d << std::endl;
 	}
 }
 
@@ -174,7 +174,7 @@ void SPHSimulator::generate_random_particles()
 	}
 }
 
-void SPHSimulator::generate_celling_particles()
+void SPHSimulator::randomly_generate_celling_particles()
 {
 	if (!particles.empty())
 		particles.clear();
@@ -205,6 +205,29 @@ void SPHSimulator::generate_celling_particles()
 				particles[idx][0] += i;
 				particles[idx][1] += j;
 				particles[idx][2] += k;
+
+				++idx;
+			}
+		}
+	}
+}
+
+void SPHSimulator::generate_celling_particles_at_center()
+{
+	if (!particles.empty())
+		particles.clear();
+
+	Real step_size = 2.0/N;
+	size_t idx = 0;
+	for (Real i = -1.0; i < 1.0; i+=step_size)
+	{
+		for (Real j = -1.0; j < 1.0; j+=step_size)
+		{
+			for (Real k = -1.0; k < 1.0; k+=step_size)
+			{
+				particles[idx][0] = i + step_size/2;
+				particles[idx][1] = j + step_size/2;
+				particles[idx][2] = k + step_size/2;
 
 				++idx;
 			}
