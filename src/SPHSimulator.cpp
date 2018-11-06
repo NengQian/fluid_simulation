@@ -32,7 +32,7 @@ SPHSimulator::SPHSimulator(float neighbor_search_radius) : kernelHandler(static_
 void SPHSimulator::generate_particles()
 {
 	//generate_random_particles();
-	randomly_generate_celling_particles();
+	generate_celling_particles_at_center();
 	neighborSearcher.set_particles_ptr(particles);
 }
 
@@ -225,9 +225,11 @@ void SPHSimulator::generate_celling_particles_at_center()
 		{
 			for (Real k = -1.0; k < 1.0; k+=step_size)
 			{
-				particles[idx][0] = i + step_size/2;
-				particles[idx][1] = j + step_size/2;
-				particles[idx][2] = k + step_size/2;
+				Real x = i + step_size/2.0;
+				Real y = j + step_size/2.0;
+				Real z = k + step_size/2.0;
+
+				particles.push_back(RealVector3(x,y,z));
 
 				++idx;
 			}
