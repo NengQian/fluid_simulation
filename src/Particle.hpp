@@ -5,4 +5,4 @@ struct Particle {
 	RealVector3 velocity;
 	RealVector3 acceleration;
 	Real mass;
-};
+} Particle;

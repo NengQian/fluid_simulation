@@ -50,6 +50,7 @@ private:
 	size_t N;
 	size_t number_of_particles;
 	Real particle_radius;
+	RealVector3 gravity(0.0, 0.0, 9.8);
 
 	float neighbor_search_radius;
     int index_of_source_particle;
