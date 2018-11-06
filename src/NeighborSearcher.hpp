@@ -4,6 +4,9 @@
 
 #include <Eigen/Geometry>
 #include <CompactNSearch/CompactNSearch>
+#include <iostream>
+#include <memory>
+
 
 using namespace Simulator;
 
@@ -22,7 +25,7 @@ public:
 	std::vector< std::vector<size_t> > find_neighbors_within_radius( std::vector<RealVector3>& point_set );
 
 private:
-	std::shared_ptr<std::vector<RealVector3>> particles_ptr;
+    std::shared_ptr<std::vector<RealVector3>> particles_ptr;
 	Real neighbor_search_radius;
 
 	std::vector<size_t> 			   compactN_neighbor_search( size_t selected_particle_index );

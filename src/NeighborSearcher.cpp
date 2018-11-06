@@ -88,6 +88,7 @@ std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_within_radiu
 
 	unsigned int point_set_id_1 = nsearch.add_point_set(particle_positions.front().data(), particle_positions.size());
 	unsigned int point_set_id_2 = nsearch.add_point_set(sample_positions.front().data(), sample_positions.size());
+    nsearch.set_active(point_set_id_2, point_set_id_1, false);
 	nsearch.find_neighbors();
 
     CompactNSearch::PointSet const& ps = nsearch.point_set(point_set_id_2);

@@ -90,3 +90,7 @@ target_include_directories(compare_neighborhoods PRIVATE ${EIGEN3_ROOT})
 add_executable(sweep_density src/sweep_density.cpp)
 target_link_libraries(sweep_density CompactNSearch simulator_lib)
 target_include_directories(sweep_density PRIVATE ${EIGEN3_ROOT})
+
+add_executable(pressure_force src/pressure_force.cpp)
+target_link_libraries(pressure_force CompactNSearch simulator_lib)
+target_include_directories(pressure_force PRIVATE ${EIGEN3_ROOT})
