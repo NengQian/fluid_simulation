@@ -7,6 +7,9 @@ set (CMAKE_CXX_STANDARD 11)
 # Setting EIGEN3_ROOT here lets us override which Eigen library merely3d chooses
 set(EIGEN3_ROOT ${PROJECT_SOURCE_DIR}/extern/eigen_3.3.4)
 
+# Setting CEREALS_ROOT here
+set(CEREALS_ROOT ${PROJECT_SOURCE_DIR}/extern/cereal/include/cereal)
+
 if (UNIX)
     find_package(OpenMP)
     if (OPENMP_FOUND)
@@ -49,7 +52,9 @@ set(SOURCE_FILES
         src/KernelHandler.hpp
         src/KernelHandler.cpp
         src/SPHSimulator.hpp
-        src/SPHSimulator.cpp)
+        src/SPHSimulator.cpp
+
+                )
 
 # Compile source files into a static lib, so that we don't have to compile source files
 # twice for our main executable and our unit tests
@@ -91,6 +96,6 @@ add_executable(sweep_density src/sweep_density.cpp)
 target_link_libraries(sweep_density CompactNSearch simulator_lib)
 target_include_directories(sweep_density PRIVATE ${EIGEN3_ROOT})
 
-add_executable(pressure_force src/pressure_force.cpp)
-target_link_libraries(pressure_force CompactNSearch simulator_lib)
-target_include_directories(pressure_force PRIVATE ${EIGEN3_ROOT})
+add_executable(test_creals src/test_creals.cpp)
+target_link_libraries(test_creals simulator_lib)
+target_include_directories(test_creals PRIVATE ${EIGEN3_ROOT})
