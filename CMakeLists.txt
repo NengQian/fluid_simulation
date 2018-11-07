@@ -49,7 +49,10 @@ set(SOURCE_FILES
         src/KernelHandler.hpp
         src/KernelHandler.cpp
         src/SPHSimulator.hpp
-        src/SPHSimulator.cpp)
+        src/SPHSimulator.cpp
+        src/Particle.hpp
+        src/ParticleFunc.hpp
+        src/ParticleFunc.cpp)
 
 # Compile source files into a static lib, so that we don't have to compile source files
 # twice for our main executable and our unit tests
