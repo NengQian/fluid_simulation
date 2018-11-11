@@ -116,7 +116,8 @@ int main()
     window.add_event_handler(std::shared_ptr<EventHandler>(new Simulator::ImGuiEventHandler));
     window.add_event_handler(std::shared_ptr<EventHandler>(new CameraController));
 
-    Simulation simulation(0.5f);
+    const auto dt = 0.01;
+    Simulation simulation(0.5f, dt);
 
     // Here we currently only load a single scene at startup,
     // but you probably want to be able to dynamically reload different
@@ -124,7 +125,6 @@ int main()
     load_scene(simulation, window.camera());
 
     // You might want to make this configurable through your GUI!
-    const auto dt = 0.01;
 
     TimeKeeper keeper;
 
@@ -142,6 +142,8 @@ int main()
         {
             simulation.timestep(dt);
         }
+
+        simulation.update();
 
         window.render_frame([&] (Frame & frame)
         {

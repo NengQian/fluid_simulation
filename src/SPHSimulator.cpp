@@ -1,6 +1,7 @@
 #include "SPHSimulator.hpp"
 
 #include "math_types.hpp"
+#include "Particle.hpp"
 
 #include <merely3d/merely3d.hpp>
 #include <CompactNSearch/CompactNSearch>
@@ -20,9 +21,9 @@ using merely3d::Particle;
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
 
-SPHSimulator::SPHSimulator(float neighbor_search_radius) : kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
+SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
 {
-	set_N(100);
+	set_N(50);
 	set_particle_radius(1.0/N);
 	generate_particles();
 	set_neighbor_search_radius(neighbor_search_radius);
@@ -33,12 +34,13 @@ void SPHSimulator::generate_particles()
 {
 	//generate_random_particles();
 	generate_celling_particles_at_center();
-	neighborSearcher.set_particles_ptr(particles);
+	neighborSearcher.set_particles_ptr(positions);
 }
 
-std::vector<RealVector3> SPHSimulator::get_particles()
+std::vector<RealVector3> SPHSimulator::get_positions()
 {
-	return particles;
+	update_positions();
+	return positions;
 }
 
 void SPHSimulator::set_particle_radius(Real r)
@@ -121,39 +123,42 @@ Real SPHSimulator::compute_average_error_of_kernel_gradient(int kernel_type)
 	Real error = 0;
 	for (size_t i=0; i < neighbors.size(); ++i)
 	{
-		error += kernelHandler.test_gradient(particles[index_of_source_particle], particles[neighbors[i]], kernel_type);
+		error += kernelHandler.test_gradient(positions[index_of_source_particle], positions[neighbors[i]], kernel_type);
 	}
 
 	return error/neighbors.size();
 }
 
-void SPHSimulator::intersection_with_sweep_line()
+void SPHSimulator::sample_density()
 {
-	std::vector<RealVector3> sample_particles;
-	size_t number_of_samples = 1000;
+	std::vector<mParticle> sample_particles;
+	std::vector<RealVector3> sample_positions;
+	size_t number_of_samples = N*10;
 
 	for (size_t i=0; i<number_of_samples; ++i)
 	{
+		mParticle p;
 		RealVector3 vec(-2.0 + i * 4.0 / number_of_samples, 0.0, 0.0);
-		sample_particles.push_back(vec);
+		p.position = vec;
+		sample_particles.push_back(p);
+		sample_positions.push_back(vec);
 	}
 
 	set_neighbor_search_radius( 2.4/N * 2 );
-	std::vector< std::vector<size_t> > neighbors_of_samples = neighborSearcher.find_neighbors_within_radius(sample_particles);
+
+	std::vector< std::vector<size_t> > neighbors_of_samples = neighborSearcher.find_neighbors_within_radius(sample_positions);
 
 	std::vector<Real> densities;
+	Real r = static_cast<Real>(neighbor_search_radius);
+	densities = particleFunc.update_density(neighbors_of_samples, sample_particles, particles, r);
+
 	for (size_t i=0; i<neighbors_of_samples.size(); ++i)
 	{
-		Real d = 0.0;
-		Real m = 2.0/N * 2.0/N * 2.0/N * 1000;
-		for (size_t j=0; j<neighbors_of_samples[i].size(); ++j)
-		{
-			d += m * kernelHandler.compute_kernel( sample_particles[i], particles[neighbors_of_samples[i][j]], 4 );
-		}
-		std::cout << sample_particles[i][0] << " " << d << std::endl;
+		std::cout << sample_particles[i].position[0] << " " << densities[i] << std::endl;
 	}
 }
 
+/*
 void SPHSimulator::generate_random_particles()
 {
 	if (!particles.empty())
@@ -173,7 +178,8 @@ void SPHSimulator::generate_random_particles()
 		particles.push_back(RealVector3(x,y,z));
 	}
 }
-
+*/
+/*
 void SPHSimulator::randomly_generate_celling_particles()
 {
 	if (!particles.empty())
@@ -211,11 +217,14 @@ void SPHSimulator::randomly_generate_celling_particles()
 		}
 	}
 }
-
+*/
 void SPHSimulator::generate_celling_particles_at_center()
 {
 	if (!particles.empty())
 		particles.clear();
+
+	if (!positions.empty())
+		positions.clear();
 
 	Real step_size = 2.0/N;
 	size_t idx = 0;
@@ -225,15 +234,39 @@ void SPHSimulator::generate_celling_particles_at_center()
 		{
 			for (Real k = -1.0; k < 1.0; k+=step_size)
 			{
+				mParticle p;
+
 				Real x = i + step_size/2.0;
 				Real y = j + step_size/2.0;
 				Real z = k + step_size/2.0;
 
-				particles.push_back(RealVector3(x,y,z));
+				p.position = RealVector3(x,y,z);
+				p.mass = step_size * step_size * step_size * 1000.0;
 
+				particles.push_back(p);
+				positions.push_back(p.position);
 				++idx;
 			}
 		}
 	}
 }
 
+void SPHSimulator::update_positions()
+{
+	for (size_t i=0; i<particles.size(); ++i)
+	{
+		positions[i] = particles[i].position;
+	}
+}
+
+void SPHSimulator::update_freefall_motion()
+{
+	for (auto& p : particles)
+	{
+		p.acceleration = gravity;
+	}
+	particleFunc.update_velocity(particles, dt);
+	particleFunc.update_position(particles, dt);
+
+	update_positions();
+}

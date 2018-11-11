@@ -6,16 +6,21 @@
 #include "math_types.hpp"
 #include "NeighborSearcher.hpp"
 #include "KernelHandler.hpp"
+#include "Particle.hpp"
+#include "ParticleFunc.hpp"
 
 using namespace Simulator;
 
 class SPHSimulator
 {
 public:
-	SPHSimulator(float neighbor_search_radius);
+	const RealVector3 gravity = RealVector3(0.0, 0.0, -9.8);
+	const Real dt;
+
+	SPHSimulator(float neighbor_search_radius, Real dt);
 
     void 					 generate_particles();
-    std::vector<RealVector3> get_particles();
+    std::vector<RealVector3> get_positions();
 
     void set_particle_radius(Real r);
     Real get_particle_radius();
@@ -40,17 +45,21 @@ public:
 
 	Real compute_average_error_of_kernel_gradient(int kernel_type);
 
-	void intersection_with_sweep_line();
+	void sample_density();
+
+	void update_positions();
+	void update_freefall_motion();
 
 private:
 	NeighborSearcher neighborSearcher;
 	KernelHandler 	 kernelHandler;
+	ParticleFunc particleFunc;
 
-	std::vector<RealVector3> particles;
+	std::vector<RealVector3> positions;
+	std::vector<mParticle> particles;
 	size_t N;
 	size_t number_of_particles;
 	Real particle_radius;
-	RealVector3 gravity(0.0, 0.0, 9.8);
 
 	float neighbor_search_radius;
     int index_of_source_particle;
@@ -58,7 +67,7 @@ private:
 
     //std::array<RealVector3 sweep_line{{ RealVector3(-2.0, 0.0, 0.0), RealVector3(2.0, 0.0, 0.0) }};
 
-	void generate_random_particles();
-	void randomly_generate_celling_particles();
+	//void generate_random_particles();
+	//void randomly_generate_celling_particles();
 	void generate_celling_particles_at_center();
 };

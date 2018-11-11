@@ -22,7 +22,7 @@ using Eigen::Vector3f;
 
 int main(void)
 {
-	SPHSimulator sim(5.0);
-	sim.intersection_with_sweep_line();
+	SPHSimulator sim(5.0, 0.01);
+	sim.sample_density();
 	return 0;
 }

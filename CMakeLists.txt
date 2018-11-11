@@ -8,7 +8,7 @@ set (CMAKE_CXX_STANDARD 11)
 set(EIGEN3_ROOT ${PROJECT_SOURCE_DIR}/extern/eigen_3.3.4)
 
 # Setting CEREALS_ROOT here
-set(CEREALS_ROOT ${PROJECT_SOURCE_DIR}/extern/cereal/include/cereal)
+set(CEREALS_ROOT ${PROJECT_SOURCE_DIR}/extern/cereal/include)
 
 if (UNIX)
     find_package(OpenMP)
@@ -19,6 +19,7 @@ endif (UNIX)
 
 add_subdirectory(extern/merely3d)
 add_subdirectory(extern/CompactNSearch)
+
 
 set(TINY_OBJ_LOADER_INCLUDE ${CMAKE_SOURCE_DIR}/extern/tinyobjloader/include)
 
@@ -53,8 +54,9 @@ set(SOURCE_FILES
         src/KernelHandler.cpp
         src/SPHSimulator.hpp
         src/SPHSimulator.cpp
-
-                )
+        src/Particle.hpp
+        src/ParticleFunc.hpp
+        src/ParticleFunc.cpp)
 
 # Compile source files into a static lib, so that we don't have to compile source files
 # twice for our main executable and our unit tests
@@ -98,4 +100,4 @@ target_include_directories(sweep_density PRIVATE ${EIGEN3_ROOT})
 
 add_executable(test_creals src/test_creals.cpp)
 target_link_libraries(test_creals simulator_lib)
-target_include_directories(test_creals PRIVATE ${EIGEN3_ROOT})
+target_include_directories(test_creals PRIVATE ${EIGEN3_ROOT} ${CEREALS_ROOT})
