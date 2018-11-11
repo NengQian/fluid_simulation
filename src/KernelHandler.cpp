@@ -173,6 +173,9 @@ Real KernelHandler::compute_M6_kernel( Eigen::Ref<RealVectorX> source_particle, 
 
 RealVectorX KernelHandler::gradient_of_M4_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle )
 {
+	if ((source_particle-destination_particle).norm() < epsilon)
+		return RealVectorX::Zero(source_particle.size());
+
 	int number_of_dimension = source_particle.size();
 
 	RealVectorX gradient_W_over_x(source_particle.size());
@@ -202,6 +205,9 @@ RealVectorX KernelHandler::gradient_of_M4_kernel( Eigen::Ref<RealVectorX> source
 
 RealVectorX KernelHandler::gradient_of_M5_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle )
 {
+	if ((source_particle-destination_particle).norm() < epsilon)
+		return RealVectorX::Zero(source_particle.size());
+
 	int number_of_dimension = source_particle.size();
 
 	RealVectorX gradient_W_over_x(source_particle.size());
@@ -235,6 +241,9 @@ RealVectorX KernelHandler::gradient_of_M5_kernel( Eigen::Ref<RealVectorX> source
 
 RealVectorX KernelHandler::gradient_of_M6_kernel( Eigen::Ref<RealVectorX> source_particle, Eigen::Ref<RealVectorX> destination_particle )
 {
+	if ((source_particle-destination_particle).norm() < epsilon)
+		return RealVectorX::Zero(source_particle.size());
+
 	int number_of_dimension = source_particle.size();
 
 	RealVectorX gradient_W_over_x(source_particle.size());
