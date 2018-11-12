@@ -30,6 +30,27 @@ SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt) : dt(dt), kern
 	set_index_of_source_particle(0);
 }
 
+//SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt, int N) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
+//{
+//    set_N(N);
+//    set_particle_radius(1.0/N);
+//    generate_particles();
+//    set_neighbor_search_radius(neighbor_search_radius);
+//    set_index_of_source_particle(0);
+//    file_count = 0;
+//}
+
+SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt, int N) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
+{
+    set_N(N);
+    set_particle_radius(1.0/N);
+    generate_particles();
+    set_neighbor_search_radius(neighbor_search_radius);
+    set_index_of_source_particle(0);
+    sim_rec.timestep = dt;
+    update_sim_record_state();
+}
+
 void SPHSimulator::generate_particles()
 {
 	if (!particles.empty())

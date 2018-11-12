@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 project(simulator)
 
 set (CMAKE_CXX_STANDARD 11)
-
+set(CMAKE_CONFIGURATION_TYPES "Debug" CACHE STRING "" FORCE)
 # Setting EIGEN3_ROOT here lets us override which Eigen library merely3d chooses
 set(EIGEN3_ROOT ${PROJECT_SOURCE_DIR}/extern/eigen_3.3.4)
 
@@ -46,8 +46,8 @@ set(SOURCE_FILES
         ${IMGUI_FILES}
         ${UTIL_FILES}
         src/math_types.hpp
-        src/simulation.hpp
-        src/simulation.cpp
+#        src/simulation.hpp
+#        src/simulation.cpp
         src/NeighborSearcher.hpp
         src/NeighborSearcher.cpp
         src/KernelHandler.hpp
@@ -56,16 +56,20 @@ set(SOURCE_FILES
         src/SPHSimulator.cpp
         src/Particle.hpp
         src/ParticleFunc.hpp
-        src/ParticleFunc.cpp)
+        src/ParticleFunc.cpp
+        #src/sim_record.hpp
+)
 
 # Compile source files into a static lib, so that we don't have to compile source files
 # twice for our main executable and our unit tests
 add_library(simulator_lib STATIC ${SOURCE_FILES})
 target_link_libraries(simulator_lib merely3d CompactNSearch)
-target_include_directories(simulator_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE})
+target_include_directories(simulator_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE} ${CEREALS_ROOT})
 
+# simulator is our visualization node.
 add_executable(simulator src/main.cpp)
-target_link_libraries(simulator simulator_lib)
+target_link_libraries(simulator simulator_lib )
+target_include_directories(simulator PRIVATE ${CEREALS_ROOT})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 
@@ -98,6 +102,12 @@ add_executable(sweep_density src/sweep_density.cpp)
 target_link_libraries(sweep_density CompactNSearch simulator_lib)
 target_include_directories(sweep_density PRIVATE ${EIGEN3_ROOT})
 
+
 #add_executable(test_creals src/test_creals.cpp)
 #target_link_libraries(test_creals simulator_lib)
 #target_include_directories(test_creals PRIVATE ${EIGEN3_ROOT} ${CEREALS_ROOT})
+
+add_executable(test_creals src/test_creals.cpp)
+target_link_libraries(test_creals simulator_lib)
+target_include_directories(test_creals PRIVATE ${EIGEN3_ROOT} ${CEREALS_ROOT})
+
