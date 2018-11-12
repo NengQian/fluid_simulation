@@ -23,7 +23,7 @@ using Eigen::Vector3f;
 
 SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
 {
-	set_N(50);
+	set_N(5);
 	set_particle_radius(1.0/N);
 	generate_particles();
 	set_neighbor_search_radius(neighbor_search_radius);
@@ -32,8 +32,15 @@ SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt) : dt(dt), kern
 
 void SPHSimulator::generate_particles()
 {
+	if (!particles.empty())
+		particles.clear();
+
+	if (!positions.empty())
+		positions.clear();
+
 	//generate_random_particles();
-	generate_celling_particles_at_center();
+	generate_two_colliding_cubes();
+	//generate_celling_particles_at_center(origin, do_clear);
 	neighborSearcher.set_particles_ptr(positions);
 }
 
@@ -218,13 +225,16 @@ void SPHSimulator::randomly_generate_celling_particles()
 	}
 }
 */
-void SPHSimulator::generate_celling_particles_at_center()
+void SPHSimulator::generate_celling_particles_at_center(Eigen::Ref<RealVector3> origin, bool do_clear, Eigen::Ref<RealVector3> v0)
 {
-	if (!particles.empty())
-		particles.clear();
+	if (do_clear)
+	{
+		if (!particles.empty())
+			particles.clear();
 
-	if (!positions.empty())
-		positions.clear();
+		if (!positions.empty())
+			positions.clear();
+	}
 
 	Real step_size = 2.0/N;
 	size_t idx = 0;
@@ -236,27 +246,56 @@ void SPHSimulator::generate_celling_particles_at_center()
 			{
 				mParticle p;
 
-				Real x = i + step_size/2.0;
-				Real y = j + step_size/2.0;
-				Real z = k + step_size/2.0;
+				//std::cout << "pos: " << p.position << std::endl;
+				//std::cout << "v: " << p.velocity << std::endl;
+				//std::cout << "a: " << p.acceleration << std::endl;
+				//std::cout << "mass: " << p.mass << std::endl;
+
+				Real x = i + step_size/2.0 + origin[0];
+				Real y = j + step_size/2.0 + origin[1];
+				Real z = k + step_size/2.0 + origin[2];
 
 				p.position = RealVector3(x,y,z);
 				p.mass = step_size * step_size * step_size * 1000.0;
 
+				p.velocity[0] = v0[0];
+				p.velocity[1] = v0[1];
+				p.velocity[2] = v0[2];
+
 				particles.push_back(p);
-				positions.push_back(p.position);
+
+				RealVector3 replicate = p.position.replicate(1,1);
+				//std::cout << "repl: " << replicate << std::endl;
+
+				positions.push_back(replicate);
 				++idx;
 			}
 		}
 	}
 }
 
+void SPHSimulator::generate_two_colliding_cubes()
+{
+	RealVector3 o1(0.0, 0.0, 0.0);
+	RealVector3 o2(2.5, 0.0, 0.0);
+
+	RealVector3 v1_init(0.25, 0.0, 0.0);
+	RealVector3 v2_init(-0.25, 0.0, 0.0);
+
+	generate_celling_particles_at_center(o1, false, v1_init);
+	generate_celling_particles_at_center(o2, false, v2_init);
+}
+
+
 void SPHSimulator::update_positions()
 {
 	for (size_t i=0; i<particles.size(); ++i)
 	{
-		positions[i] = particles[i].position;
+		positions[i][0] = particles[i].position[0];
+		positions[i][1] = particles[i].position[1];
+		positions[i][2] = particles[i].position[2];
 	}
+	neighborSearcher.set_particles_ptr(positions);
 }
 
 void SPHSimulator::update_freefall_motion()
@@ -270,3 +309,38 @@ void SPHSimulator::update_freefall_motion()
 
 	update_positions();
 }
+
+void SPHSimulator::update_two_cubes_collision()
+{
+	set_neighbor_search_radius( 2.4/N * 2 );
+	std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
+
+	/*
+	for (size_t i=0; i<neighbors_set.size(); ++i)
+	{
+		std::cout << i << std::endl;
+
+		for (size_t j=0; j<neighbors_set[i].size(); ++j)
+			std::cout << neighbors_set[i][j] << " ";
+
+		std::cout << std::endl;
+	}
+	*/
+
+	Real r = static_cast<Real>(neighbor_search_radius);
+	std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
+
+	Real water_rest_density = 1000.0;
+	Real B = 1000.0;
+
+	std::vector<RealVector3> external_forces;
+	for (size_t i=0; i<particles.size(); ++i)
+		external_forces.push_back( RealVector3(0.0, 0.0, 0.0) );
+
+	particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
+	particleFunc.update_velocity(particles, dt);
+	particleFunc.update_position(particles, dt);
+
+	update_positions();
+}
+

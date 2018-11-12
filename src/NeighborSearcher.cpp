@@ -150,6 +150,7 @@ std::vector<size_t> NeighborSearcher::compactN_neighbor_search( size_t selected_
 	return m_neighbors;
 }
 
+// neighbors include itself
 std::vector< std::vector<size_t> > NeighborSearcher::compactN_neighbor_search( )
 {
 	CompactNSearch::NeighborhoodSearch nsearch(neighbor_search_radius);
@@ -165,6 +166,7 @@ std::vector< std::vector<size_t> > NeighborSearcher::compactN_neighbor_search( )
     for (size_t i = 0; i < ps.n_points(); ++i)
     {
     	std::vector<size_t> neighbors_of_i;
+    	neighbors_of_i.push_back(i);
         for (size_t j = 0; j < ps.n_neighbors(point_set_id, i); ++j)
         {
         	neighbors_of_i.push_back(ps.neighbor(point_set_id, i, j));

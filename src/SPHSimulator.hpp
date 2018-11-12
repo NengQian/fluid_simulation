@@ -49,11 +49,12 @@ public:
 
 	void update_positions();
 	void update_freefall_motion();
+	void update_two_cubes_collision();
 
 private:
 	NeighborSearcher neighborSearcher;
 	KernelHandler 	 kernelHandler;
-	ParticleFunc particleFunc;
+	ParticleFunc 	 particleFunc;
 
 	std::vector<RealVector3> positions;
 	std::vector<mParticle> particles;
@@ -69,5 +70,7 @@ private:
 
 	//void generate_random_particles();
 	//void randomly_generate_celling_particles();
-	void generate_celling_particles_at_center();
+	void generate_celling_particles_at_center(Eigen::Ref<RealVector3> origin, bool do_clear, Eigen::Ref<RealVector3> v0);
+
+	void generate_two_colliding_cubes();
 };
