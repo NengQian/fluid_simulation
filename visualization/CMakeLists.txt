@@ -1,0 +1,79 @@
+cmake_minimum_required(VERSION 3.1)
+
+project(sim_visualization)
+
+set (CMAKE_CXX_STANDARD 11)
+set (FRAMEWORK_DIR ${PROJECT_SOURCE_DIR})
+# Setting EIGEN3_ROOT here lets us override which Eigen library merely3d chooses
+set(EIGEN3_ROOT ${PROJECT_SOURCE_DIR}/extern/eigen_3.3.4)
+
+if (UNIX)
+    find_package(OpenMP)
+    if (OPENMP_FOUND)
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    endif(OPENMP_FOUND)
+endif (UNIX)
+
+add_subdirectory(extern/merely3d)
+add_subdirectory(extern/CompactNSearch)
+
+set(TINY_OBJ_LOADER_INCLUDE ${CMAKE_SOURCE_DIR}/extern/tinyobjloader/include)
+set(CEREAL_INCLUDE ${FRAMEWORK_DIR}/extern/cereal/include)
+set(CLI11_INCLUDE ${FRAMEWORK_DIR}/extern/CLI11/include)
+
+include_directories(${CEREAL_INCLUDE} ${CLI11_INCLUDE})
+
+set(IMGUI_FILES
+        src/imgui/imgui.h
+        src/imgui/imgui.cpp
+        src/imgui/imconfig.h
+        src/imgui/imgui_draw.cpp
+        src/imgui/imgui_internal.h
+        src/imgui/stb_rect_pack.h
+        src/imgui/stb_textedit.h
+        src/imgui/stb_truetype.h
+        src/imgui/imgui_demo.cpp
+        src/imgui/imgui_event_handler.h
+        src/imgui/imgui_event_handler.cpp)
+
+set(UTIL_FILES
+        src/util/obj.hpp
+        src/util/obj.cpp
+        src/util/triangle_mesh.hpp
+        src/util/triangle_mesh.cpp)
+
+set(SOURCE_FILES
+        ${IMGUI_FILES}
+        ${UTIL_FILES}
+        src/math_types.hpp
+        src/visual.hpp
+        src/visual.cpp
+        src/sim_record.hpp
+        src/Particle.hpp
+)
+
+# Compile source files into a static lib, so that we don't have to compile source files
+# twice for our main executable and our unit tests
+add_library(sim_visual_lib STATIC ${SOURCE_FILES})
+target_link_libraries(sim_visual_lib merely3d CompactNSearch)
+target_include_directories(sim_visual_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE})
+
+add_executable(sim_visul src/main.cpp)
+target_link_libraries(sim_visul sim_visual_lib)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
+
+# # Add source files for unit tests here.
+set(TEST_FILES tests/sample_tests.cpp)
+
+add_executable(simulator_test tests/testmain.cpp ${TEST_FILES})
+target_link_libraries(simulator_test sim_visual_lib)
+
+# # merely3d already ships with Catch for unit testing, so let's just use the same
+target_include_directories(simulator_test PRIVATE extern/merely3d/extern/catch )
+
+# Below is an example of how you can add your own executable for
+# comparing neighborhoods
+#add_executable(compare_neighborhoods src/compare_neighborhoods.cpp)
+#target_link_libraries(compare_neighborhoods CompactNSearch)
+#target_include_directories(compare_neighborhoods PRIVATE ${EIGEN3_ROOT})
