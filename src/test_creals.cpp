@@ -33,15 +33,16 @@ void generate_particle()  // maybe I should directly put all particles in all fr
 
 void generate_sim_rec()  // maybe I should directly put all particles in all frame to one vector...
 {
-    SPHSimulator test_simulator(1.0,0.01,3);
-
+    // a for loop to generate every thing, and then run...
+    SPHSimulator test_simulator(0.5f,0.1,10);
     for(int i=0;i<100;++i)
     {
-        test_simulator.update_freefall_motion();
+        test_simulator.update_two_cubes_collision();
         test_simulator.update_sim_record_state();
+        std::cout<<"iteration "<< i <<std::endl;
     }
 
-    test_simulator.output_sim_record_bin("test_sim_rec.bin");
+    test_simulator.output_sim_record_bin("two_cubes_dt_0_1.bin");
 
     return;
 }

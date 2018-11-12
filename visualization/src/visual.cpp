@@ -167,7 +167,7 @@ namespace Simulator
         const auto now = std::chrono::steady_clock::now();
         //const duration<double> elapsed = now - prev_time;
         auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(now - prev_time);
-        std::this_thread::sleep_for(std::chrono::milliseconds(time_interval - elapsed_time));
+        std::this_thread::sleep_for(std::chrono::milliseconds(time_interval - elapsed_time));  //elapsed_time could be already exceed time_interval
 
 
         ImGui::SetNextWindowPos(ImVec2(650, 200), ImGuiCond_FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!

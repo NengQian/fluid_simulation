@@ -46,8 +46,8 @@ set(SOURCE_FILES
         ${IMGUI_FILES}
         ${UTIL_FILES}
         src/math_types.hpp
-#        src/simulation.hpp
-#        src/simulation.cpp
+        src/simulation.hpp
+        src/simulation.cpp
         src/NeighborSearcher.hpp
         src/NeighborSearcher.cpp
         src/KernelHandler.hpp
@@ -57,7 +57,7 @@ set(SOURCE_FILES
         src/Particle.hpp
         src/ParticleFunc.hpp
         src/ParticleFunc.cpp
-        #src/sim_record.hpp
+        src/sim_record.hpp
 )
 
 # Compile source files into a static lib, so that we don't have to compile source files

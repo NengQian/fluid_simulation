@@ -116,7 +116,7 @@ int main()
     window.add_event_handler(std::shared_ptr<EventHandler>(new Simulator::ImGuiEventHandler));
     window.add_event_handler(std::shared_ptr<EventHandler>(new CameraController));
 
-    std::string file_path = "../test_sim_rec.bin";
+    std::string file_path = "../two_cubes_dt_0_1.bin";
     Visualization visualization(file_path);
 
     // Here we currently only load a single scene at startup,
