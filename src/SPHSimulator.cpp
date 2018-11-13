@@ -301,7 +301,7 @@ void SPHSimulator::generate_two_colliding_cubes()
 	RealVector3 o2(2.5, 0.0, 0.0);
 
 	RealVector3 v1_init(0.25, 0.0, 0.0);
-	RealVector3 v2_init(-0.25, 0.0, 0.0);
+    RealVector3 v2_init(0.00, 0.0, 0.0);
 
 	generate_celling_particles_at_center(o1, false, v1_init);
 	generate_celling_particles_at_center(o2, false, v2_init);

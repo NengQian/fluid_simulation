@@ -60,6 +60,16 @@ set(SOURCE_FILES
         src/sim_record.hpp
 )
 
+set(VISUAL_SOURCE_FILES
+        ${IMGUI_FILES}
+        ${UTIL_FILES}
+        src/math_types.hpp
+        src/visual.hpp
+        src/visual.cpp
+        src/sim_record.hpp
+        src/Particle.hpp
+)
+
 # Compile source files into a static lib, so that we don't have to compile source files
 # twice for our main executable and our unit tests
 add_library(simulator_lib STATIC ${SOURCE_FILES})
@@ -70,6 +80,14 @@ target_include_directories(simulator_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_O
 add_executable(simulator src/main.cpp)
 target_link_libraries(simulator simulator_lib )
 target_include_directories(simulator PRIVATE ${CEREALS_ROOT})
+
+
+add_library(sim_visual_lib STATIC ${VISUAL_SOURCE_FILES} )
+target_link_libraries(sim_visual_lib merely3d CompactNSearch)
+target_include_directories(sim_visual_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE} ${CEREALS_ROOT})
+
+add_executable(sim_visul src/visual_main.cpp)
+target_link_libraries(sim_visul sim_visual_lib)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 
