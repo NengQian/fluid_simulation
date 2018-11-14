@@ -64,8 +64,8 @@ namespace Simulator
         float render_max_velocity;
         float render_max_acc;
 
-        float acc_to_float(Eigen::Vector3f a);
-        float velocity_to_float(Eigen::Vector3f v);
+        float acc_to_float(const Eigen::Vector3f& a);
+        float velocity_to_float(const Eigen::Vector3f& v);
 
     };
 }

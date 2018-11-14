@@ -71,7 +71,7 @@ namespace Simulator
     }
 
 
-    float Visualization::velocity_to_float(Eigen::Vector3f velocity)
+    float Visualization::velocity_to_float(const Eigen::Vector3f& velocity)
     {
 
         float velocity_norm = velocity.norm();
@@ -81,7 +81,7 @@ namespace Simulator
         return velocity_norm/render_max_velocity;
     }
 
-    float Visualization::acc_to_float(Eigen::Vector3f acc)
+    float Visualization::acc_to_float(const Eigen::Vector3f& acc)
     {
         float max_acc = 0.5f;
         float acc_norm = acc.norm();
@@ -133,7 +133,6 @@ namespace Simulator
         {
             Simulator::mParticle mparticle(particles[i]);
             Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
-
             if(render_acc_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
                 frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.0f, 0.0f, 1.0f)));
             else if(render_velocity_flag){

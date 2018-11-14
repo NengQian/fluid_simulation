@@ -30,7 +30,8 @@ void generate_sim_rec()  // maybe I should directly put all particles in all fra
 int main()
 {
 
-    generate_sim_rec();
+    generate_sim_rec(); 
+
 
     return 0;
 
