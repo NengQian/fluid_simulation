@@ -122,8 +122,8 @@ namespace Simulator
 
     void Simulation::update()
     {
-        //sphSimulator.update_freefall_motion();
-        sphSimulator.update_two_cubes_collision();
+        sphSimulator.update_freefall_motion();
+        //sphSimulator.update_two_cubes_collision();
     }
 
     void Simulation::render_sweep_line(merely3d::Frame &frame)

@@ -14,7 +14,7 @@ using namespace Simulator;
 class SPHSimulator
 {
 public:
-	const RealVector3 gravity = RealVector3(0.0, 0.0, -9.8);
+	const RealVector3 gravity = RealVector3(0.0, 0.0, -0.98);
 	const Real dt;
 
 	SPHSimulator(float neighbor_search_radius, Real dt);
@@ -73,4 +73,6 @@ private:
 	void generate_celling_particles_at_center(Eigen::Ref<RealVector3> origin, bool do_clear, Eigen::Ref<RealVector3> v0);
 
 	void generate_two_colliding_cubes();
+	void generate_two_freefall_cubes();
+
 };

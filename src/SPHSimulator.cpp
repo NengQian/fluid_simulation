@@ -38,9 +38,13 @@ void SPHSimulator::generate_particles()
 	if (!positions.empty())
 		positions.clear();
 
-	//generate_random_particles();
-	generate_two_colliding_cubes();
-	//generate_celling_particles_at_center(origin, do_clear);
+	//generate_two_colliding_cubes();
+	generate_two_freefall_cubes();
+	/*
+	RealVector3 origin(0.0, 0.0, 0.0);
+	RealVector3 v0(0.0, 0.0, 0.0);
+	generate_celling_particles_at_center(origin, true, v0);
+	*/
 	neighborSearcher.set_particles_ptr(positions);
 }
 
@@ -274,6 +278,20 @@ void SPHSimulator::generate_celling_particles_at_center(Eigen::Ref<RealVector3> 
 	}
 }
 
+
+void SPHSimulator::generate_two_freefall_cubes()
+{
+	RealVector3 o1(0.0, 0.0, 0.0);
+	RealVector3 o2(2.5, 0.0, 0.0);
+
+	RealVector3 v1_init(0.0, 0.0, 0.0);
+	RealVector3 v2_init(0.0, 0.0, 0.0);
+
+	generate_celling_particles_at_center(o1, false, v1_init);
+	generate_celling_particles_at_center(o2, false, v2_init);
+}
+
+
 void SPHSimulator::generate_two_colliding_cubes()
 {
 	RealVector3 o1(0.0, 0.0, 0.0);
@@ -331,7 +349,7 @@ void SPHSimulator::update_two_cubes_collision()
 	std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
 
 	Real water_rest_density = 1000.0;
-	Real B = 1000.0;
+	Real B = 10000.0;
 
 	std::vector<RealVector3> external_forces;
 	for (size_t i=0; i<particles.size(); ++i)
