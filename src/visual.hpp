@@ -50,19 +50,23 @@ namespace Simulator
         Real particle_radius;
         Real real_time_step;
         Real total_time;
-        float speed_ratio;
-        std::chrono::milliseconds  time_interval;
+
 
         std::string file_name;
 
 
         /*-----these for gui state--------*/
+        double speed_ratio;
+        int counter; // when speed_ratio smaller than 1.0, we should use this counter to decide which time we simulate the frame.
+        int render_step; // this is also for speed_ratio control
         bool playback_flag;
         bool pausing_flag;
         bool render_velocity_flag;
         bool render_acc_flag;
         float render_max_velocity;
         float render_max_acc;
+
+
 
         float acc_to_float(const Eigen::Vector3f& a);
         float velocity_to_float(const Eigen::Vector3f& v);

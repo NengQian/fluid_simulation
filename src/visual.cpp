@@ -42,16 +42,18 @@ namespace Simulator
         real_time_step = sim_rec.timestep;
         total_time = real_time_step*total_frame_num;
 
-        speed_ratio = 1;
+        speed_ratio = 1.0;
         playback_flag = false;
         pausing_flag = false;
         render_velocity_flag = false;
         render_acc_flag = false;
         render_max_acc = 0.25;
         render_max_velocity = 0.25;
-        time_interval = std::chrono::milliseconds(static_cast<unsigned int>(1000*real_time_step*1.0/speed_ratio));
+        counter = 0;
+        render_step = 1;
 
         file_name = fp;
+
     }
 
 
@@ -75,18 +77,14 @@ namespace Simulator
     {
 
         float velocity_norm = velocity.norm();
-        std::cout << velocity_norm << std::endl;
-
         velocity_norm = std::min(velocity.norm(),render_max_velocity);
         return velocity_norm/render_max_velocity;
     }
 
     float Visualization::acc_to_float(const Eigen::Vector3f& acc)
     {
-        float max_acc = 0.5f;
         float acc_norm = acc.norm();
         acc_norm = std::min(acc_norm,render_max_acc);
-
         return acc_norm/render_max_acc;
     }
 
@@ -127,11 +125,11 @@ namespace Simulator
 //        frame.draw_line(Line(Vector3f(0.0, 0.0, 0.0), Vector3f(10.0, -5.0, 10.0)));
 
         // Draw some (big) particles
-        const auto prev_time = std::chrono::steady_clock::now();
-        std::vector<mParticle> particles = sim_rec.states[sim_count].particles;
+
+        std::vector<mParticle>& particles = sim_rec.states[sim_count].particles;
         for (size_t i = 0; i < particles.size(); ++i)
         {
-            Simulator::mParticle mparticle(particles[i]);
+            Simulator::mParticle& mparticle = particles[i];
             Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
             if(render_acc_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
                 frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.0f, 0.0f, 1.0f)));
@@ -151,51 +149,34 @@ namespace Simulator
 
 
         if(pausing_flag==false){
+
+            if(speed_ratio<1.0)
+            {
+                counter++;
+                if(counter < std::abs(static_cast<int>(1.0/speed_ratio+0.5)))
+                {
+                    render_step = 0; // the counter hasn't reach the bound we set, so we continue render the same frame
+                }else{
+                    render_step = 1; //reach, could go to next one
+                    counter = 0;
+                }
+            }else{// speed_ratio>1.0
+                render_step = std::abs(static_cast<int>(speed_ratio+0.5)); // if speed_ratio biger than 1.0,
+                                                                           // we do somehow like downsampling
+                                                                           // sampling rate is simply the speed_ratio's round int.
+            }
+
             if(playback_flag==false)
             {
-                if(sim_count < total_frame_num-1)
-                    sim_count++;
+                sim_count = std::min(sim_count+render_step,total_frame_num-1);
             }
             else{
-                if(sim_count>0)
-                    sim_count--;
+                sim_count = std::max(sim_count-render_step,0);
             }
         }
-        //        /// Set up a new ImGui window
-        //        /*
-        //        if (ImGui::Begin("Settings", NULL, ImVec2(300, 200)))
-        //        {
-        //            ImGui::TextWrapped("Find neighbors with radius r");
-        //            ImGui::SliderFloat("r", &neighbor_search_radius, 0.0, 2.0);
-        //            if (ImGui::Button("reset radius"))
-        //            	do_neighbor_searching = true;
-
-        //            ImGui::TextWrapped("");
-        //            if (ImGui::Button("Choose Random Particle"))
-        //            {
-        //            	change_center = true;
-        //            	do_neighbor_searching = true;
-        //            }
-
-        //            ImGui::TextWrapped("");
-        //            if (ImGui::Button("Generate Random Particles"))
-        //            	do_particle_generating = true;
-
-        //            ImGui::TextWrapped("");
-        //            if (ImGui::Checkbox("CompactN", &do_compactN))
-        //            {
-        //            	do_neighbor_searching = true;
-        //            }
-
-        //            ImGui::TextWrapped("elapsed time: %s ms", time_string.c_str());
-        //        }
-        //        ImGui::End();
-        // Draw GUI stuff with Dear ImGui
 
 
 
-//        ImGui::SetNextWindowPos(ImVec2(650, 650), ImGuiCond_FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
-//        ImGui::ShowDemoWindow();
 
         /// Begin begins a new ImGui window that you can move around as you please
         if (ImGui::Begin(file_name.c_str(), NULL, ImVec2(300, 200)))
@@ -220,10 +201,11 @@ namespace Simulator
                     sim_count++;
             }
 
-            if(ImGui::SliderFloat("speed_ratio", &speed_ratio, 0.1f, 10.0f))
+            if(ImGui::InputDouble("play speed ratio",&speed_ratio,0.01,1.0,"%.2f"))
             {
-                time_interval = std::chrono::milliseconds(static_cast<unsigned int>(1000*real_time_step*1.0/speed_ratio));
+                counter = 0;
             }
+
             ImGui::TextWrapped("simulation time step: %0.3f s",real_time_step);
             ImGui::TextWrapped("particles number %d",particles_num);
 
@@ -236,13 +218,6 @@ namespace Simulator
 
         }
         ImGui::End();
-
-        const auto now = std::chrono::steady_clock::now();
-        //const duration<double> elapsed = now - prev_time;
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(now - prev_time);
-        std::this_thread::sleep_for(std::chrono::milliseconds(time_interval - elapsed_time));  //elapsed_time could be already exceed time_interval
-
-
 
     }
 }
