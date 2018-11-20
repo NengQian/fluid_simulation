@@ -30,6 +30,27 @@ SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt) : dt(dt), kern
 	set_index_of_source_particle(0);
 }
 
+//SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt, int N) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
+//{
+//    set_N(N);
+//    set_particle_radius(1.0/N);
+//    generate_particles();
+//    set_neighbor_search_radius(neighbor_search_radius);
+//    set_index_of_source_particle(0);
+//    file_count = 0;
+//}
+
+SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt, int N) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
+{
+    set_N(N);
+    set_particle_radius(1.0/N);
+    generate_particles();
+    set_neighbor_search_radius(neighbor_search_radius);
+    set_index_of_source_particle(0);
+    sim_rec.timestep = dt;
+    update_sim_record_state();
+}
+
 void SPHSimulator::generate_particles()
 {
 	if (!particles.empty())
@@ -298,7 +319,7 @@ void SPHSimulator::generate_two_colliding_cubes()
 	RealVector3 o2(2.5, 0.0, 0.0);
 
 	RealVector3 v1_init(0.25, 0.0, 0.0);
-	RealVector3 v2_init(-0.25, 0.0, 0.0);
+    RealVector3 v2_init(0.00, 0.0, 0.0);
 
 	generate_celling_particles_at_center(o1, false, v1_init);
 	generate_celling_particles_at_center(o2, false, v2_init);
