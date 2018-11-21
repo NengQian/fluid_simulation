@@ -40,8 +40,8 @@ namespace Simulator
         {
             ar(timestep, states);
         }
-
     };
-    typedef struct SimulationRecord SimulationRecord;
+
+    typedef struct SimulationRecord SiumlationRecord;
 }
 
