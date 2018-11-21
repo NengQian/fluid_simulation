@@ -1,8 +1,9 @@
+#pragma once
+
 #include <Particle.hpp>
 #include "math_types.hpp"
 
 using namespace Simulator;  //why here we use this namespace?
-
 
 namespace Simulator
 {

@@ -14,6 +14,7 @@
 #include "KernelHandler.hpp"
 #include "Particle.hpp"
 #include "ParticleFunc.hpp"
+#include "ParticleGenerator.hpp"
 #include "sim_record.hpp"
 
 using namespace Simulator;
@@ -27,7 +28,9 @@ public:
     SPHSimulator(float neighbor_search_radius, Real dt, int N);
 	SPHSimulator(float neighbor_search_radius, Real dt);
 
-    void 					 generate_particles();
+    void generate_particles();
+
+    void set_positions();
     std::vector<RealVector3> get_positions();
 
     void set_particle_radius(Real r);
@@ -133,6 +136,7 @@ private:
 	NeighborSearcher neighborSearcher;
 	KernelHandler 	 kernelHandler;
 	ParticleFunc 	 particleFunc;
+	ParticleGenerator particleGenerator;
 
 	std::vector<RealVector3> positions;
 	std::vector<mParticle> particles;
@@ -163,9 +167,9 @@ private:
 
 	//void generate_random_particles();
 	//void randomly_generate_celling_particles();
-	void generate_celling_particles_at_center(Eigen::Ref<RealVector3> origin, bool do_clear, Eigen::Ref<RealVector3> v0);
+	//void generate_celling_particles_at_center(Eigen::Ref<RealVector3> origin, bool do_clear, Eigen::Ref<RealVector3> v0);
 
-	void generate_two_colliding_cubes();
-	void generate_two_freefall_cubes();
+	//void generate_two_colliding_cubes();
+	//void generate_two_freefall_cubes();
 
 };

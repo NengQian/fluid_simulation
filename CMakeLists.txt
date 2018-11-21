@@ -57,6 +57,8 @@ set(SOURCE_FILES
         src/Particle.hpp
         src/ParticleFunc.hpp
         src/ParticleFunc.cpp
+        src/ParticleGenerator.hpp
+        src/ParticleGenerator.cpp
         src/sim_record.hpp
 )
 
