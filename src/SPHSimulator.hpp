@@ -64,43 +64,12 @@ public:
 
     /*-----use cereal output particles to json file-----*/
 
-    void set_file_path(std::string fp)
-    {
-        file_path=fp;
-    }
-
-
-    void output_particles_xml()
-    {
-        std::ofstream myfile(file_path+"sim"+std::to_string(file_count)+".xml");   //maybe here, this ofstream could be useful... it should has a continuse read mode!
-        file_count++;
-        cereal::XMLOutputArchive output(myfile); // stream to cout
-        output(CEREAL_NVP(particles));  //not good... maybe directly ar the vector
-    }
-
-
-
-    void input_particles_xml()
-    {
-        particles.clear();
-        std::ifstream myfile(file_path+"sim"+std::to_string(file_count)+".xml");
-        file_count++;
-        cereal::XMLInputArchive input(myfile); // stream to cout
-        input(CEREAL_NVP(particles));  //not good... maybe directly ar the vector
-    }
 
     void update_sim_record_state()
     {
         SimulationState sim_state;
         sim_state.particles = particles;
         sim_rec.states.push_back(sim_state);
-    }
-
-    void output_sim_record_xml(std::string fp)
-    {
-        std::ofstream file(fp);
-        cereal::XMLOutputArchive output(file); // stream to cout
-        output(sim_rec);  //not good... maybe directly ar the vector
     }
 
     void output_sim_record_bin(std::string fp)
@@ -110,9 +79,7 @@ public:
         output(sim_rec);  //not good... maybe directly ar the vector
     }
 
-    /*-----use cereal read particles from json file-----*/
-    //void input_particles_json(std::string file_path);
-    /*-----This method should in the visualization class----*/
+
 
     void print_all_particles()
     {
@@ -127,7 +94,7 @@ public:
         }
     }
 
-
+   /*------cereal task over----------------------------*/
 
 private:
 	NeighborSearcher neighborSearcher;

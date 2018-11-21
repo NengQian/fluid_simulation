@@ -12,7 +12,7 @@ std::string fold = "./sim_result/";
 void generate_sim_rec()  // maybe I should directly put all particles in all frame to one vector...
 {
     // a for loop to generate every thing, and then run...
-    SPHSimulator test_simulator(0.5f,0.01,10);
+    SPHSimulator test_simulator(0.5f,0.01,1);
     for(int i=0;i<100;++i)
     {
         test_simulator.update_two_cubes_collision();

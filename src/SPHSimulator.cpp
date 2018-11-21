@@ -370,7 +370,7 @@ void SPHSimulator::update_two_cubes_collision()
 	std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
 
 	Real water_rest_density = 1000.0;
-	Real B = 10000.0;
+    Real B = 1000.0;
 
 	std::vector<RealVector3> external_forces;
 	for (size_t i=0; i<particles.size(); ++i)
