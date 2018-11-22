@@ -242,9 +242,9 @@ void SPHSimulator::update_positions()
 {
 	for (size_t i=0; i<particles.size(); ++i)
 	{
-		positions[i][0] = particles[i].position[0];
-		positions[i][1] = particles[i].position[1];
-		positions[i][2] = particles[i].position[2];
+        positions[i][0] = particles[i].position[0];
+        positions[i][1] = particles[i].position[1];
+        positions[i][2] = particles[i].position[2];
 	}
 	neighborSearcher.set_particles_ptr(positions);
 }
@@ -282,7 +282,7 @@ void SPHSimulator::update_two_cubes_collision()
 	std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
 
 	Real water_rest_density = 1000.0;
-	Real B = 1000.0;
+    Real B = 1000.0;
 
 	std::vector<RealVector3> external_forces;
 	for (size_t i=0; i<particles.size(); ++i)
@@ -318,11 +318,12 @@ void SPHSimulator::update_rigid_body_simulation()
 	//std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
 
 	Real water_rest_density = 1000.0;
-	Real B = 100.0;
+    Real B = 100.0;
 
 	std::vector<RealVector3> external_forces;
 	for (size_t i=0; i<particles.size(); ++i)
-		external_forces.push_back( RealVector3(0.0, 0.0, -0.981 * particles[i].mass) );
+        //external_forces.push_back( RealVector3(0.0, 0.0, -0.981 * particles[i].mass) ); //Neng: we have the gravity in class private
+        external_forces.push_back( gravity * particles[i].mass ); //Neng: we have the gravity in class private
 
 	particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, water_rest_density, r, B);
 	//particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);

@@ -22,7 +22,7 @@ using namespace Simulator;
 class SPHSimulator
 {
 public:
-	const RealVector3 gravity = RealVector3(0.0, 0.0, -0.98);
+    const RealVector3 gravity = RealVector3(0.0, 0.0, -3.0);
 	const Real dt;
 
     SPHSimulator(Real dt, int N=5);
@@ -80,7 +80,7 @@ private:
 	ParticleFunc 	 particleFunc;
 	ParticleGenerator particleGenerator;
 
-	std::vector<RealVector3> positions;
+    std::vector<RealVector3> positions;   //why we need this positions... neng
 	std::vector<RealVector3> boundary_positions;
 
 	std::vector<Real> boundary_volumes;

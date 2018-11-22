@@ -22,6 +22,8 @@ using merely3d::Particle;
 
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
+using namespace std;
+
 
 namespace Simulator
 {
@@ -32,10 +34,32 @@ namespace Simulator
     }
 
 
-    Simulation::Simulation(Real dt, int N) : sphSimulator(dt, N)
+//    Simulation::Simulation(Real dt, int N) : sphSimulator(dt, N)
+//    {
+//    	//neighbor_search_radius = radius;
+//    }
+
+
+    Simulation::Simulation(Real dt, int N_particles, int N_boundary,int N_frame, string fp) : sphSimulator(dt, N_particles)
     {
-    	//neighbor_search_radius = radius;
+        time_step = dt;
+        fluid_particals_num = N_particles;
+        boundary_particals_num = N_boundary;
+        total_frame_num = N_frame;
+        frame_count = 0;
+        file_path = fp;
     }
+
+     Simulation::~Simulation(){
+        std::cout<<"now output data to "<< file_path <<std::endl;
+        sphSimulator.output_sim_record_bin(file_path);
+        std::cout<<"output done"<< std::endl;
+    }
+
+    bool Simulation::is_simulation_finshed(){
+        return frame_count > total_frame_num;
+    }
+
 
     void Simulation::render(merely3d::Frame &frame)
     {
@@ -125,6 +149,8 @@ namespace Simulator
         //sphSimulator.update_freefall_motion();
         //sphSimulator.update_two_cubes_collision();
     	sphSimulator.update_rigid_body_simulation();
+        sphSimulator.update_sim_record_state();
+        frame_count++;
     }
 
     void Simulation::render_sweep_line(merely3d::Frame &frame)

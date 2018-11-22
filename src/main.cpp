@@ -117,7 +117,7 @@ int main()
     window.add_event_handler(std::shared_ptr<EventHandler>(new CameraController));
 
     const auto dt = 0.01;
-    Simulation simulation(dt, 5);
+    Simulation simulation(dt, 1);
 
     // Here we currently only load a single scene at startup,
     // but you probably want to be able to dynamically reload different
@@ -142,7 +142,11 @@ int main()
         {
             simulation.timestep(dt);
         }
-
+        if(simulation.is_simulation_finshed())
+        {
+            std::cout<<"simulation finished!"<<std::endl;
+            break;
+        }
         simulation.update();
 
         window.render_frame([&] (Frame & frame)
