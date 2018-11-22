@@ -20,7 +20,6 @@ NeighborSearcher::NeighborSearcher(Real radius)
 	set_neighbor_search_radius(radius);
 }
 
-
 void NeighborSearcher::set_neighbor_search_radius(Real radius)
 {
 	neighbor_search_radius = radius;
@@ -29,6 +28,67 @@ void NeighborSearcher::set_neighbor_search_radius(Real radius)
 void NeighborSearcher::set_particles_ptr(std::vector<RealVector3>& particles)
 {
 	particles_ptr = std::make_shared<std::vector<RealVector3>>(particles);
+}
+
+void NeighborSearcher::set_boundary_particles_ptr(std::vector<RealVector3>& boundary_particles)
+{
+	boundary_particles_ptr = std::make_shared<std::vector<RealVector3>>(boundary_particles);
+}
+
+std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_in_boundary( )
+{
+	CompactNSearch::NeighborhoodSearch nsearch(neighbor_search_radius);
+	std::vector<std::array<CompactNSearch::Real, 3>> boundary_positions = convect_to_CompactN_position(*boundary_particles_ptr);
+	std::vector<std::array<CompactNSearch::Real, 3>> particle_positions = convect_to_CompactN_position(*particles_ptr);
+
+	unsigned int point_set_id_1 = nsearch.add_point_set(particle_positions.front().data(), particle_positions.size());
+	unsigned int point_set_id_2 = nsearch.add_point_set(boundary_positions.front().data(), boundary_positions.size());
+	nsearch.find_neighbors();
+
+    CompactNSearch::PointSet const& ps = nsearch.point_set(point_set_id_1);
+    std::vector< std::vector<size_t> > m_neighbors;
+    m_neighbors.reserve(particle_positions.size());
+
+	for (size_t i =0; i < particle_positions.size(); ++i)
+	{
+		std::vector<size_t> ns;
+		for (size_t j = 0; j < ps.n_neighbors(point_set_id_2, i); ++j)
+		{
+			// Return PointID of the jth neighbor of the ith particle in the 2nd point set.
+			unsigned int pid = ps.neighbor(point_set_id_2, i, j);
+			ns.push_back(pid);
+		}
+		m_neighbors.push_back(ns);
+	}
+
+	return m_neighbors;
+}
+
+// neighbors include itself
+std::vector< std::vector<size_t> > NeighborSearcher::find_boundary_neighbors( )
+{
+	CompactNSearch::NeighborhoodSearch nsearch(neighbor_search_radius);
+	std::vector<std::array<CompactNSearch::Real, 3>> boundary_positions = convect_to_CompactN_position(*boundary_particles_ptr);
+
+	// ... Fill array with 3 * n real numbers representing three-dimensional point positions.
+	unsigned int point_set_id = nsearch.add_point_set(boundary_positions.front().data(), boundary_positions.size());
+    nsearch.find_neighbors();
+
+    CompactNSearch::PointSet const& ps = nsearch.point_set(point_set_id);
+    std::vector< std::vector<size_t> > m_neighbors;
+
+    for (size_t i = 0; i < ps.n_points(); ++i)
+    {
+    	std::vector<size_t> neighbors_of_i;
+    	neighbors_of_i.push_back(i);
+        for (size_t j = 0; j < ps.n_neighbors(point_set_id, i); ++j)
+        {
+        	neighbors_of_i.push_back(ps.neighbor(point_set_id, i, j));
+        }
+        m_neighbors.push_back(neighbors_of_i);
+    }
+
+	return m_neighbors;
 }
 
 std::vector<size_t> NeighborSearcher::find_neighbors_within_radius( size_t selected_particle_index, bool use_compactN )

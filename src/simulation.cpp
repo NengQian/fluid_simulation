@@ -32,9 +32,9 @@ namespace Simulator
     }
 
 
-    Simulation::Simulation(float radius, Real dt) : sphSimulator(radius, dt)
+    Simulation::Simulation(Real dt, int N) : sphSimulator(dt, N)
     {
-    	neighbor_search_radius = radius;
+    	//neighbor_search_radius = radius;
     }
 
     void Simulation::render(merely3d::Frame &frame)
@@ -50,7 +50,7 @@ namespace Simulator
 
         if (do_particle_generating)
         {
-        	sphSimulator.set_neighbor_search_radius(neighbor_search_radius);
+        	//sphSimulator.set_neighbor_search_radius(neighbor_search_radius);
         	sphSimulator.generate_particles();
 
         	do_neighbor_searching = true;
@@ -69,7 +69,7 @@ namespace Simulator
 
         	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-        	sphSimulator.set_neighbor_search_radius(neighbor_search_radius);
+        	//sphSimulator.set_neighbor_search_radius(neighbor_search_radius);
         	//sphSimulator.find_and_set_neighbors( do_compactN );
 
         	std::chrono::steady_clock::time_point end= std::chrono::steady_clock::now();
@@ -122,8 +122,9 @@ namespace Simulator
 
     void Simulation::update()
     {
-        sphSimulator.update_freefall_motion();
+        //sphSimulator.update_freefall_motion();
         //sphSimulator.update_two_cubes_collision();
+    	sphSimulator.update_rigid_body_simulation();
     }
 
     void Simulation::render_sweep_line(merely3d::Frame &frame)
@@ -152,9 +153,11 @@ namespace Simulator
     void Simulation::render_particles(merely3d::Frame &frame)
     {
     	std::vector<RealVector3> particles = sphSimulator.get_positions();
-    	std::vector<bool> drawn(particles.size(), false);
+    	std::vector<RealVector3> boundary_particles = sphSimulator.get_boundary_positions();
 
-        size_t source_index = sphSimulator.get_index_of_source_particle();
+    	//std::vector<bool> drawn(particles.size(), false);
+
+        //size_t source_index = sphSimulator.get_index_of_source_particle();
         Real particle_radius = sphSimulator.get_particle_radius();
         /*
 		Eigen::Vector3f s(static_cast<float>(particles[source_index][0]), static_cast<float>(particles[source_index][1]), static_cast<float>(particles[source_index][2]));
@@ -174,11 +177,14 @@ namespace Simulator
         */
     	for (size_t i = 0; i < particles.size(); ++i)
         {
-        	if (!drawn[i])
-        	{
-        		Eigen::Vector3f p(static_cast<float>(particles[i][0]), static_cast<float>(particles[i][1]), static_cast<float>(particles[i][2]));
-        		frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.0f, 0.0f, 1.0f)));
-        	}
+       		Eigen::Vector3f p(static_cast<float>(particles[i][0]), static_cast<float>(particles[i][1]), static_cast<float>(particles[i][2]));
+        	frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.0f, 0.0f, 1.0f)));
+        }
+
+    	for (size_t i = 0; i < boundary_particles.size(); ++i)
+        {
+       		Eigen::Vector3f p(static_cast<float>(boundary_particles[i][0]), static_cast<float>(boundary_particles[i][1]), static_cast<float>(boundary_particles[i][2]));
+       		frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.5f, 0.5f, 0.5f)));
         }
     }
 }

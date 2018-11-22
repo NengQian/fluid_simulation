@@ -20,7 +20,7 @@ using namespace Simulator;
 
 class ParticleGenerator {
 public:
-	void generate_cube(std::vector<mParticle>& particles, size_t N, Real halfExtent, Eigen::Ref<RealVector3> origin, Eigen::Ref<RealVector3> v0, bool do_clear, bool hollow);
+	void generate_cube(std::vector<mParticle>& particles, size_t N, Eigen::Ref<RealVector3> origin, Eigen::Ref<RealVector3> v0, Eigen::Ref<RealVector3> a0, Real halfExtent=1.0, bool do_clear=true, bool hollow=false);
 	void generate_two_colliding_cubes(std::vector<mParticle>& particles, size_t N);
 	void generate_two_freefall_cubes(std::vector<mParticle>& particles, size_t N);
 	void generate_rigid_box(std::vector<mParticle>& particles, size_t N);

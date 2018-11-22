@@ -21,6 +21,7 @@ using merely3d::Particle;
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
 
+/*
 SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
 {
 	set_N(5);
@@ -29,6 +30,7 @@ SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt) : dt(dt), kern
 	set_neighbor_search_radius(neighbor_search_radius);
 	set_index_of_source_particle(0);
 }
+*/
 
 //SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt, int N) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
 //{
@@ -40,16 +42,28 @@ SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt) : dt(dt), kern
 //    file_count = 0;
 //}
 
-SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt, int N) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
+SPHSimulator::SPHSimulator(Real dt, int N) : dt(dt)
 {
     set_N(N);
     set_particle_radius(1.0/N);
     generate_particles();
-    set_neighbor_search_radius(neighbor_search_radius);
+    set_neighbor_search_radius(2.4/N*2);
     set_index_of_source_particle(0);
+
+    set_boundary_volumes();
+
     sim_rec.timestep = dt;
     update_sim_record_state();
 }
+
+void SPHSimulator::set_boundary_volumes()
+{
+	if (!boundary_volumes.empty())
+		boundary_volumes.clear();
+
+	boundary_volumes = particleFunc.initialize_boundary_particle_volumes(boundary_positions, static_cast<Real>(neighbor_search_radius));
+}
+
 
 void SPHSimulator::generate_particles()
 {
@@ -59,15 +73,38 @@ void SPHSimulator::generate_particles()
 	if (!positions.empty())
 		positions.clear();
 
-	//generate_two_colliding_cubes();
-	particleGenerator.generate_two_colliding_cubes(particles, N);
-	/*
-	RealVector3 origin(0.0, 0.0, 0.0);
-	RealVector3 v0(0.0, 0.0, 0.0);
-	generate_celling_particles_at_center(origin, true, v0);
-	*/
+	if (!boundary_particles.empty())
+		boundary_particles.clear();
+
+	if (!boundary_positions.empty())
+		boundary_positions.clear();
+
+	RealVector3 zero(0.0, 0.0, 0.0);
+
+	particleGenerator.generate_rigid_box(boundary_particles, 3*N);
+	particleGenerator.generate_cube(particles, N, zero, zero, zero);
+
+	//particleGenerator.generate_two_colliding_cubes(particles, N);
+
 	set_positions();
+	set_boundary_positions();
+
 	neighborSearcher.set_particles_ptr(positions);
+	neighborSearcher.set_boundary_particles_ptr(boundary_positions);
+}
+
+void SPHSimulator::set_boundary_positions()
+{
+	if (!boundary_positions.empty())
+		boundary_positions.clear();
+
+	for (auto& bp : boundary_particles)
+		boundary_positions.push_back(RealVector3(bp.position));
+}
+
+std::vector<RealVector3> SPHSimulator::get_boundary_positions()
+{
+	return boundary_positions;
 }
 
 void SPHSimulator::set_positions()
@@ -200,142 +237,6 @@ void SPHSimulator::sample_density()
 	}
 }
 
-/*
-void SPHSimulator::generate_random_particles()
-{
-	if (!particles.empty())
-		particles.clear();
-
-	// Set up random number generator
-	std::default_random_engine random_number_generator;
-	std::random_device rd;
-	random_number_generator.seed(rd());
-	std::uniform_real_distribution<Real> distribution(-1,1);
-
-	for (size_t i = 0; i < number_of_particles; ++i)
-	{
-		const auto x = distribution(random_number_generator);
-		const auto y = distribution(random_number_generator);
-		const auto z = distribution(random_number_generator);
-		particles.push_back(RealVector3(x,y,z));
-	}
-}
-*/
-/*
-void SPHSimulator::randomly_generate_celling_particles()
-{
-	if (!particles.empty())
-		particles.clear();
-
-	// Set up random number generator
-	std::default_random_engine random_number_generator;
-	std::random_device rd;
-	random_number_generator.seed(rd());
-	std::uniform_real_distribution<Real> distribution(0.0, 1.0);
-
-	Real step_size = 2.0/N;
-	for (size_t i = 0; i < number_of_particles; ++i)
-	{
-		Real x = distribution(random_number_generator) * step_size;
-		Real y = distribution(random_number_generator) * step_size;
-		Real z = distribution(random_number_generator) * step_size;
-		particles.push_back(RealVector3(x,y,z));
-	}
-
-
-	size_t idx = 0;
-	for (Real i = -1.0; i < 1.0; i+=step_size)
-	{
-		for (Real j = -1.0; j < 1.0; j+=step_size)
-		{
-			for (Real k = -1.0; k < 1.0; k+=step_size)
-			{
-				particles[idx][0] += i;
-				particles[idx][1] += j;
-				particles[idx][2] += k;
-
-				++idx;
-			}
-		}
-	}
-}
-*/
-/*
-void SPHSimulator::generate_celling_particles_at_center(Eigen::Ref<RealVector3> origin, bool do_clear, Eigen::Ref<RealVector3> v0)
-{
-	if (do_clear)
-	{
-		if (!particles.empty())
-			particles.clear();
-
-		if (!positions.empty())
-			positions.clear();
-	}
-
-	Real step_size = 2.0/N;
-	size_t idx = 0;
-	for (Real i = -1.0; i < 1.0; i+=step_size)
-	{
-		for (Real j = -1.0; j < 1.0; j+=step_size)
-		{
-			for (Real k = -1.0; k < 1.0; k+=step_size)
-			{
-				mParticle p;
-
-				//std::cout << "pos: " << p.position << std::endl;
-				//std::cout << "v: " << p.velocity << std::endl;
-				//std::cout << "a: " << p.acceleration << std::endl;
-				//std::cout << "mass: " << p.mass << std::endl;
-
-				Real x = i + step_size/2.0 + origin[0];
-				Real y = j + step_size/2.0 + origin[1];
-				Real z = k + step_size/2.0 + origin[2];
-
-				p.position = RealVector3(x,y,z);
-				p.mass = step_size * step_size * step_size * 1000.0;
-
-				p.velocity[0] = v0[0];
-				p.velocity[1] = v0[1];
-				p.velocity[2] = v0[2];
-
-				particles.push_back(p);
-
-				RealVector3 replicate = p.position.replicate(1,1);
-				//std::cout << "repl: " << replicate << std::endl;
-
-				positions.push_back(replicate);
-				++idx;
-			}
-		}
-	}
-}
-
-
-void SPHSimulator::generate_two_freefall_cubes()
-{
-	RealVector3 o1(0.0, 0.0, 0.0);
-	RealVector3 o2(2.5, 0.0, 0.0);
-
-	RealVector3 v1_init(0.0, 0.0, 0.0);
-	RealVector3 v2_init(0.0, 0.0, 0.0);
-
-	generate_celling_particles_at_center(o1, false, v1_init);
-	generate_celling_particles_at_center(o2, false, v2_init);
-}
-
-
-void SPHSimulator::generate_two_colliding_cubes()
-{
-	RealVector3 o1(0.0, 0.0, 0.0);
-	RealVector3 o2(2.5, 0.0, 0.0);
-
-	RealVector3 v1_init(0.25, 0.0, 0.0);
-    RealVector3 v2_init(0.00, 0.0, 0.0);
-
-	generate_celling_particles_at_center(o1, false, v1_init);
-	generate_celling_particles_at_center(o2, false, v2_init);
-}
-*/
 
 void SPHSimulator::update_positions()
 {
@@ -394,3 +295,69 @@ void SPHSimulator::update_two_cubes_collision()
 	update_positions();
 }
 
+void SPHSimulator::update_rigid_body_simulation()
+{
+	float r = 2.4/N * 2 ;
+	set_neighbor_search_radius(r);
+
+	std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
+	std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
+
+/*
+	for (size_t i=0; i<neighbors_set.size(); ++i)
+	{
+		std::cout << i << std::endl;
+
+		for (size_t j=0; j<neighbors_set[i].size(); ++j)
+			std::cout << neighbors_set[i][j] << " ";
+
+		std::cout << std::endl;
+	}
+*/
+	std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, boundary_volumes, r);
+	//std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
+
+	Real water_rest_density = 1000.0;
+	Real B = 100.0;
+
+	std::vector<RealVector3> external_forces;
+	for (size_t i=0; i<particles.size(); ++i)
+		external_forces.push_back( RealVector3(0.0, 0.0, -0.981 * particles[i].mass) );
+
+	particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, water_rest_density, r, B);
+	//particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
+
+	particleFunc.update_velocity(particles, dt);
+	particleFunc.update_position(particles, dt);
+
+	update_positions();
+}
+
+void SPHSimulator::update_sim_record_state()
+{
+    SimulationState sim_state;
+    sim_state.particles = particles;
+    sim_rec.states.push_back(sim_state);
+}
+
+void SPHSimulator::output_sim_record_bin(std::string fp)
+{
+    std::ofstream file(fp);
+    cereal::BinaryOutputArchive output(file); // stream to cout
+    output(sim_rec);  //not good... maybe directly ar the vector
+}
+
+
+
+void SPHSimulator::print_all_particles()
+{
+    std::cout<<"now print particles set, its size is "<<particles.size()<<std::endl;
+    for(size_t i=0;i<particles.size();i++)
+    {
+        mParticle particle(particles[i]);
+        std::cout<<"position is"<< std::endl<<particle.position<<std::endl;
+        std::cout<<"velocity is"<<  std::endl<<particle.velocity<<std::endl;
+        std::cout<<"acceleration is"<< std::endl<<particle.acceleration<<std::endl;
+        std::cout<<"mass is"<< std::endl<<particle.mass<<std::endl;
+    }
+}

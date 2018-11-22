@@ -53,7 +53,7 @@ int main()
 
     float m_radius = 5.0f;
 
-    SPHSimulator sphSimulator(m_radius, 0.01);
+    SPHSimulator sphSimulator(0.01);
     sphSimulator.generate_particles();
 
 	//Real radius = static_cast<Real>(sphSimulator.get_neighbor_search_radius);
@@ -107,7 +107,7 @@ int main()
 
     for(int i=0;i<particles_num_vector.size();++i)
     {
-    	SPHSimulator compare_nb(m_radius, 0.01);
+    	SPHSimulator compare_nb(0.01);
         compare_nb.set_number_of_particles(static_cast<size_t>(particles_num_vector[i]));
         compare_nb.generate_particles();
         std::cout<<"particles number is "<< compare_nb.get_number_of_particles() <<std::endl;

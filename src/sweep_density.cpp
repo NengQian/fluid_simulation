@@ -22,7 +22,7 @@ using Eigen::Vector3f;
 
 int main(void)
 {
-	SPHSimulator sim(5.0, 0.01);
+	SPHSimulator sim(0.01, 10);
 	sim.sample_density();
 	return 0;
 }

@@ -1,6 +1,7 @@
 #include "ParticleFunc.hpp"
 #include "math_types.hpp"
 #include "KernelHandler.hpp"
+#include "NeighborSearcher.hpp"
 #include <iostream>
 #include <algorithm>
 
@@ -48,6 +49,42 @@ std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>&
 	return densities;
 }
 
+std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<Real>& volumes, Real radius )
+{
+	std::vector<Real> densities;
+	KernelHandler kh(radius);
+	for (size_t i=0; i<neighbors_of_set.size(); ++i)
+	{
+		// add itself into neighbors list
+		//neighbors_of_set[i].push_back(i);
+
+		Real d = 0.0;
+		for (size_t j=0; j<neighbors_of_set[i].size(); ++j)
+		{
+			Real m = particles[neighbors_of_set[i][j]].mass;
+			d += m * kh.compute_kernel( particles[i].position, particles[neighbors_of_set[i][j]].position, 4 );
+		}
+
+		Real rest_density = 1000.0;
+		RealVector3 p_i = particles[i].position;
+
+		for (size_t k=0; k<neighbors_in_boundary[i].size(); ++k)
+		{
+			Real V_k = volumes[k];
+			RealVector3 bp_k = boundary_particles[neighbors_in_boundary[i][k]].position;
+			d += rest_density * V_k * kh.compute_kernel( p_i, bp_k, 4 );
+		}
+
+		densities.push_back(d);
+
+		//std::cout << "density of " << i << ": " << d << std::endl;
+		// remove itself from neighbors list
+		//neighbors_of_set[i].pop_back();
+	}
+	return densities;
+}
+
+
 void ParticleFunc::update_velocity( std::vector<mParticle>& particles, Real dt )
 {
 	for (auto& p : particles)
@@ -69,12 +106,9 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 	KernelHandler kh(radius);
 	for (size_t i=0; i<particles.size(); ++i)
 	{
-		RealVector3 a;
-		a << 0.0, 0.0, 0.0 ;
-		RealVector3 a1;
-		a1 << 0.0, 0.0, 0.0 ;
-		RealVector3 a2;
-		a2 << 0.0, 0.0, 0.0 ;
+		RealVector3 a(0.0, 0.0, 0.0);
+		RealVector3 a1(0.0, 0.0, 0.0);
+		RealVector3 a2(0.0, 0.0, 0.0);
 
 		//std::cout << "a1 before " << i << ": (" << a1[0] << " " << a1[1] << " " << a1[2] << ")" << std::endl;
 
@@ -107,19 +141,114 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 		}
 		//std::cout << "a1 after " << i << ": (" << a1[0] << " " << a1[1] << " " << a1[2] << ")" << std::endl;
 
+
+
 		a2 = external_forces[i] / d_i;
 		a = a1 + a2;
 
 
 		// deep copy
-		particles[i].acceleration[0] = a[0];
-		particles[i].acceleration[1] = a[1];
-		particles[i].acceleration[2] = a[2];
+		particles[i].acceleration = a;
 
 		// remove itself
 		//neighbors_of_set[i].pop_back();
 	}
 }
 
+void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<Real>& densities, std::vector<Real>& boundary_volumes, std::vector<RealVector3>& external_forces, Real rest_density, Real radius, Real B)
+{
+	KernelHandler kh(radius);
+	for (size_t i=0; i<particles.size(); ++i)
+	{
+		RealVector3 a(0.0, 0.0, 0.0);
+		RealVector3 a1(0.0, 0.0, 0.0);
+		RealVector3 a2(0.0, 0.0, 0.0);
+		RealVector3 a3(0.0, 0.0, 0.0);
+
+		//std::cout << "a1 before " << i << ": (" << a1[0] << " " << a1[1] << " " << a1[2] << ")" << std::endl;
+
+		// add itself
+		//neighbors_of_set[i].push_back(i);
+
+		Real d_i = densities[i];
+		//std::cout << "density " << i << ": " << d_i << std::endl;
+
+		//std::cout << "neighbor of " << i << ": " << neighbors_of_set[i].size() << std::endl;
+
+
+		for (size_t j=0; j<neighbors_of_set[i].size(); ++j)
+		{
+			RealVector3 gradient = kh.gradient_of_kernel( particles[i].position, particles[neighbors_of_set[i][j]].position, 4 );
+			//std::cout << "gradient (" << i << ", " << j << "): " << "(" << gradient[0] << " " << gradient[1] << " " << gradient[2] << ")" << std::endl;
+			Real p_i, p_j, d_j, m_j;
+
+			p_i = std::max(0.0, B * (densities[i] - rest_density));
+			p_j = std::max(0.0, B * (densities[neighbors_of_set[i][j]] - rest_density));
+
+			//std::cout << "pressure " << i << ": " << p_i << std::endl;
+			//std::cout << "pressure " << n_idx << ": " << p_j << std::endl;
+
+			d_j = densities[neighbors_of_set[i][j]];
+
+			m_j = particles[neighbors_of_set[i][j]].mass;
+
+			a1 -= gradient * m_j * (p_i / (d_i * d_i) + p_j / (d_j * d_j));
+		}
+		//std::cout << "a1 after " << i << ": (" << a1[0] << " " << a1[1] << " " << a1[2] << ")" << std::endl;
+
+		for (size_t k=0; k<neighbors_in_boundary[i].size(); ++k)
+		{
+			RealVector3 gradient = kh.gradient_of_kernel( particles[i].position, boundary_particles[neighbors_in_boundary[i][k]].position, 4 );
+			//std::cout << "gradient (" << i << ", " << j << "): " << "(" << gradient[0] << " " << gradient[1] << " " << gradient[2] << ")" << std::endl;
+			Real p_i;
+
+			p_i = std::max(0.0, B * (densities[i] - rest_density));
+
+			//std::cout << "pressure " << i << ": " << p_i << std::endl;
+			//std::cout << "pressure " << n_idx << ": " << p_j << std::endl;
+
+
+			a2 -= boundary_volumes[k] * rest_density * gradient * (p_i / (d_i * d_i));
+		}
+
+
+		a3 = external_forces[i] / d_i;
+		a = a1 + a2 + a3;
+
+
+		// deep copy
+		particles[i].acceleration = a;
+
+		// remove itself
+		//neighbors_of_set[i].pop_back();
+	}
+}
+
+std::vector<Real> ParticleFunc::initialize_boundary_particle_volumes(std::vector<RealVector3>& boundary_positions, Real neighbor_search_radius)
+{
+	std::vector<Real> volumes;
+
+	NeighborSearcher nb(neighbor_search_radius);
+	nb.set_boundary_particles_ptr(boundary_positions);
+
+	KernelHandler kh(neighbor_search_radius);
+
+	std::vector< std::vector<size_t> > neighbors_of_boundary = nb.find_boundary_neighbors( );
+
+
+	for (size_t k=0; k<boundary_positions.size(); ++k)
+	{
+		Real V_k = 0.0;
+		RealVector3 bp_k = boundary_positions[k];
+		for (size_t l=0; l<neighbors_of_boundary[k].size(); ++l)
+		{
+			RealVector3 bp_l = boundary_positions[neighbors_of_boundary[k][l]];
+			V_k += kh.compute_kernel( bp_k, bp_l, 4 );
+		}
+		volumes.push_back(V_k);
+	}
+
+	return volumes;
+}
 
 
