@@ -97,8 +97,5 @@ private:
     std::vector<size_t> neighbors;
 
     /*----------this is for cereal-------------*/
-    std::string file_path;
-    unsigned int file_count;
-
     SimulationRecord sim_rec;
 };
