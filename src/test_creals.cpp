@@ -13,10 +13,15 @@ void generate_sim_rec()  // maybe I should directly put all particles in all fra
 {
     // a for loop to generate every thing, and then run...
     SPHSimulator test_simulator(0.5f,0.01,10);
-    for(int i=0;i<500;++i)
+    int step_size = 5;
+
+    for(int i=0;i<1500;++i)
     {
         test_simulator.update_two_cubes_collision();
-        test_simulator.update_sim_record_state();
+
+        if (i % step_size == 0)
+        	test_simulator.update_sim_record_state();
+
         std::cout<<"iteration "<< i <<std::endl;
     }
 

@@ -47,8 +47,8 @@ namespace Simulator
         pausing_flag = false;
         render_velocity_flag = false;
         render_acc_flag = false;
-        render_max_acc = 0.25;
-        render_max_velocity = 0.25;
+        render_max_acc = 0.25f;
+        render_max_velocity = 0.25f;
         counter = 0;
         render_step = 1;
 
@@ -142,7 +142,7 @@ namespace Simulator
             else{
                 //render accerlation
                 Eigen::Vector3f a(static_cast<float>(mparticle.acceleration[0]), static_cast<float>(mparticle.acceleration[1]), static_cast<float>(mparticle.acceleration[2]));
-                float r = velocity_to_float(a);
+                float r = acc_to_float(a);
                 float b = 1.0f- r;
                 frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(r, 0.0f, b)));            }
         }
