@@ -8,7 +8,7 @@
 #include "simulation.hpp"
 using namespace std;
 
-std::string fold = "../../sim_result/";
+std::string fold = "./sim_result/";
 
 void generate_sim_rec()  // maybe I should directly put all particles in all frame to one vector...
 {
