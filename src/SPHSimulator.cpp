@@ -46,14 +46,14 @@ SPHSimulator::SPHSimulator(Real dt, int N) : dt(dt)
 {
     set_N(N);
     set_particle_radius(1.0/N);
-    generate_particles();
+    //generate_particles();
     set_neighbor_search_radius(2.4/N*2);
     set_index_of_source_particle(0);
 
-    set_boundary_volumes();
+    //set_boundary_volumes();
 
     sim_rec.timestep = dt;
-    update_sim_record_state();
+    //update_sim_record_state();
 }
 
 void SPHSimulator::set_boundary_volumes()
@@ -67,30 +67,30 @@ void SPHSimulator::set_boundary_volumes()
 
 void SPHSimulator::generate_particles()
 {
-	if (!particles.empty())
-		particles.clear();
+//	if (!particles.empty())
+//		particles.clear();
 
-	if (!positions.empty())
-		positions.clear();
+//	if (!positions.empty())
+//		positions.clear();
 
-	if (!boundary_particles.empty())
-		boundary_particles.clear();
+//	if (!boundary_particles.empty())
+//		boundary_particles.clear();
 
-	if (!boundary_positions.empty())
-		boundary_positions.clear();
+//	if (!boundary_positions.empty())
+//		boundary_positions.clear();
 
-	RealVector3 zero(0.0, 0.0, 0.0);
+//	RealVector3 zero(0.0, 0.0, 0.0);
 
-	particleGenerator.generate_rigid_box(boundary_particles, 3*N);
-	particleGenerator.generate_cube(particles, N, zero, zero, zero);
+//	particleGenerator.generate_rigid_box(boundary_particles, 3*N);
+//	particleGenerator.generate_cube(particles, N, zero, zero, zero);
 
-	//particleGenerator.generate_two_colliding_cubes(particles, N);
+//	//particleGenerator.generate_two_colliding_cubes(particles, N);
 
-	set_positions();
-	set_boundary_positions();
+//	set_positions();
+//	set_boundary_positions();
 
-	neighborSearcher.set_particles_ptr(positions);
-	neighborSearcher.set_boundary_particles_ptr(boundary_positions);
+//	neighborSearcher.set_particles_ptr(positions);
+//	neighborSearcher.set_boundary_particles_ptr(boundary_positions);
 }
 
 void SPHSimulator::set_boundary_positions()
@@ -249,90 +249,96 @@ void SPHSimulator::update_positions()
 	neighborSearcher.set_particles_ptr(positions);
 }
 
-void SPHSimulator::update_freefall_motion()
-{
-	for (auto& p : particles)
-	{
-		p.acceleration = gravity;
-	}
-	particleFunc.update_velocity(particles, dt);
-	particleFunc.update_position(particles, dt);
 
-	update_positions();
+void SPHSimulator::update_simulation()
+{
 }
 
-void SPHSimulator::update_two_cubes_collision()
-{
-	set_neighbor_search_radius( 2.4/N * 2 );
-	std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
 
-	/*
-	for (size_t i=0; i<neighbors_set.size(); ++i)
-	{
-		std::cout << i << std::endl;
+//void SPHSimulator::update_freefall_motion()
+//{
+//	for (auto& p : particles)
+//	{
+//		p.acceleration = gravity;
+//	}
+//	particleFunc.update_velocity(particles, dt);
+//	particleFunc.update_position(particles, dt);
 
-		for (size_t j=0; j<neighbors_set[i].size(); ++j)
-			std::cout << neighbors_set[i][j] << " ";
+//	update_positions();
+//}
 
-		std::cout << std::endl;
-	}
-	*/
+//void SPHSimulator::update_two_cubes_collision()
+//{
+//	set_neighbor_search_radius( 2.4/N * 2 );
+//	std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
 
-	Real r = static_cast<Real>(neighbor_search_radius);
-	std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
+//	/*
+//	for (size_t i=0; i<neighbors_set.size(); ++i)
+//	{
+//		std::cout << i << std::endl;
 
-	Real water_rest_density = 1000.0;
-    Real B = 1000.0;
+//		for (size_t j=0; j<neighbors_set[i].size(); ++j)
+//			std::cout << neighbors_set[i][j] << " ";
 
-	std::vector<RealVector3> external_forces;
-	for (size_t i=0; i<particles.size(); ++i)
-		external_forces.push_back( RealVector3(0.0, 0.0, 0.0) );
+//		std::cout << std::endl;
+//	}
+//	*/
 
-	particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
-	particleFunc.update_velocity(particles, dt);
-	particleFunc.update_position(particles, dt);
+//	Real r = static_cast<Real>(neighbor_search_radius);
+//	std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
 
-	update_positions();
-}
+//	Real water_rest_density = 1000.0;
+//    Real B = 1000.0;
 
-void SPHSimulator::update_rigid_body_simulation()
-{
-	float r = 2.4/N * 2 ;
-	set_neighbor_search_radius(r);
+//	std::vector<RealVector3> external_forces;
+//	for (size_t i=0; i<particles.size(); ++i)
+//		external_forces.push_back( RealVector3(0.0, 0.0, 0.0) );
 
-	std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
-	std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
+//	particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
+//	particleFunc.update_velocity(particles, dt);
+//	particleFunc.update_position(particles, dt);
 
-/*
-	for (size_t i=0; i<neighbors_set.size(); ++i)
-	{
-		std::cout << i << std::endl;
+//	update_positions();
+//}
 
-		for (size_t j=0; j<neighbors_set[i].size(); ++j)
-			std::cout << neighbors_set[i][j] << " ";
+//void SPHSimulator::update_rigid_body_simulation()
+//{
+//	float r = 2.4/N * 2 ;
+//	set_neighbor_search_radius(r);
 
-		std::cout << std::endl;
-	}
-*/
-	std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, boundary_volumes, r);
-	//std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
+//	std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
+//	std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
 
-	Real water_rest_density = 1000.0;
-    Real B = 100.0;
+///*
+//	for (size_t i=0; i<neighbors_set.size(); ++i)
+//	{
+//		std::cout << i << std::endl;
 
-	std::vector<RealVector3> external_forces;
-	for (size_t i=0; i<particles.size(); ++i)
-        //external_forces.push_back( RealVector3(0.0, 0.0, -0.981 * particles[i].mass) ); //Neng: we have the gravity in class private
-        external_forces.push_back( gravity * particles[i].mass ); //Neng: we have the gravity in class private
+//		for (size_t j=0; j<neighbors_set[i].size(); ++j)
+//			std::cout << neighbors_set[i][j] << " ";
 
-	particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, water_rest_density, r, B);
-	//particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
+//		std::cout << std::endl;
+//	}
+//*/
+//	std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, boundary_volumes, r);
+//	//std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
 
-	particleFunc.update_velocity(particles, dt);
-	particleFunc.update_position(particles, dt);
+//	Real water_rest_density = 1000.0;
+//    Real B = 100.0;
 
-	update_positions();
-}
+//	std::vector<RealVector3> external_forces;
+//	for (size_t i=0; i<particles.size(); ++i)
+//        //external_forces.push_back( RealVector3(0.0, 0.0, -0.981 * particles[i].mass) ); //Neng: we have the gravity in class private
+//        external_forces.push_back( gravity * particles[i].mass ); //Neng: we have the gravity in class private
+
+//	particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, water_rest_density, r, B);
+//	//particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
+
+//	particleFunc.update_velocity(particles, dt);
+//	particleFunc.update_position(particles, dt);
+
+//	update_positions();
+//}
 
 void SPHSimulator::update_sim_record_state()
 {

@@ -117,7 +117,7 @@ int main()
     window.add_event_handler(std::shared_ptr<EventHandler>(new CameraController));
 
     const auto dt = 0.01;
-    Simulation simulation(dt, 1);
+    Simulation simulation(dt, 1,3);
 
     // Here we currently only load a single scene at startup,
     // but you probably want to be able to dynamically reload different

@@ -6,6 +6,8 @@
 #include <CompactNSearch/CompactNSearch>
 
 #include "SPHSimulator.hpp"
+#include "SPHSimulator_2cubes.hpp"
+#include "SPHSimulator_rigid_body.hpp"
 #include <string>
 using namespace std;
 namespace Simulator
@@ -14,14 +16,15 @@ namespace Simulator
     {
     public:
         //Simulation(Real dt, int N=5);
-        Simulation(Real dt, int N_particles, int N_boundary=1,int N_frame=1000 , string fp = "../../sim_result/test.bin" ); // mode); here mode indicate which sphsimulator will be called.
+        Simulation(Real dt, int N_particles, int N_boundary=1,int N_frame=1500 , string fp = "../../sim_result/test_rigid.bin" ); // mode); here mode indicate which sphsimulator will be called.
         ~Simulation(); // when deconstruct, it start to output data
         void timestep(Real dt);
         void render(merely3d::Frame &frame);
         void update();
         bool is_simulation_finshed();
 
-        SPHSimulator sphSimulator;
+        SPHSimulator& sphSimulator;
+        SPHSimulator* p_sphSimulator;
         //float neighbor_search_radius;
 
         // You probably want some methods to add bodies to the system

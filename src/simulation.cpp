@@ -40,7 +40,8 @@ namespace Simulator
 //    }
 
 
-    Simulation::Simulation(Real dt, int N_particles, int N_boundary,int N_frame, string fp) : sphSimulator(dt, N_particles)
+    Simulation::Simulation(Real dt, int N_particles, int N_boundary,int N_frame, string fp)
+        :p_sphSimulator(0),sphSimulator(* new SPHSimulator_rigid_body(dt,N_particles))// but this is not a C++ style...
     {
         time_step = dt;
         fluid_particals_num = N_particles;
@@ -53,7 +54,9 @@ namespace Simulator
      Simulation::~Simulation(){
         std::cout<<"now output data to "<< file_path <<std::endl;
         sphSimulator.output_sim_record_bin(file_path);
-        std::cout<<"output done"<< std::endl;
+        std::cout<<"output done, now delete the sphsimulator"<< std::endl;
+        delete &sphSimulator;
+        std::cout<<"delete done!"<<std::endl;
     }
 
     bool Simulation::is_simulation_finshed(){
@@ -67,7 +70,7 @@ namespace Simulator
     	//render_sweep_line(frame);
 
         static bool do_neighbor_searching = false;
-        static bool do_particle_generating = true;
+        static bool do_particle_generating = false;
         static bool change_center = false;
         static bool do_compactN = true;
         static std::string time_string;
@@ -148,9 +151,11 @@ namespace Simulator
     {
         //sphSimulator.update_freefall_motion();
         //sphSimulator.update_two_cubes_collision();
-    	sphSimulator.update_rigid_body_simulation();
+        //sphSimulator.update_rigid_body_simulation();
+        sphSimulator.update_simulation();
         sphSimulator.update_sim_record_state();
         frame_count++;
+        std::cout<<"iterate "<<frame_count<<std::endl;
     }
 
     void Simulation::render_sweep_line(merely3d::Frame &frame)
@@ -179,7 +184,7 @@ namespace Simulator
     void Simulation::render_particles(merely3d::Frame &frame)
     {
     	std::vector<RealVector3> particles = sphSimulator.get_positions();
-    	std::vector<RealVector3> boundary_particles = sphSimulator.get_boundary_positions();
+        std::vector<RealVector3> boundary_particles = sphSimulator.get_boundary_positions();
 
     	//std::vector<bool> drawn(particles.size(), false);
 
@@ -206,11 +211,10 @@ namespace Simulator
        		Eigen::Vector3f p(static_cast<float>(particles[i][0]), static_cast<float>(particles[i][1]), static_cast<float>(particles[i][2]));
         	frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.0f, 0.0f, 1.0f)));
         }
-
-    	for (size_t i = 0; i < boundary_particles.size(); ++i)
+        for (size_t i = 0; i < boundary_particles.size(); ++i)
         {
-       		Eigen::Vector3f p(static_cast<float>(boundary_particles[i][0]), static_cast<float>(boundary_particles[i][1]), static_cast<float>(boundary_particles[i][2]));
-       		frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.5f, 0.5f, 0.5f)));
+            Eigen::Vector3f p(static_cast<float>(boundary_particles[i][0]), static_cast<float>(boundary_particles[i][1]), static_cast<float>(boundary_particles[i][2]));
+            frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.5f, 0.5f, 0.5f)));
         }
     }
 }

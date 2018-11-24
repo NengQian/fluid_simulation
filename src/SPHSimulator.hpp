@@ -22,13 +22,12 @@ using namespace Simulator;
 class SPHSimulator
 {
 public:
-    const RealVector3 gravity = RealVector3(0.0, 0.0, -3.0);
+    const RealVector3 gravity = RealVector3(0.0, 0.0, -15.0);
 	const Real dt;
 
     SPHSimulator(Real dt, int N=5);
 	//SPHSimulator(float neighbor_search_radius, Real dt);
 
-    void generate_particles();
 
     void set_boundary_positions();
     std::vector<RealVector3> get_boundary_positions();
@@ -63,10 +62,17 @@ public:
 
 	void sample_density();
 
-	void update_positions();
-	void update_freefall_motion();
-	void update_two_cubes_collision();
-	void update_rigid_body_simulation();
+
+/*----------virtual function-----------------*/
+    virtual void update_simulation();
+    virtual void generate_particles();
+    virtual ~SPHSimulator() = default;
+/*-------------------------------------------*/
+
+    void update_positions();
+    //void update_freefall_motion();
+    //void update_two_cubes_collision();
+    //void update_rigid_body_simulation();
 
     /*-----use cereal output particles to json file-----*/
     void update_sim_record_state();
@@ -74,7 +80,7 @@ public:
     void print_all_particles();
    /*------cereal task over----------------------------*/
 
-private:
+protected:
 	NeighborSearcher neighborSearcher;
 	KernelHandler 	 kernelHandler;
 	ParticleFunc 	 particleFunc;
