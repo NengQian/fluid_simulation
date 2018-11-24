@@ -10,6 +10,8 @@ set(EIGEN3_ROOT ${PROJECT_SOURCE_DIR}/extern/eigen_3.3.4)
 # Setting CEREALS_ROOT here
 set(CEREALS_ROOT ${PROJECT_SOURCE_DIR}/extern/cereal/include)
 
+set(CLI11_ROOT ${PROJECT_SOURCE_DIR}/extern/CLI11/include/CLI11)
+
 if (UNIX)
     find_package(OpenMP)
     if (OPENMP_FOUND)
@@ -22,6 +24,9 @@ add_subdirectory(extern/CompactNSearch)
 
 
 set(TINY_OBJ_LOADER_INCLUDE ${CMAKE_SOURCE_DIR}/extern/tinyobjloader/include)
+
+set(CLI11_FILES
+		extern/CLI11/include/CLI11/CLI11.hpp)
 
 set(IMGUI_FILES
         src/imgui/imgui.h
@@ -43,6 +48,7 @@ set(UTIL_FILES
         src/util/triangle_mesh.cpp)
 
 set(SOURCE_FILES
+		${CLI11_FILES}
         ${IMGUI_FILES}
         ${UTIL_FILES}
         src/math_types.hpp
@@ -63,6 +69,7 @@ set(SOURCE_FILES
 )
 
 set(VISUAL_SOURCE_FILES
+		${CLI11_FILES}
         ${IMGUI_FILES}
         ${UTIL_FILES}
         src/math_types.hpp
@@ -76,17 +83,17 @@ set(VISUAL_SOURCE_FILES
 # twice for our main executable and our unit tests
 add_library(simulator_lib STATIC ${SOURCE_FILES})
 target_link_libraries(simulator_lib merely3d CompactNSearch)
-target_include_directories(simulator_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE} ${CEREALS_ROOT})
+target_include_directories(simulator_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE} ${CEREALS_ROOT} ${CLI11_ROOT})
 
 # simulator is our visualization node.
 add_executable(simulator src/main.cpp)
 target_link_libraries(simulator simulator_lib )
-target_include_directories(simulator PRIVATE ${CEREALS_ROOT})
+target_include_directories(simulator PRIVATE ${CEREALS_ROOT} ${CLI11_ROOT})
 
 
 add_library(sim_visual_lib STATIC ${VISUAL_SOURCE_FILES} )
 target_link_libraries(sim_visual_lib merely3d CompactNSearch)
-target_include_directories(sim_visual_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE} ${CEREALS_ROOT})
+target_include_directories(sim_visual_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE} ${CEREALS_ROOT} ${CLI11_ROOT})
 
 add_executable(sim_visul src/visual_main.cpp)
 target_link_libraries(sim_visul sim_visual_lib)
@@ -114,13 +121,13 @@ target_include_directories(kernel_test PRIVATE extern/merely3d/extern/catch )
 #target_link_libraries(compare_neighborhoods CompactNSearch)
 #target_include_directories(compare_neighborhoods PRIVATE ${EIGEN3_ROOT})
 
-add_executable(compare_neighborhoods src/compare_neighborhoods.cpp)
-target_link_libraries(compare_neighborhoods CompactNSearch simulator_lib)
-target_include_directories(compare_neighborhoods PRIVATE ${EIGEN3_ROOT})
+#add_executable(compare_neighborhoods src/compare_neighborhoods.cpp)
+#target_link_libraries(compare_neighborhoods CompactNSearch simulator_lib)
+#target_include_directories(compare_neighborhoods PRIVATE ${EIGEN3_ROOT})
 
-add_executable(sweep_density src/sweep_density.cpp)
-target_link_libraries(sweep_density CompactNSearch simulator_lib)
-target_include_directories(sweep_density PRIVATE ${EIGEN3_ROOT})
+#add_executable(sweep_density src/sweep_density.cpp)
+#target_link_libraries(sweep_density CompactNSearch simulator_lib)
+#target_include_directories(sweep_density PRIVATE ${EIGEN3_ROOT})
 
 
 #add_executable(test_creals src/test_creals.cpp)
@@ -129,5 +136,5 @@ target_include_directories(sweep_density PRIVATE ${EIGEN3_ROOT})
 
 add_executable(test_creals src/test_creals.cpp)
 target_link_libraries(test_creals simulator_lib)
-target_include_directories(test_creals PRIVATE ${EIGEN3_ROOT} ${CEREALS_ROOT})
+target_include_directories(test_creals PRIVATE ${EIGEN3_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
 

@@ -7,6 +7,11 @@
 
 using namespace Simulator;
 
+ParticleFunc::ParticleFunc(Real rest_density, Real B) : rest_density(rest_density), B(B)
+{
+
+}
+
 std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<mParticle>& samples, std::vector<mParticle>& particles, Real radius )
 {
 	std::vector<Real> densities;
@@ -65,7 +70,6 @@ std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>&
 			d += m * kh.compute_kernel( particles[i].position, particles[neighbors_of_set[i][j]].position, 4 );
 		}
 
-		Real rest_density = 1000.0;
 		RealVector3 p_i = particles[i].position;
 
 		for (size_t k=0; k<neighbors_in_boundary[i].size(); ++k)
@@ -101,7 +105,7 @@ void ParticleFunc::update_position( std::vector<mParticle>& particles, Real dt )
 	}
 }
 
-void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<Real>& densities, std::vector<RealVector3>& external_forces, Real rest_density, Real radius, Real B)
+void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<Real>& densities, std::vector<RealVector3>& external_forces, Real radius)
 {
 	KernelHandler kh(radius);
 	for (size_t i=0; i<particles.size(); ++i)
@@ -155,7 +159,7 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 	}
 }
 
-void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<Real>& densities, std::vector<Real>& boundary_volumes, std::vector<RealVector3>& external_forces, Real rest_density, Real radius, Real B)
+void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<Real>& densities, std::vector<Real>& boundary_volumes, std::vector<RealVector3>& external_forces, Real radius)
 {
 	KernelHandler kh(radius);
 	for (size_t i=0; i<particles.size(); ++i)

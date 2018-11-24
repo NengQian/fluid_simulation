@@ -1,7 +1,3 @@
-#include <memory>
-#include <iostream>
-#include <algorithm>
-
 #include <merely3d/app.hpp>
 #include <merely3d/window.hpp>
 #include <merely3d/camera_controller.hpp>
@@ -10,6 +6,9 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_event_handler.h>
+
+#include <CLI11.hpp>
+#include <iostream>
 
 #include <chrono>
 
@@ -90,7 +89,7 @@ private:
     double _available_time;
 };
 
-int main()
+int main(int argc, char **argv)
 {
     using Simulator::Simulation;
     using Simulator::Real;
@@ -116,8 +115,36 @@ int main()
     window.add_event_handler(std::shared_ptr<EventHandler>(new Simulator::ImGuiEventHandler));
     window.add_event_handler(std::shared_ptr<EventHandler>(new CameraController));
 
-    const auto dt = 0.01;
-    Simulation simulation(dt, 5);
+
+    // Use CLI to parse the command line arguments
+    CLI::App CLIapp{"simulator"};
+
+    // Define options
+    float eta = 1.2f;
+    CLIapp.add_option("-e, --eta", eta, "Eta: normally 1.0~1.5");
+
+    float rest_density = 1000.0f;
+    CLIapp.add_option("-d, --rest_density", rest_density, "Fluid Rest density: 1000 (kg/m^3) on water for instance");
+
+    float B = 1000.0f;
+    CLIapp.add_option("-s, --stiffness", B, "Stiffness of pressure force");
+
+    float dt = 0.01f;
+    CLIapp.add_option("-t, --dt", dt, "Elapsed time");
+
+    std::vector<float> cuboid_side_lengths = {2.0f};
+    CLIapp.add_option("-l, --side_lengths", cuboid_side_lengths, "Side length of cuboid(if existed)");
+
+    float particle_radius = 0.1f;
+    CLIapp.add_option("-r, --particle_radius", particle_radius, "Radius of particles");
+
+    CLIapp.option_defaults()->required();
+    int N;
+    CLIapp.add_option("-n, --N", N, "Number of particles per edge");
+
+    CLI11_PARSE(CLIapp, argc, argv);
+
+    Simulation simulation(N, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(rest_density));
 
     // Here we currently only load a single scene at startup,
     // but you probably want to be able to dynamically reload different

@@ -12,12 +12,12 @@ std::string fold = "./sim_result/";
 void generate_sim_rec()  // maybe I should directly put all particles in all frame to one vector...
 {
     // a for loop to generate every thing, and then run...
-    SPHSimulator test_simulator(0.01,10);
-    int step_size = 5;
+    SPHSimulator test_simulator(5);
+    int step_size = 10;
 
-    for(int i=0;i<1500;++i)
+    for(int i=0;i<15000;++i)
     {
-        test_simulator.update_two_cubes_collision();
+        test_simulator.update_rigid_body_simulation();
 
         if (i % step_size == 0)
         	test_simulator.update_sim_record_state();

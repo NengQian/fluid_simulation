@@ -21,40 +21,36 @@ using merely3d::Particle;
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
 
-/*
-SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
+SPHSimulator::SPHSimulator(int N, Real dt, Real eta, Real B, Real rest_density) : dt(dt), //
+																				  N(N), //
+																				  particleFunc(rest_density, B) //
 {
-	set_N(5);
-	set_particle_radius(1.0/N);
-	generate_particles();
-	set_neighbor_search_radius(neighbor_search_radius);
-	set_index_of_source_particle(0);
-}
-*/
-
-//SPHSimulator::SPHSimulator(float neighbor_search_radius, Real dt, int N) : dt(dt), kernelHandler(static_cast<Real>(neighbor_search_radius)), neighborSearcher(static_cast<Real>(neighbor_search_radius))
-//{
-//    set_N(N);
-//    set_particle_radius(1.0/N);
-//    generate_particles();
-//    set_neighbor_search_radius(neighbor_search_radius);
-//    set_index_of_source_particle(0);
-//    file_count = 0;
-//}
-
-SPHSimulator::SPHSimulator(Real dt, int N) : dt(dt)
-{
-    set_N(N);
+    //set_N(N);
     set_particle_radius(1.0/N);
     generate_particles();
     set_neighbor_search_radius(2.4/N*2);
-    set_index_of_source_particle(0);
-
     set_boundary_volumes();
 
     sim_rec.timestep = dt;
     update_sim_record_state();
 }
+/*
+SPHSimulator::SPHSimulator(Real particle_radius, std::vector<Real>& cuboid_side_lengths, Real dt, Real eta, Real B, Real rest_density, int kernel_type) : dt(dt), //
+																																					 	  cuboid_shape(cuboid_side_lengths), //
+																																						  particle_radius(particle_radius),
+																																						  kernelHandler(kernel_type), //
+																																						  particleFunc(rest_density, B), //
+{
+	    set_N(N);
+	    set_particle_radius(1.0/N);
+	    generate_particles();
+	    set_neighbor_search_radius(2.4/N*2);
+	    set_boundary_volumes();
+
+	    sim_rec.timestep = dt;
+	    update_sim_record_state();
+}
+*/
 
 void SPHSimulator::set_boundary_volumes()
 {
@@ -63,7 +59,6 @@ void SPHSimulator::set_boundary_volumes()
 
 	boundary_volumes = particleFunc.initialize_boundary_particle_volumes(boundary_positions, static_cast<Real>(neighbor_search_radius));
 }
-
 
 void SPHSimulator::generate_particles()
 {
@@ -132,25 +127,15 @@ Real SPHSimulator::get_particle_radius()
 	return particle_radius;
 }
 
-void   SPHSimulator::set_N(size_t n)
+
+void SPHSimulator::set_N(size_t n)
 {
 	N = n;
-	set_number_of_particles(n * n * n);
 }
 
-size_t SPHSimulator::get_N()
+int SPHSimulator::get_N()
 {
 	return N;
-}
-
-void SPHSimulator::set_number_of_particles(size_t n)
-{
-	number_of_particles = n;
-}
-
-size_t SPHSimulator::get_number_of_particles()
-{
-	return number_of_particles;
 }
 
 void SPHSimulator::set_neighbor_search_radius(float r)
@@ -160,83 +145,6 @@ void SPHSimulator::set_neighbor_search_radius(float r)
 	neighborSearcher.set_neighbor_search_radius(rr);
 	kernelHandler.set_neighbor_search_radius(rr);
 }
-
-float SPHSimulator::get_neighbor_search_radius()
-{
-	return neighbor_search_radius;
-}
-
-void SPHSimulator::set_index_of_source_particle(int idx)
-{
-	index_of_source_particle = idx;
-}
-
-int SPHSimulator::get_index_of_source_particle()
-{
-	return index_of_source_particle;
-}
-
-void SPHSimulator::set_neighbors(std::vector<size_t>& ns)
-{
-	neighbors = ns;
-}
-
-std::vector<size_t> SPHSimulator::get_neighbors()
-{
-	return neighbors;
-}
-
-void SPHSimulator::find_and_set_neighbors(bool do_compactN)
-{
-	neighbors = neighborSearcher.find_neighbors_within_radius( index_of_source_particle, do_compactN );
-}
-
-std::vector< std::vector<size_t> > SPHSimulator::find_neighbors_of_all(bool do_compactN)
-{
-	return neighborSearcher.find_neighbors_within_radius( do_compactN );
-}
-
-
-Real SPHSimulator::compute_average_error_of_kernel_gradient(int kernel_type)
-{
-	Real error = 0;
-	for (size_t i=0; i < neighbors.size(); ++i)
-	{
-		error += kernelHandler.test_gradient(positions[index_of_source_particle], positions[neighbors[i]], kernel_type);
-	}
-
-	return error/neighbors.size();
-}
-
-void SPHSimulator::sample_density()
-{
-	std::vector<mParticle> sample_particles;
-	std::vector<RealVector3> sample_positions;
-	size_t number_of_samples = N*10;
-
-	for (size_t i=0; i<number_of_samples; ++i)
-	{
-		mParticle p;
-		RealVector3 vec(-2.0 + i * 4.0 / number_of_samples, 0.0, 0.0);
-		p.position = vec;
-		sample_particles.push_back(p);
-		sample_positions.push_back(vec);
-	}
-
-	set_neighbor_search_radius( 2.4/N * 2 );
-
-	std::vector< std::vector<size_t> > neighbors_of_samples = neighborSearcher.find_neighbors_within_radius(sample_positions);
-
-	std::vector<Real> densities;
-	Real r = static_cast<Real>(neighbor_search_radius);
-	densities = particleFunc.update_density(neighbors_of_samples, sample_particles, particles, r);
-
-	for (size_t i=0; i<neighbors_of_samples.size(); ++i)
-	{
-		std::cout << sample_particles[i].position[0] << " " << densities[i] << std::endl;
-	}
-}
-
 
 void SPHSimulator::update_positions()
 {
@@ -281,14 +189,11 @@ void SPHSimulator::update_two_cubes_collision()
 	Real r = static_cast<Real>(neighbor_search_radius);
 	std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
 
-	Real water_rest_density = 1000.0;
-	Real B = 1000.0;
-
 	std::vector<RealVector3> external_forces;
 	for (size_t i=0; i<particles.size(); ++i)
 		external_forces.push_back( RealVector3(0.0, 0.0, 0.0) );
 
-	particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
+	particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, r);
 	particleFunc.update_velocity(particles, dt);
 	particleFunc.update_position(particles, dt);
 
@@ -317,14 +222,11 @@ void SPHSimulator::update_rigid_body_simulation()
 	std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, boundary_volumes, r);
 	//std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
 
-	Real water_rest_density = 1000.0;
-	Real B = 100.0;
-
 	std::vector<RealVector3> external_forces;
 	for (size_t i=0; i<particles.size(); ++i)
 		external_forces.push_back( RealVector3(0.0, 0.0, -0.981 * particles[i].mass) );
 
-	particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, water_rest_density, r, B);
+	particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, r);
 	//particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
 
 	particleFunc.update_velocity(particles, dt);
@@ -346,8 +248,6 @@ void SPHSimulator::output_sim_record_bin(std::string fp)
     cereal::BinaryOutputArchive output(file); // stream to cout
     output(sim_rec);  //not good... maybe directly ar the vector
 }
-
-
 
 void SPHSimulator::print_all_particles()
 {
