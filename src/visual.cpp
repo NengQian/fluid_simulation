@@ -181,7 +181,7 @@ namespace Simulator
         /// Begin begins a new ImGui window that you can move around as you please
         if (ImGui::Begin(file_name.c_str(), NULL, ImVec2(300, 200)))
         {
-            // See the code for ImGui::ShowDemoWindow() for examples of how to use
+            // See the code for ImGui::ShowDemoWinxdow() for examples of how to use
             // various ImGui widgets.
             ImGui::SliderInt("current frame", &sim_count, 0, total_frame_num-1);
             ImGui::Checkbox("play backward", &playback_flag);

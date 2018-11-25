@@ -25,5 +25,7 @@ public:
 	void generate_two_freefall_cubes(std::vector<mParticle>& particles, size_t N);
 	void generate_rigid_box(std::vector<mParticle>& particles, size_t N);
 
+
+
 private:
 };

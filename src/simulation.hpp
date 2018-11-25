@@ -22,7 +22,7 @@ namespace Simulator
     {
     public:
 //<<<<<<< HEAD
-        Simulation(int N, int mode, Real dt, Real eta, Real B, Real alpha, Real rest_density);
+        Simulation(int N, int mode, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp);
 
 //=======
         //Simulation(Real dt, int N=5);
@@ -32,7 +32,7 @@ namespace Simulator
         void timestep(Real dt);
         void render(merely3d::Frame &frame);
         void update();
-        //bool is_simulation_finshed();
+        bool is_simulation_finshed();
 
 //<<<<<<< HEAD
 //        SPHSimulator sphSimulator;
@@ -55,7 +55,8 @@ namespace Simulator
 //        int boundary_particals_num; //could change, how we assign the boundary particals num? or through the volume?
 //        int total_frame_num;
         int frame_count;
-//        string file_path;
+        bool is_finished;
+        string file_path;
 //>>>>>>> neng3
     };
 }
