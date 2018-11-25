@@ -139,6 +139,9 @@ int main(int argc, char **argv)
     float particle_radius = 0.1f;
     CLIapp.add_option("-r, --particle_radius", particle_radius, "Radius of particles");
 
+    float alpha = 0.08f;
+    CLIapp.add_option("-a, --alpha", alpha, "parameter of viscosity");
+
     CLIapp.option_defaults()->required();
     int N;
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
@@ -148,7 +151,7 @@ int main(int argc, char **argv)
 
     CLI11_PARSE(CLIapp, argc, argv);
 
-    Simulation simulation(N, mode, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(rest_density));
+    Simulation simulation(N, mode, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density));
 //=======
 //    const auto dt = 0.01;
 //    Simulation simulation(dt, 1,3);

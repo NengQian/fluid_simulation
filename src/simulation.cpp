@@ -30,27 +30,26 @@ namespace Simulator
     }
 
 
-//<<<<<<< HEAD
-    Simulation::Simulation(int N, int mode, Real dt, Real eta, Real B, Real rest_density)
+    Simulation::Simulation(int N, int mode, Real dt, Real eta, Real B, Real alpha, Real rest_density)
     {
         frame_count = 0;
 
     	switch(mode) {
     		case 1:
-    			p_sphSimulator = new SPHSimulator_rigid_body(N, dt, eta, B, rest_density);
+    			p_sphSimulator = new SPHSimulator_rigid_body(N, dt, eta, B, alpha, rest_density);
     			break;
     		case 2:
-    			p_sphSimulator = new SPHSimulator_free_fall_motion(N, dt, eta, B, rest_density);
+    			p_sphSimulator = new SPHSimulator_free_fall_motion(N, dt, eta, B, alpha, rest_density);
     			break;
     		case 3:
-    			p_sphSimulator = new SPHSimulator_2cubes(N, dt, eta, B, rest_density);
+    			p_sphSimulator = new SPHSimulator_2cubes(N, dt, eta, B, alpha, rest_density);
     			break;
     		default:
     			std::cout << "Unknown model." << std::endl;
     			break;
     	}
     }
-//=======
+
 //    Simulation::Simulation(Real dt, int N) : sphSimulator(dt, N)
 //    {
 //    	//neighbor_search_radius = radius;

@@ -6,7 +6,7 @@
 class SPHSimulator_2cubes : public SPHSimulator
 {
 public:
-    SPHSimulator_2cubes(int N, Real dt, Real eta, Real B, Real rest_density):SPHSimulator(N, dt, eta, B, rest_density){
+    SPHSimulator_2cubes(int N, Real dt, Real eta, Real B, Real alpha, Real rest_density):SPHSimulator(N, dt, eta, B, alpha, rest_density){
         generate_particles();
         //update_sim_record_state();
     }
@@ -14,7 +14,7 @@ public:
     virtual void update_simulation() override
     {
             std::cout<<"hey now I am in subclass 2cubes"<<std::endl;
-            set_neighbor_search_radius( 2.4/N * 2 );
+            //set_neighbor_search_radius( 2.4/N * 2 );
             std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
 
             Real r = static_cast<Real>(neighbor_search_radius);

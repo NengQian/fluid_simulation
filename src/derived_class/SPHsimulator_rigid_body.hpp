@@ -6,7 +6,7 @@
 class SPHSimulator_rigid_body : public SPHSimulator
 {
 public:
-    SPHSimulator_rigid_body(int N, Real dt, Real eta, Real B, Real rest_density):SPHSimulator(N, dt, eta, B, rest_density){
+    SPHSimulator_rigid_body(int N, Real dt, Real eta, Real B, Real alpha, Real rest_density):SPHSimulator(N, dt, eta, B, alpha, rest_density){
         generate_particles();
         set_boundary_volumes();
         //update_sim_record_state();
@@ -14,8 +14,8 @@ public:
 
     virtual void update_simulation() override
     {
-        float fr = 2.4/N * 2 ;
-        set_neighbor_search_radius(fr);
+        //float fr = 2.4/N * 2 ;
+        //set_neighbor_search_radius(fr);
 
         std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
         std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
@@ -35,8 +35,15 @@ public:
         particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, r);
         //particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
 
+
+        /* -------- without XSPH ------------------*/
+        //particleFunc.update_velocity(particles, dt);
+        //particleFunc.update_position(particles, dt);
+
+        /* --------- using XSPH -------------------*/
         particleFunc.update_velocity(particles, dt);
-        particleFunc.update_position(particles, dt);
+        particleFunc.update_position(particles, dt, neighbors_set, r, densities);
+
 
         update_positions();;
     }

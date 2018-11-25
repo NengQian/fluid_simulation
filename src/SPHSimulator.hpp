@@ -26,8 +26,8 @@ public:
 	const Real dt;
 
     //SPHSimulator(Real dt, int N=5);
-    SPHSimulator(Real particle_radius, std::vector<Real>& cuboid_side_lengths, Real dt=0.01, Real eta=1.2, Real B=100.0, Real rest_density=1000.0, int kernel_type=4);
-    SPHSimulator(int N, Real dt=0.01, Real eta=1.2, Real B=100.0, Real rest_density=1000.0);
+    //SPHSimulator(Real particle_radius, std::vector<Real>& cuboid_side_lengths, Real dt=0.01, Real eta=1.2, Real B=100.0, Real rest_density=1000.0, Real alpha=0.08, int kernel_type=4);
+    SPHSimulator(int N, Real dt=0.01, Real eta=1.2, Real B=100.0, Real alpha=0.08, Real rest_density=1000.0);
 
 
     std::vector<RealVector3> get_boundary_positions();

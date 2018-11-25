@@ -22,7 +22,7 @@ namespace Simulator
     {
     public:
 //<<<<<<< HEAD
-        Simulation(int N, int mode, Real dt, Real eta, Real B, Real rest_density);
+        Simulation(int N, int mode, Real dt, Real eta, Real B, Real alpha, Real rest_density);
 
 //=======
         //Simulation(Real dt, int N=5);

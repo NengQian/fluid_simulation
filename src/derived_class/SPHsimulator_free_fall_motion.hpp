@@ -6,7 +6,7 @@
 class SPHSimulator_free_fall_motion: public SPHSimulator
 {
 public:
-    SPHSimulator_free_fall_motion(int N, Real dt, Real eta, Real B, Real rest_density):SPHSimulator(N, dt, eta, B, rest_density){
+    SPHSimulator_free_fall_motion(int N, Real dt, Real eta, Real B, Real alpha, Real rest_density):SPHSimulator(N, dt, eta, B, alpha, rest_density){
         generate_particles();
         //update_sim_record_state();
     }

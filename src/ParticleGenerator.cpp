@@ -173,7 +173,7 @@ void ParticleGenerator::generate_two_colliding_cubes(std::vector<mParticle>& par
 
 void ParticleGenerator::generate_rigid_box(std::vector<mParticle>& particles, size_t N)
 {
-	RealVector3 o(0.0, 0.0, 1.1);
+	RealVector3 o(0.0, 0.0, 0.0);
 	RealVector3 v_init(0.0, 0.0, 0.0);
     RealVector3 a(0.0, 0.0, 0.0);
 

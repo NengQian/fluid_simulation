@@ -97,14 +97,19 @@ Real KernelHandler::compute_M4_kernel( Eigen::Ref<RealVectorX> source_particle, 
 
 	if (q >= 1.0 && q < 2.0)
 	{
-		inside_w = 1.0/4.0 * std::pow(2.0-q, 3.0);
+		inside_w = 1.0/4.0 * (2.0-q) * (2.0-q) * (2.0-q);
 	}
 	else if (q >= 0.0 && q < 1.0)
 	{
-		inside_w = 1.0/4.0 * std::pow(2.0-q, 3.0) - std::pow(1.0-q, 3.0);
+		inside_w = 1.0/4.0 * (2.0-q) * (2.0-q) * (2.0-q) - (1.0-q) * (1.0-q) * (1.0-q);
 	}
 
-	W = sigma * inside_w * 1.0/std::pow(h, number_of_dimension);
+
+	Real h_pow = 1.0;
+	for (int i=0; i<number_of_dimension; ++i)
+		h_pow *= h;
+
+	W = sigma * inside_w * 1.0/h_pow;
 
 	return W;
 }
@@ -124,19 +129,22 @@ Real KernelHandler::compute_M5_kernel( Eigen::Ref<RealVectorX> source_particle, 
 
 	if (q >= 1.5 && q < 2.5)
 	{
-		inside_w = std::pow(2.5-q, 4.0);
+		inside_w = (2.5-q)*(2.5-q)*(2.5-q)*(2.5-q);
 	}
 	else if (q >= 0.5 && q < 1.5)
 	{
-		inside_w = std::pow(2.5-q, 4.0) - 5.0 * std::pow(1.5-q, 4.0);
+		inside_w = (2.5-q)*(2.5-q)*(2.5-q)*(2.5-q) - 5.0*(1.5-q)*(1.5-q)*(1.5-q)*(1.5-q);
 	}
 	else if (q >= 0.0 && q < 0.5)
 	{
-		inside_w = std::pow(2.5-q, 4.0) - 5.0 * std::pow(1.5-q, 4.0) + 10.0 * std::pow(0.5-q, 4.0);
+		inside_w = (2.5-q)*(2.5-q)*(2.5-q)*(2.5-q) - 5.0*(1.5-q)*(1.5-q)*(1.5-q)*(1.5-q) + 10.0*(0.5-q)*(0.5-q)*(0.5-q)*(0.5-q);
 	}
 
-	W = sigma * inside_w * 1.0/std::pow(h, number_of_dimension);
+	Real h_pow = 1.0;
+	for (int i=0; i<number_of_dimension; ++i)
+		h_pow *= h;
 
+	W = sigma * inside_w * 1.0/h_pow;
 	return W;
 }
 
@@ -155,19 +163,22 @@ Real KernelHandler::compute_M6_kernel( Eigen::Ref<RealVectorX> source_particle, 
 
 	if (q >= 2.0 && q < 3.0)
 	{
-		inside_w = std::pow(3.0-q, 5.0);
+		inside_w = (3.0-q)*(3.0-q)*(3.0-q)*(3.0-q)*(3.0-q);
 	}
 	else if (q >= 1.0 && q < 2.0)
 	{
-		inside_w = std::pow(3.0-q, 5.0) - 6.0 * std::pow(2.0-q, 5.0);
+		inside_w = (3.0-q)*(3.0-q)*(3.0-q)*(3.0-q)*(3.0-q) - 6.0*(2.0-q)*(2.0-q)*(2.0-q)*(2.0-q)*(2.0-q);
 	}
 	else if (q >= 0.0 && q < 1.0)
 	{
-		inside_w = std::pow(3.0-q, 5.0) - 6.0 * std::pow(2.0-q, 5.0) + 15.0 * std::pow(1.0-q, 5.0);
+		inside_w = (3.0-q)*(3.0-q)*(3.0-q)*(3.0-q)*(3.0-q) - 6.0*(2.0-q)*(2.0-q)*(2.0-q)*(2.0-q)*(2.0-q) + 15.0*(1.0-q)*(1.0-q)*(1.0-q)*(1.0-q)*(1.0-q);
 	}
 
-	W = sigma * inside_w * 1.0/std::pow(h, number_of_dimension);
+	Real h_pow = 1.0;
+	for (int i=0; i<number_of_dimension; ++i)
+		h_pow *= h;
 
+	W = sigma * inside_w * 1.0/h_pow;
 	return W;
 }
 
@@ -191,14 +202,18 @@ RealVectorX KernelHandler::gradient_of_M4_kernel( Eigen::Ref<RealVectorX> source
 
 	if (q >= 1.0 && q < 2.0)
 	{
-		gradient_w_over_q = sigma * (-3.0/4.0) * std::pow(2.0-q, 2.0);
+		gradient_w_over_q = sigma * (-3.0/4.0) * (2.0-q) * (2.0-q);
 	}
 	else if (q >= 0.0 && q < 1.0)
 	{
-		gradient_w_over_q = sigma * ( (-3.0/4.0) * std::pow(2.0-q, 2.0) + 3.0 * std::pow(1.0-q, 2.0) );
+		gradient_w_over_q = sigma * ( (-3.0/4.0) * (2.0-q) * (2.0-q) + 3.0 * (1.0-q) * (1.0-q));
 	}
 
-	gradient_W_over_x = gradient_w_over_q * 1.0/std::pow(h, number_of_dimension) * gradient_q_over_x;
+	Real h_pow = 1.0;
+	for (int i=0; i<number_of_dimension; ++i)
+		h_pow *= h;
+
+	gradient_W_over_x = gradient_w_over_q * 1.0/h_pow * gradient_q_over_x;
 
 	return gradient_W_over_x;
 }
@@ -223,18 +238,22 @@ RealVectorX KernelHandler::gradient_of_M5_kernel( Eigen::Ref<RealVectorX> source
 
 	if (q >= 1.5 && q < 2.5)
 	{
-		gradient_w_over_q = sigma * (-4.0) * std::pow(2.5-q, 3.0);
+		gradient_w_over_q = sigma * (-4.0) * (2.5-q) * (2.5-q) * (2.5-q);
 	}
 	else if (q >= 0.5 && q < 1.5)
 	{
-		gradient_w_over_q = sigma * ( (-4.0) * std::pow(2.5-q, 3.0) + 20.0 * std::pow(1.5-q, 3.0) );
+		gradient_w_over_q = sigma * ( (-4.0) * (2.5-q) * (2.5-q) * (2.5-q) + 20.0 * (1.5-q) * (1.5-q) * (1.5-q) );
 	}
 	else if (q >= 0.0 && q < 0.5)
 	{
-		gradient_w_over_q = sigma * ( (-4.0) * std::pow(2.5-q, 3.0) + 20.0 * std::pow(1.5-q, 3.0) - 40.0 * std::pow(0.5-q, 3.0) );
+		gradient_w_over_q = sigma * ( (-4.0) * (2.5-q) * (2.5-q) * (2.5-q) + 20.0 * (1.5-q) * (1.5-q) * (1.5-q) - 40.0 * (0.5-q) * (0.5-q) * (0.5-q) );
 	}
 
-	gradient_W_over_x = gradient_w_over_q * 1.0/std::pow(h, number_of_dimension) * gradient_q_over_x;
+	Real h_pow = 1.0;
+	for (int i=0; i<number_of_dimension; ++i)
+		h_pow *= h;
+
+	gradient_W_over_x = gradient_w_over_q * 1.0/h_pow * gradient_q_over_x;
 
 	return gradient_W_over_x;
 }
@@ -259,18 +278,22 @@ RealVectorX KernelHandler::gradient_of_M6_kernel( Eigen::Ref<RealVectorX> source
 
 	if (q >= 2.0 && q < 3.0)
 	{
-		gradient_w_over_q = sigma * (-5.0) * std::pow(3.0-q, 4.0);
+		gradient_w_over_q = sigma * (-5.0) * (3.0-q) * (3.0-q) * (3.0-q) * (3.0-q);
 	}
 	else if (q >= 1.0 && q < 2.0)
 	{
-		gradient_w_over_q = sigma * ( (-5.0) * std::pow(3.0-q, 4.0) + 30.0 * std::pow(2.0-q, 4.0) );
+		gradient_w_over_q = sigma * ( (-5.0) * (3.0-q) * (3.0-q) * (3.0-q) * (3.0-q) + 30.0 * (2.0-q) * (2.0-q) * (2.0-q) * (2.0-q) );
 	}
 	else if (q >= 0.0 && q < 1.0)
 	{
-		gradient_w_over_q = sigma * ( (-5.0) * std::pow(3.0-q, 4.0) + 30.0 * std::pow(2.0-q, 4.0) - 75.0 * std::pow(1.0-q, 4.0) );
+		gradient_w_over_q = sigma * ( (-5.0) * (3.0-q) * (3.0-q) * (3.0-q) * (3.0-q) + 30.0 * (2.0-q) * (2.0-q) * (2.0-q) * (2.0-q) - 75.0 * (1.0-q) * (1.0-q) * (1.0-q) * (1.0-q) );
 	}
 
-	gradient_W_over_x = gradient_w_over_q * 1.0/std::pow(h, 3.0) * gradient_q_over_x;
+	Real h_pow = 1.0;
+	for (int i=0; i<number_of_dimension; ++i)
+		h_pow *= h;
+
+	gradient_W_over_x = gradient_w_over_q * 1.0/h_pow * gradient_q_over_x;
 
 	return gradient_W_over_x;
 }

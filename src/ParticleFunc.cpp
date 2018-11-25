@@ -4,10 +4,11 @@
 #include "NeighborSearcher.hpp"
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 using namespace Simulator;
 
-ParticleFunc::ParticleFunc(Real rest_density, Real B) : rest_density(rest_density), B(B)
+ParticleFunc::ParticleFunc(Real rest_density, Real B, Real alpha) : rest_density(rest_density), B(B), alpha(alpha)
 {
 
 }
@@ -97,6 +98,7 @@ void ParticleFunc::update_velocity( std::vector<mParticle>& particles, Real dt )
 	}
 }
 
+// without XSPH
 void ParticleFunc::update_position( std::vector<mParticle>& particles, Real dt )
 {
 	for (auto& p : particles)
@@ -104,6 +106,32 @@ void ParticleFunc::update_position( std::vector<mParticle>& particles, Real dt )
 		p.position += p.velocity * dt;
 	}
 }
+
+
+// with XSPH
+void ParticleFunc::update_position( std::vector<mParticle>& particles, Real dt, std::vector<std::vector<size_t>>& neighbors_set, Real radius, std::vector<Real>& densities)
+{
+	KernelHandler kh(radius);
+
+	for (size_t i=0; i<particles.size(); ++i)
+	{
+		RealVector3 sum(0.0, 0.0, 0.0);
+		mParticle p_i = particles[i];
+
+		for (size_t k=0; k<neighbors_set[i].size(); ++k)
+		{
+			size_t j = neighbors_set[i][k];
+			mParticle p_j = particles[j];
+
+			sum += 2.0 * p_j.mass / (densities[i] + densities[j]) * kh.compute_kernel(p_i.position, p_j.position, 4) * (p_j.velocity - p_i.velocity);
+		}
+
+		RealVector3 v_i_star = p_i.velocity + 0.5 * sum;
+
+		particles[i].position += v_i_star * dt;
+	}
+}
+
 
 void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<Real>& densities, std::vector<RealVector3>& external_forces, Real radius)
 {
@@ -162,6 +190,9 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<Real>& densities, std::vector<Real>& boundary_volumes, std::vector<RealVector3>& external_forces, Real radius)
 {
 	KernelHandler kh(radius);
+
+	std::vector<std::vector<Real>> viscosity = compute_viscosity(particles, densities, radius);
+
 	for (size_t i=0; i<particles.size(); ++i)
 	{
 		RealVector3 a(0.0, 0.0, 0.0);
@@ -171,14 +202,11 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 
 		//std::cout << "a1 before " << i << ": (" << a1[0] << " " << a1[1] << " " << a1[2] << ")" << std::endl;
 
-		// add itself
-		//neighbors_of_set[i].push_back(i);
 
 		Real d_i = densities[i];
 		//std::cout << "density " << i << ": " << d_i << std::endl;
 
 		//std::cout << "neighbor of " << i << ": " << neighbors_of_set[i].size() << std::endl;
-
 
 		for (size_t j=0; j<neighbors_of_set[i].size(); ++j)
 		{
@@ -196,7 +224,7 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 
 			m_j = particles[neighbors_of_set[i][j]].mass;
 
-			a1 -= gradient * m_j * (p_i / (d_i * d_i) + p_j / (d_j * d_j));
+			a1 -= gradient * m_j * (p_i / (d_i * d_i) + p_j / (d_j * d_j) + viscosity[i][j]);
 		}
 		//std::cout << "a1 after " << i << ": (" << a1[0] << " " << a1[1] << " " << a1[2] << ")" << std::endl;
 
@@ -257,4 +285,35 @@ std::vector<Real> ParticleFunc::initialize_boundary_particle_volumes(std::vector
 	return volumes;
 }
 
+std::vector<std::vector<Real>> ParticleFunc::compute_viscosity(std::vector<mParticle>& particles, std::vector<Real>& densities, Real neighbor_search_radius)
+{
+	std::vector<std::vector<Real>> vs;
+
+	size_t l = particles.size();
+	for (size_t i=0; i<l; ++i)
+	{
+		std::vector<Real> v_i;
+		for (size_t j=0; j<l; ++j)
+		{
+			RealVector3 v_ij = particles[i].velocity - particles[j].velocity;
+			RealVector3 x_ij = particles[i].position - particles[j].position;
+
+			Real dotProduct = v_ij[0] * x_ij[0] + v_ij[1] * x_ij[1] + v_ij[2] * x_ij[2];
+
+			if (dotProduct >= 0.0)
+				v_i.push_back(0.0);
+			else {
+				Real u_ij = 2.0 * alpha * neighbor_search_radius * sqrt(B) / (densities[i] + densities[j]);
+				Real squaredNorm_x_ij = x_ij[0] * x_ij[0] + x_ij[1] * x_ij[1] + x_ij[2] * x_ij[2];
+
+				Real v_ij = -u_ij * dotProduct / (squaredNorm_x_ij + 0.01 * neighbor_search_radius * neighbor_search_radius);
+				v_i.push_back(v_ij);
+			}
+		}
+
+		vs.push_back(v_i);
+	}
+
+	return vs;
+}
 

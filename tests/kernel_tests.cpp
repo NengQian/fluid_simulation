@@ -103,7 +103,7 @@ TEST_CASE( "M6 Kernels are computed", "[M6 Kernel]" ) {
 
 TEST_CASE( "M4 Kernels is integrated", "[M4 Kernel Integration]" ) {
 
-	KernelHandler kh;
+	KernelHandler kh(5.0);
 
 	SECTION( "dim == 1" ) {
 	    REQUIRE( std::abs(kh.integrate_kernel( 4, 1 ) - 1.0) <= error );
@@ -120,7 +120,7 @@ TEST_CASE( "M4 Kernels is integrated", "[M4 Kernel Integration]" ) {
 
 TEST_CASE( "M5 Kernels is integrated", "[M5 Kernel Integration]" ) {
 
-	KernelHandler kh;
+	KernelHandler kh(5.0);
 
 	SECTION( "dim == 1" ) {
 	    REQUIRE( std::abs(kh.integrate_kernel( 5, 1 ) - 1.0) <= error );
@@ -137,7 +137,7 @@ TEST_CASE( "M5 Kernels is integrated", "[M5 Kernel Integration]" ) {
 
 TEST_CASE( "M6 Kernels is integrated", "[M6 Kernel Integration]" ) {
 
-	KernelHandler kh;
+	KernelHandler kh(5.0);
 
 	SECTION( "dim == 1" ) {
 	    REQUIRE( std::abs(kh.integrate_kernel( 6, 1 ) - 1.0) <= error );

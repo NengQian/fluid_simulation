@@ -21,14 +21,14 @@ using merely3d::Particle;
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
 
-SPHSimulator::SPHSimulator(int N, Real dt, Real eta, Real B, Real rest_density) : dt(dt), //
+SPHSimulator::SPHSimulator(int N, Real dt, Real eta, Real B, Real alpha, Real rest_density) : dt(dt), //
 																				  N(N), //
-																				  particleFunc(rest_density, B) //
+																				  particleFunc(rest_density, B, alpha) //
 {
     //set_N(N);
     set_particle_radius(1.0/N);
     //generate_particles();
-    set_neighbor_search_radius(2.4/N*2);
+    set_neighbor_search_radius(eta*2.0/N*2);
 //<<<<<<< HEAD
     //set_boundary_volumes();
 //=======

@@ -13,27 +13,14 @@ using namespace std;
 
 std::string fold = "./sim_result/";
 
-void generate_sim_rec(int N, int mode, int total_simulation, int step_size, std::string& output_file, Real dt, Real eta, Real B, Real rest_density)  // maybe I should directly put all particles in all frame to one vector...
+void generate_sim_rec(int N, int mode, int total_simulation, int step_size, std::string& output_file, Real dt, Real eta, Real B, Real alpha, Real rest_density)  // maybe I should directly put all particles in all frame to one vector...
 {
     // a for loop to generate every thing, and then run...
-//<<<<<<< HEAD
-	Simulation simulation(N, mode, dt, eta, B, rest_density);
-    //SPHSimulator test_simulator(5);
-    //int step_size = 10;
-
-    //for(int i=0;i<15000;++i)
-    //{
-    //    test_simulator.update_rigid_body_simulation();
-//=======
-    //SPHSimulator test_simulator(0.01,10);
-    //SPHSimulator_2cubes test_simulator_1(0.01, 5);
-    //SPHSimulator& test_simulator(test_simulator_1);
-
+	Simulation simulation(N, mode, dt, eta, B, alpha, rest_density);
 
     for(int i=0;i<total_simulation;++i)
     {
         simulation.p_sphSimulator->update_simulation();
-//>>>>>>> neng3
 
         if (i % step_size == 0)
         	simulation.p_sphSimulator->update_sim_record_state();
@@ -74,6 +61,9 @@ int main(int argc, char **argv)
     int step_size = 10;
     CLIapp.add_option("-z, --step_size", step_size, "record once every <step_size> frames");
 
+    float alpha = 0.08f;
+    CLIapp.add_option("-a, --alpha", alpha, "parameter of viscosity");
+
     CLIapp.option_defaults()->required();
     int N;
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
@@ -91,7 +81,7 @@ int main(int argc, char **argv)
 
     CLI11_PARSE(CLIapp, argc, argv);
 
-    generate_sim_rec(N, mode, total_simulation, step_size, output_file, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(rest_density));
+    generate_sim_rec(N, mode, total_simulation, step_size, output_file, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density));
 
 
     return 0;
