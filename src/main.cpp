@@ -143,10 +143,10 @@ int main(int argc, char **argv)
     CLIapp.add_option("-a, --alpha", alpha, "parameter of viscosity");
 
     CLIapp.option_defaults()->required();
-    int N;
+    int N = 3;
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
 
-    int mode;
+    int mode = 1;
     CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for rigid_body | 2 for free fall | 3 for 2-cube collision");
 
     CLI11_PARSE(CLIapp, argc, argv);
