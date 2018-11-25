@@ -22,14 +22,13 @@ using namespace Simulator;
 class SPHSimulator
 {
 public:
-	const RealVector3 gravity = RealVector3(0.0, 0.0, -0.98);
+    const RealVector3 gravity = RealVector3(0.0, 0.0, -15.0);
 	const Real dt;
 
     //SPHSimulator(Real dt, int N=5);
     SPHSimulator(Real particle_radius, std::vector<Real>& cuboid_side_lengths, Real dt=0.01, Real eta=1.2, Real B=100.0, Real rest_density=1000.0, int kernel_type=4);
     SPHSimulator(int N, Real dt=0.01, Real eta=1.2, Real B=100.0, Real rest_density=1000.0);
 
-    void generate_particles();
 
     std::vector<RealVector3> get_boundary_positions();
     std::vector<RealVector3> get_positions();
@@ -45,10 +44,17 @@ public:
 
 	void sample_density();
 
-	void update_positions();
-	void update_freefall_motion();
-	void update_two_cubes_collision();
-	void update_rigid_body_simulation();
+
+/*----------virtual function-----------------*/
+    virtual void update_simulation();
+    virtual void generate_particles();
+    virtual ~SPHSimulator() = default;
+/*-------------------------------------------*/
+
+    void update_positions();
+    //void update_freefall_motion();
+    //void update_two_cubes_collision();
+    //void update_rigid_body_simulation();
 
     /*-----use cereal output particles to json file-----*/
     void update_sim_record_state();
@@ -56,13 +62,13 @@ public:
     void print_all_particles();
    /*------cereal task over----------------------------*/
 
-private:
+protected:
 	NeighborSearcher neighborSearcher;
 	KernelHandler 	 kernelHandler;
 	ParticleFunc 	 particleFunc;
 	ParticleGenerator particleGenerator;
 
-	std::vector<RealVector3> positions;
+    std::vector<RealVector3> positions;   //why we need this positions... neng
 	std::vector<RealVector3> boundary_positions;
 
 	std::vector<Real> boundary_volumes;
@@ -77,8 +83,5 @@ private:
 	float neighbor_search_radius;
 
     /*----------this is for cereal-------------*/
-    std::string file_path;
-    unsigned int file_count;
-
     SimulationRecord sim_rec;
 };

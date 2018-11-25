@@ -115,6 +115,7 @@ int main(int argc, char **argv)
     window.add_event_handler(std::shared_ptr<EventHandler>(new Simulator::ImGuiEventHandler));
     window.add_event_handler(std::shared_ptr<EventHandler>(new CameraController));
 
+//<<<<<<< HEAD
 
     // Use CLI to parse the command line arguments
     CLI::App CLIapp{"simulator"};
@@ -142,9 +143,16 @@ int main(int argc, char **argv)
     int N;
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
 
+    int mode;
+    CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for rigid_body | 2 for free fall | 3 for 2-cube collision");
+
     CLI11_PARSE(CLIapp, argc, argv);
 
-    Simulation simulation(N, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(rest_density));
+    Simulation simulation(N, mode, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(rest_density));
+//=======
+//    const auto dt = 0.01;
+//    Simulation simulation(dt, 1,3);
+//>>>>>>> neng3
 
     // Here we currently only load a single scene at startup,
     // but you probably want to be able to dynamically reload different
@@ -169,7 +177,12 @@ int main(int argc, char **argv)
         {
             simulation.timestep(dt);
         }
-
+        //
+        //if(simulation.is_simulation_finshed())
+        //{
+        //    std::cout<<"simulation finished!"<<std::endl;
+        //    break;
+        //}
         simulation.update();
 
         window.render_frame([&] (Frame & frame)

@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.1)
 project(simulator)
 
 set (CMAKE_CXX_STANDARD 11)
-set(CMAKE_CONFIGURATION_TYPES "Debug" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+
 # Setting EIGEN3_ROOT here lets us override which Eigen library merely3d chooses
 set(EIGEN3_ROOT ${PROJECT_SOURCE_DIR}/extern/eigen_3.3.4)
 
@@ -68,6 +69,16 @@ set(SOURCE_FILES
         src/sim_record.hpp
 )
 
+
+set(DERIVED_CLASS_FOLDER src/derived_class)
+set(DERIVED_CLASS_FILES
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_2cubes.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_free_fall_motion.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_rigid_body.hpp
+
+# when we have new simulation scenero, we do derive it from sphsimulator class, and add file here.
+)
+
 set(VISUAL_SOURCE_FILES
 		${CLI11_FILES}
         ${IMGUI_FILES}
@@ -81,9 +92,9 @@ set(VISUAL_SOURCE_FILES
 
 # Compile source files into a static lib, so that we don't have to compile source files
 # twice for our main executable and our unit tests
-add_library(simulator_lib STATIC ${SOURCE_FILES})
+add_library(simulator_lib STATIC ${SOURCE_FILES} ${DERIVED_CLASS_FILES})
 target_link_libraries(simulator_lib merely3d CompactNSearch)
-target_include_directories(simulator_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE} ${CEREALS_ROOT} ${CLI11_ROOT})
+target_include_directories(simulator_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE} ${CEREALS_ROOT} ${CLI11_ROOT} ${DERIVED_CLASS_FOLDER})
 
 # simulator is our visualization node.
 add_executable(simulator src/main.cpp)

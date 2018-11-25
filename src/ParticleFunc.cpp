@@ -231,6 +231,8 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 std::vector<Real> ParticleFunc::initialize_boundary_particle_volumes(std::vector<RealVector3>& boundary_positions, Real neighbor_search_radius)
 {
 	std::vector<Real> volumes;
+//    if(boundary_positions.size()==0)  // if we don't need to generate volume
+//        return volumes;
 
 	NeighborSearcher nb(neighbor_search_radius);
 	nb.set_boundary_particles_ptr(boundary_positions);
