@@ -6,9 +6,12 @@
 class SPHSimulator_rigid_body : public SPHSimulator
 {
 public:
-    SPHSimulator_rigid_body(int N, Real dt, Real eta, Real B, Real alpha, Real rest_density):SPHSimulator(N, dt, eta, B, alpha, rest_density){
+    SPHSimulator_rigid_body(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density):SPHSimulator(N, uParticle_len,dt, eta, B, alpha, rest_density){
+
+
         generate_particles();
         set_boundary_volumes();
+        sim_rec.boundary_particles = boundary_particles;
         //update_sim_record_state();
     }
 
@@ -66,8 +69,29 @@ public:
 
             RealVector3 zero(0.0, 0.0, 0.0);
 
-            particleGenerator.generate_rigid_box(boundary_particles, 3*N);
-            particleGenerator.generate_cube(particles, N, zero, zero, zero);
+            //particleGenerator.generate_rigid_box(boundary_particles, 3*N, particle_radius);
+            mCuboid test_cuboid;
+            test_cuboid.origin = zero;
+            test_cuboid.x_n = 10;
+            test_cuboid.y_n = 30;
+            test_cuboid.z_n = 10;
+            test_cuboid.is_hollow = true;
+            particleGenerator.generate_cuboid_box(boundary_particles,zero,zero,test_cuboid,particle_radius,false);
+
+//            mCuboid test_cuboid2;
+//            test_cuboid2.origin = RealVector3(0.0, particle_radius, 2*particle_radius);
+//            test_cuboid2.x_n = 1;
+//            test_cuboid2.y_n = 1;
+//            test_cuboid2.z_n = 1;
+//            test_cuboid2.is_hollow = false;
+//            particleGenerator.generate_cuboid_box(particles,zero,zero,test_cuboid2,particle_radius,false);
+            ///////only for test, we generate two cubic, consist of a cuboid
+            RealVector3 origin = RealVector3(0.0, 0.0, particle_radius);
+            particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
+
+            origin = RealVector3(0.0, 0.0, 2*particle_radius*N+particle_radius);
+            particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
+
 
             set_positions();
             set_boundary_positions();
@@ -75,6 +99,20 @@ public:
             neighborSearcher.set_particles_ptr(positions);
             neighborSearcher.set_boundary_particles_ptr(boundary_positions);
     }
+
+
+
+    void set_boundary_positions()
+    {
+        if (!boundary_positions.empty())
+            boundary_positions.clear();
+
+        for (auto& bp : boundary_particles)
+            boundary_positions.push_back(RealVector3(bp.position));
+    }
+
+
+
 
 
 protected:

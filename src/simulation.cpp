@@ -30,20 +30,24 @@ namespace Simulator
     }
 
 
-    Simulation::Simulation(int N, int mode, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp)
+    Simulation::Simulation(int N, int mode,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp, bool if_print)
     {
         file_path = fp;
         frame_count = 0;
-        is_finished = false;
+        if_print_iteration = if_print;
+        time_step = dt;
+        this->eta = eta;
+        this->B = B;
+  //      is_finished = false;
     	switch(mode) {
     		case 1:
-    			p_sphSimulator = new SPHSimulator_rigid_body(N, dt, eta, B, alpha, rest_density);
+                p_sphSimulator = new SPHSimulator_rigid_body(N,uParticle_len, dt, eta, B, alpha, rest_density);
     			break;
     		case 2:
-    			p_sphSimulator = new SPHSimulator_free_fall_motion(N, dt, eta, B, alpha, rest_density);
+                p_sphSimulator = new SPHSimulator_free_fall_motion(N, uParticle_len, dt,eta, B, alpha, rest_density);
     			break;
     		case 3:
-    			p_sphSimulator = new SPHSimulator_2cubes(N, dt, eta, B, alpha, rest_density);
+                p_sphSimulator = new SPHSimulator_2cubes(N,uParticle_len, dt, eta, B, alpha, rest_density);
     			break;
     		default:
     			std::cout << "Unknown model." << std::endl;
@@ -76,9 +80,9 @@ namespace Simulator
         std::cout<<"delete done!"<<std::endl;
     }
 
-    bool Simulation::is_simulation_finshed(){
-        return is_finished;
-    }
+//    bool Simulation::is_simulation_finshed(){
+//        return is_finished;
+//    }
 
 
     void Simulation::render(merely3d::Frame &frame)
@@ -91,7 +95,8 @@ namespace Simulator
     	p_sphSimulator->update_simulation();
         p_sphSimulator->update_sim_record_state();
         frame_count++;
-        std::cout<<"iterate "<<frame_count<<std::endl;
+        if(if_print_iteration)
+            std::cout<<"iterate "<<frame_count<<std::endl;
     }
 
     void Simulation::render_particles(merely3d::Frame &frame)
@@ -117,10 +122,10 @@ namespace Simulator
         /// Begin begins a new ImGui window that you can move around as you please
         if (ImGui::Begin(file_path.c_str(), NULL, ImVec2(300, 200)))
         {
-            if(ImGui::Button("terminate simulation"))
-            {
-                is_finished = true;
-            }
+            ImGui::TextWrapped("B = %0.1f", B  );
+            ImGui::TextWrapped("dt = %f", time_step  );
+            ImGui::TextWrapped("eta = %0.2f", eta  );
+
         }
         ImGui::End();
 

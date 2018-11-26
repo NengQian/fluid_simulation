@@ -37,7 +37,7 @@ namespace Simulator
         input_sim_record_bin(fp);
         SimulationState simu_state = sim_rec.states[0];
         particles_num = simu_state.particles.size();
-        particle_radius = 1.0/cbrt(static_cast<Real>(particles_num)); // could be change
+        particle_radius = sim_rec.unit_particle_length/2.0;
         total_frame_num = sim_rec.states.size();
         real_time_step = sim_rec.timestep;
         total_time = real_time_step*total_frame_num;
@@ -145,6 +145,15 @@ namespace Simulator
                 float r = acc_to_float(a);
                 float b = 1.0f- r;
                 frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(r, 0.0f, b)));            }
+        }
+
+        // render boundary particles
+        std::vector<mParticle>& bp = sim_rec.boundary_particles;
+        for(size_t i =0;i<bp.size();++i)
+        {
+            Simulator::mParticle& mparticle = bp[i];
+            Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
+            frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.5f, 0.5f, 0.5f)));
         }
 
 

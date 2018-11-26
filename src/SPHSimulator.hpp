@@ -22,12 +22,12 @@ using namespace Simulator;
 class SPHSimulator
 {
 public:
-    const RealVector3 gravity = RealVector3(0.0, 0.0, -15.0);
+    const RealVector3 gravity = RealVector3(0.0, 0.0, -3.0);
 	const Real dt;
 
     //SPHSimulator(Real dt, int N=5);
     //SPHSimulator(Real particle_radius, std::vector<Real>& cuboid_side_lengths, Real dt=0.01, Real eta=1.2, Real B=100.0, Real rest_density=1000.0, Real alpha=0.08, int kernel_type=4);
-    SPHSimulator(int N, Real dt=0.01, Real eta=1.2, Real B=100.0, Real alpha=0.08, Real rest_density=1000.0);
+    SPHSimulator(int N,  Real uParticle_len = 0.2, Real dt=0.01, Real eta=1.2, Real B=100.0, Real alpha=0.08, Real rest_density=1000.0);
 
 
     std::vector<RealVector3> get_boundary_positions();
@@ -76,11 +76,15 @@ protected:
 	std::vector<mParticle> particles;
 	std::vector<mParticle> boundary_particles;
 
+    Real unit_particle_length;
 	size_t N;
 	Real particle_radius;
-	std::vector<Real> cuboid_shape;
+    //std::vector<Real> cuboid_shape;
+    std::vector<mCuboid> cuboids;
 
 	float neighbor_search_radius;
+
+
 
     /*----------this is for cereal-------------*/
     SimulationRecord sim_rec;

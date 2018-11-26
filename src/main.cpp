@@ -132,10 +132,10 @@ int main(int argc, char **argv)
     float dt = 0.01f;
     CLIapp.add_option("-t, --dt", dt, "Elapsed time");
 
-    std::vector<float> cuboid_side_lengths = {2.0f};
+    std::vector<float> cuboid_side_lengths = {2.0f};   // what this mean?
     CLIapp.add_option("-l, --side_lengths", cuboid_side_lengths, "Side length of cuboid(if existed)");
 
-    float particle_radius = 0.1f;
+    float particle_radius = 0.1f;    //do we really need this?
     CLIapp.add_option("-r, --particle_radius", particle_radius, "Radius of particles");
 
     float alpha = 0.08f;
@@ -144,6 +144,9 @@ int main(int argc, char **argv)
     std::string output_file = "../../sim_result/test.bin";
     CLIapp.add_option("-o, --output_file", output_file, "output filename");
 
+    bool if_print_iteration = false;
+    CLIapp.add_option("-p, --log", if_print_iteration, "decide if print iteration count, 0 for unprint or 1 for print");
+
     CLIapp.option_defaults()->required();
     int N = 3;
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
@@ -151,11 +154,12 @@ int main(int argc, char **argv)
     int mode = 1;
     CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for rigid_body | 2 for free fall | 3 for 2-cube collision");
 
-
+    float unit_particle_length ;
+    CLIapp.add_option("-u, --unit_particle_length", unit_particle_length, " the intervel length between two particles per axis.");
 
     CLI11_PARSE(CLIapp, argc, argv);
 
-    Simulation simulation(N, mode, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density),output_file);
+    Simulation simulation(N, mode, unit_particle_length, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density),output_file,if_print_iteration);
 
 
     // Here we currently only load a single scene at startup,
@@ -182,11 +186,11 @@ int main(int argc, char **argv)
             simulation.timestep(dt);
         }
         //
-        if(simulation.is_simulation_finshed())
-        {
-            std::cout<<"simulation finished!"<<std::endl;
-            break;
-        }
+//        if(simulation.is_simulation_finshed())
+//        {
+//            std::cout<<"simulation finished!"<<std::endl;
+//            break;
+//        }
         simulation.update();
 
         window.render_frame([&] (Frame & frame)

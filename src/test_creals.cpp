@@ -16,7 +16,7 @@ std::string fold = "./sim_result/";
 void generate_sim_rec(int N, int mode, int total_simulation, int step_size, std::string& output_file, Real dt, Real eta, Real B, Real alpha, Real rest_density)  // maybe I should directly put all particles in all frame to one vector...
 {
     // a for loop to generate every thing, and then run...
-    Simulation simulation(N, mode, dt, eta, B, alpha, rest_density, fold+output_file);
+    Simulation simulation(N, mode,0.2, dt, eta, B, alpha, rest_density, fold+output_file);
 
     for(int i=0;i<total_simulation;++i)
     {

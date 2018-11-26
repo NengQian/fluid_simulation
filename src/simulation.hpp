@@ -21,42 +21,39 @@ namespace Simulator
     class Simulation
     {
     public:
-//<<<<<<< HEAD
-        Simulation(int N, int mode, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp);
 
-//=======
+        Simulation(int N, int mode,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp,  bool if_print = false);
+
+
         //Simulation(Real dt, int N=5);
         //Simulation(Real dt, int N_particles, int N_boundary=1,int N_frame=1500 , string fp = "../../sim_result/test_rigid.bin" ); // mode); here mode indicate which sphsimulator will be called.
         ~Simulation(); // when deconstruct, it start to output data
-//>>>>>>> neng3
         void timestep(Real dt);
         void render(merely3d::Frame &frame);
         void update();
-        bool is_simulation_finshed();
+//        bool is_simulation_finshed();
 
-//<<<<<<< HEAD
-//        SPHSimulator sphSimulator;
-//=======
-//        SPHSimulator& sphSimulator;
+
         SPHSimulator* p_sphSimulator;
         //float neighbor_search_radius;
-//>>>>>>> neng3
 
-        // You probably want some methods to add bodies to the system
-        // void addBody(const RigidBody & body);
+
 
     private:
         void render_particles(merely3d::Frame &frame);
-//<<<<<<< HEAD
-//=======
+
 //        void render_sweep_line(merely3d::Frame &frame);
 //        Real time_step;
 //        int fluid_particals_num;
 //        int boundary_particals_num; //could change, how we assign the boundary particals num? or through the volume?
 //        int total_frame_num;
         int frame_count;
-        bool is_finished;
+        //bool is_finished;
         string file_path;
-//>>>>>>> neng3
+        bool if_print_iteration;
+
+        Real time_step;
+        Real eta;
+        Real B;
     };
 }

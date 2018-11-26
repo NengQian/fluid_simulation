@@ -27,4 +27,21 @@ namespace Simulator
     };
 
 	typedef struct mParticle mParticle;
+
+
+/*
+ *  parameter used to describe a cubic.
+ */
+    class mCuboid{
+    public:
+        RealVector3 origin;
+        int x_n;
+        int y_n;
+        int z_n;
+        bool is_hollow;
+    };
 }
+
+
+
+
