@@ -22,7 +22,7 @@ using namespace Simulator;
 class SPHSimulator
 {
 public:
-    const RealVector3 gravity = RealVector3(0.0, 0.0, -15.0);
+    const RealVector3 gravity = RealVector3(0.0, 0.0, -0.98);
 	const Real dt;
 
     //SPHSimulator(Real dt, int N=5);
