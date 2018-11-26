@@ -74,7 +74,7 @@ public:
             test_cuboid.origin = zero;
             test_cuboid.x_n = 10;
             test_cuboid.y_n = 30;
-            test_cuboid.z_n = 10;
+            test_cuboid.z_n = 20;
             test_cuboid.is_hollow = true;
             particleGenerator.generate_cuboid_box(boundary_particles,zero,zero,test_cuboid,particle_radius,false);
 
@@ -87,9 +87,9 @@ public:
 //            particleGenerator.generate_cuboid_box(particles,zero,zero,test_cuboid2,particle_radius,false);
             ///////only for test, we generate two cubic, consist of a cuboid
             RealVector3 origin = RealVector3(0.0, 0.0, particle_radius);
-            particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
+            //particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
 
-            origin = RealVector3(0.0, 0.0, 2*particle_radius*N+particle_radius);
+            origin = RealVector3(0.0, particle_radius*(test_cuboid.y_n/2.0+N/2.0+1), 2*particle_radius);
             particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
 
 
