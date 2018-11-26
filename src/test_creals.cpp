@@ -16,7 +16,7 @@ std::string fold = "./sim_result/";
 void generate_sim_rec(int N, int mode, int total_simulation, int step_size, std::string& output_file, Real dt, Real eta, Real B, Real alpha, Real rest_density)  // maybe I should directly put all particles in all frame to one vector...
 {
     // a for loop to generate every thing, and then run...
-	Simulation simulation(N, mode, dt, eta, B, alpha, rest_density);
+    Simulation simulation(N, mode,0.2, dt, eta, B, alpha, rest_density, fold+output_file);
 
     for(int i=0;i<total_simulation;++i)
     {
@@ -28,7 +28,7 @@ void generate_sim_rec(int N, int mode, int total_simulation, int step_size, std:
         std::cout<<"iteration "<< i <<std::endl;
     }
 
-    simulation.p_sphSimulator->output_sim_record_bin(fold+output_file);
+    //simulation.p_sphSimulator->output_sim_record_bin(fold+output_file);
 
     return;
 }
@@ -65,16 +65,16 @@ int main(int argc, char **argv)
     CLIapp.add_option("-a, --alpha", alpha, "parameter of viscosity");
 
     CLIapp.option_defaults()->required();
-    int N;
+    int N = 3;
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
 
-    int mode;
+    int mode = 1;
     CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for rigid_body | 2 for free fall | 3 for 2-cube collision");
 
-    int total_simulation;
+    int total_simulation = 1000;
     CLIapp.add_option("-s, --total_simulation", total_simulation, "Number of simulations to record");
 
-    std::string output_file;
+    std::string output_file = "../../sim_result/test.bin";
     CLIapp.add_option("-o, --output_file", output_file, "output filename");
 
 

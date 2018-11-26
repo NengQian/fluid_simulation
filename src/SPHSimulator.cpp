@@ -21,23 +21,21 @@ using merely3d::Particle;
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
 
-SPHSimulator::SPHSimulator(int N, Real dt, Real eta, Real B, Real alpha, Real rest_density) : dt(dt), //
+SPHSimulator::SPHSimulator(int N,Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density) : dt(dt), //
 																				  N(N), //
 																				  particleFunc(rest_density, B, alpha) //
 {
     //set_N(N);
-    set_particle_radius(1.0/N);
-    //generate_particles();
-    set_neighbor_search_radius(eta*2.0/N*2);
-//<<<<<<< HEAD
-    //set_boundary_volumes();
-//=======
-    //set_index_of_source_particle(0);
 
-    //set_boundary_volumes();
-//>>>>>>> neng3
+    set_particle_radius(uParticle_len/2);  // uParticle_len = 2.0 * radius
+    //generate_particles();
+    Real h = eta*uParticle_len;   // h = eta*uParticle_len , in paper it is h = eta*(m/rou)^(1/3). while m/rou = v = uParticle_len^3;
+    set_neighbor_search_radius(2.0*h);  // and also since we are using cubic .. so the radius is 2.0 * h...
 
     sim_rec.timestep = dt;
+    sim_rec.unit_particle_length = uParticle_len;
+    sim_rec.boundary_particles.clear();
+    cuboids.clear();
     //update_sim_record_state();
 }
 /*
@@ -68,39 +66,16 @@ void SPHSimulator::set_boundary_volumes()
 
 void SPHSimulator::generate_particles()
 {
-//	if (!particles.empty())
-//		particles.clear();
 
-//	if (!positions.empty())
-//		positions.clear();
-
-//	if (!boundary_particles.empty())
-//		boundary_particles.clear();
-
-//	if (!boundary_positions.empty())
-//		boundary_positions.clear();
-
-//	RealVector3 zero(0.0, 0.0, 0.0);
-
-//	particleGenerator.generate_rigid_box(boundary_particles, 3*N);
-//	particleGenerator.generate_cube(particles, N, zero, zero, zero);
-
-//	//particleGenerator.generate_two_colliding_cubes(particles, N);
-
-//	set_positions();
-//	set_boundary_positions();
-
-//	neighborSearcher.set_particles_ptr(positions);
-//	neighborSearcher.set_boundary_particles_ptr(boundary_positions);
 }
 
 void SPHSimulator::set_boundary_positions()
 {
-	if (!boundary_positions.empty())
-		boundary_positions.clear();
+    if (!boundary_positions.empty())
+        boundary_positions.clear();
 
-	for (auto& bp : boundary_particles)
-		boundary_positions.push_back(RealVector3(bp.position));
+    for (auto& bp : boundary_particles)
+        boundary_positions.push_back(RealVector3(bp.position));
 }
 
 std::vector<RealVector3> SPHSimulator::get_boundary_positions()

@@ -30,19 +30,24 @@ namespace Simulator
     }
 
 
-    Simulation::Simulation(int N, int mode, Real dt, Real eta, Real B, Real alpha, Real rest_density)
+    Simulation::Simulation(int N, int mode,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp, bool if_print)
     {
+        file_path = fp;
         frame_count = 0;
-
+        if_print_iteration = if_print;
+        time_step = dt;
+        this->eta = eta;
+        this->B = B;
+  //      is_finished = false;
     	switch(mode) {
     		case 1:
-    			p_sphSimulator = new SPHSimulator_rigid_body(N, dt, eta, B, alpha, rest_density);
+                p_sphSimulator = new SPHSimulator_rigid_body(N,uParticle_len, dt, eta, B, alpha, rest_density);
     			break;
     		case 2:
-    			p_sphSimulator = new SPHSimulator_free_fall_motion(N, dt, eta, B, alpha, rest_density);
+                p_sphSimulator = new SPHSimulator_free_fall_motion(N, uParticle_len, dt,eta, B, alpha, rest_density);
     			break;
     		case 3:
-    			p_sphSimulator = new SPHSimulator_2cubes(N, dt, eta, B, alpha, rest_density);
+                p_sphSimulator = new SPHSimulator_2cubes(N,uParticle_len, dt, eta, B, alpha, rest_density);
     			break;
     		default:
     			std::cout << "Unknown model." << std::endl;
@@ -68,17 +73,16 @@ namespace Simulator
     }
 */
     Simulation::~Simulation(){
-        //std::cout<<"now output data to "<< file_path <<std::endl;
-        //sphSimulator.output_sim_record_bin(file_path);
-        //std::cout<<"output done, now delete the sphsimulator"<< std::endl;
+        std::cout<<"now output data to "<< file_path <<std::endl;
+        p_sphSimulator->output_sim_record_bin(file_path);
+        std::cout<<"output done, now delete the sphsimulator"<< std::endl;
         delete p_sphSimulator;
-        //std::cout<<"delete done!"<<std::endl;
-//>>>>>>> neng3
+        std::cout<<"delete done!"<<std::endl;
     }
 
-    //bool Simulation::is_simulation_finshed(){
-    //    return frame_count > total_frame_num;
-    //}
+//    bool Simulation::is_simulation_finshed(){
+//        return is_finished;
+//    }
 
 
     void Simulation::render(merely3d::Frame &frame)
@@ -88,13 +92,11 @@ namespace Simulator
 
     void Simulation::update()
     {
-        //sphSimulator.update_freefall_motion();
-        //sphSimulator.update_two_cubes_collision();
-        //sphSimulator.update_rigid_body_simulation();
     	p_sphSimulator->update_simulation();
-    	//p_sphSimulator->update_sim_record_state();
+        p_sphSimulator->update_sim_record_state();
         frame_count++;
-        std::cout<<"iterate "<<frame_count<<std::endl;
+        if(if_print_iteration)
+            std::cout<<"iterate "<<frame_count<<std::endl;
     }
 
     void Simulation::render_particles(merely3d::Frame &frame)
@@ -114,6 +116,20 @@ namespace Simulator
             Eigen::Vector3f p(static_cast<float>(boundary_particles[i][0]), static_cast<float>(boundary_particles[i][1]), static_cast<float>(boundary_particles[i][2]));
             frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.5f, 0.5f, 0.5f)));
         }
+
+
+
+        /// Begin begins a new ImGui window that you can move around as you please
+        if (ImGui::Begin(file_path.c_str(), NULL, ImVec2(300, 200)))
+        {
+            ImGui::TextWrapped("B = %0.1f", B  );
+            ImGui::TextWrapped("dt = %f", time_step  );
+            ImGui::TextWrapped("eta = %0.2f", eta  );
+
+        }
+        ImGui::End();
+
+
     }
 }
 

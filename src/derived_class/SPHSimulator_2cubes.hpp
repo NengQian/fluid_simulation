@@ -6,7 +6,7 @@
 class SPHSimulator_2cubes : public SPHSimulator
 {
 public:
-    SPHSimulator_2cubes(int N, Real dt, Real eta, Real B, Real alpha, Real rest_density):SPHSimulator(N, dt, eta, B, alpha, rest_density){
+    SPHSimulator_2cubes(int N, Real uParticle_len , Real dt, Real eta, Real B, Real alpha, Real rest_density):SPHSimulator(N,uParticle_len,dt, eta, B, alpha, rest_density){
         generate_particles();
         //update_sim_record_state();
     }
@@ -44,7 +44,7 @@ public:
         if (!positions.empty())
             positions.clear();
 
-        particleGenerator.generate_two_colliding_cubes(particles, N);
+        particleGenerator.generate_two_colliding_cubes(particles, N, particle_radius*N);
         set_positions();
         neighborSearcher.set_particles_ptr(positions);
     }
