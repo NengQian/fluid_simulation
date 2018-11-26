@@ -1,10 +1,15 @@
 This is Fluid Simulation code repo
+# QUICK START
+Run the simulator from main.cpp. 
+When click the terminate box in the gui of our simulation, the simulation will stop and then store all data to disk.
+ 
 
 
-To Do List:
-1. Try the CLT11 to build a command-line interface. (we can use CTL11 to control, like use which particles generate function and also some other parameter)
-2. Finish assignment 3.
+# To Do List:
+1. Try the CLT11 to build a command-line interface. (we can use CTL11 to control, like use which particles generate function and also some other parameter)     DONE
+2. Finish assignment 3.          
 3. Read the paper about the rendering.
+4. 
 
 
 Google Doc URL:
