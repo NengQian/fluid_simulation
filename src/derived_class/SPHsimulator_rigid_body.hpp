@@ -6,13 +6,28 @@
 class SPHSimulator_rigid_body : public SPHSimulator
 {
 public:
-    SPHSimulator_rigid_body(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density):SPHSimulator(N, uParticle_len,dt, eta, B, alpha, rest_density){
+	bool viscosity_flag = true;
+	bool XSPH_flag = true;
+
+
+    SPHSimulator_rigid_body(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH):SPHSimulator(N, uParticle_len,dt, eta, B, alpha, rest_density){
 
 
         generate_particles();
         set_boundary_volumes();
         sim_rec.boundary_particles = boundary_particles;
         //update_sim_record_state();
+
+        if (with_viscosity == 1)
+        	viscosity_flag = true;
+        else
+        	viscosity_flag = false;
+
+        if (with_XSPH == 1)
+        	XSPH_flag = true;
+        else
+        	XSPH_flag = false;
+
     }
 
     virtual void update_simulation() override
@@ -35,18 +50,19 @@ public:
             //external_forces.push_back( RealVector3(0.0, 0.0, -0.981 * particles[i].mass) ); //Neng: we have the gravity in class private
             external_forces.push_back( gravity * particles[i].mass ); //Neng: we have the gravity in class private
 
-        particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, r);
+        particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, r, viscosity_flag);
         //particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
 
 
-        /* -------- without XSPH ------------------*/
-        //particleFunc.update_velocity(particles, dt);
-        //particleFunc.update_position(particles, dt);
-
-        /* --------- using XSPH -------------------*/
-        particleFunc.update_velocity(particles, dt);
-        particleFunc.update_position(particles, dt, neighbors_set, r, densities);
-
+        if (XSPH_flag == false)
+        {
+            particleFunc.update_velocity(particles, dt);
+            particleFunc.update_position(particles, dt);
+        } else {
+            /* --------- using XSPH -------------------*/
+            particleFunc.update_velocity(particles, dt);
+            particleFunc.update_position(particles, dt, neighbors_set, r, densities);
+        }
 
         update_positions();;
     }

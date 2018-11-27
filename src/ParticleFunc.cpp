@@ -188,11 +188,14 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 	}
 }
 
-void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<Real>& densities, std::vector<Real>& boundary_volumes, std::vector<RealVector3>& external_forces, Real radius)
+void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<Real>& densities, std::vector<Real>& boundary_volumes, std::vector<RealVector3>& external_forces, Real radius, bool with_viscosity)
 {
 	KernelHandler kh(radius);
 
-	std::vector<std::vector<Real>> viscosity = compute_viscosity(particles, densities, radius/2.0);
+	std::vector<std::vector<Real>> viscosity;
+	if (with_viscosity)
+		viscosity = compute_viscosity(particles, densities, radius/2.0);
+
 
 	for (size_t i=0; i<particles.size(); ++i)
 	{
@@ -225,7 +228,11 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 
 			m_j = particles[neighbors_of_set[i][j]].mass;
 
-			a1 -= gradient * m_j * (p_i / (d_i * d_i) + p_j / (d_j * d_j) + viscosity[i][j]);
+			if (with_viscosity)
+				a1 -= gradient * m_j * (p_i / (d_i * d_i) + p_j / (d_j * d_j) + viscosity[i][j]);
+			else
+				a1 -= gradient * m_j * (p_i / (d_i * d_i) + p_j / (d_j * d_j));
+
 		}
 		//std::cout << "a1 after " << i << ": (" << a1[0] << " " << a1[1] << " " << a1[2] << ")" << std::endl;
 

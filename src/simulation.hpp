@@ -22,7 +22,7 @@ namespace Simulator
     {
     public:
 
-        Simulation(int N, int mode,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp,  bool if_print = false);
+        Simulation(int N, int mode,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp,  bool if_print = false, int with_viscosity=1, int with_XSPH=1);
 
 
         //Simulation(Real dt, int N=5);
