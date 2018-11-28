@@ -2,6 +2,11 @@ This is Fluid Simulation code repo
 # QUICK START
 Run the simulator from main.cpp. 
 When click the terminate box in the gui of our simulation, the simulation will stop and then store all data to disk.
+
+# CMake
+use the following command to enable O3 optimization 
+> cmake .. -DCMAKE_BUILD_TYPE=Release
+
  
 
 
