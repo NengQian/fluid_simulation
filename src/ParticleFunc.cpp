@@ -288,7 +288,7 @@ std::vector<Real> ParticleFunc::initialize_boundary_particle_volumes(std::vector
 		{
 			RealVector3 bp_l = boundary_positions[neighbors_of_boundary[k][l]];
 			V_k += kh.compute_kernel( bp_k, bp_l, 4 );
-			std::cout << "k: " << kh.compute_kernel( bp_k, bp_l, 4 ) << std::endl;
+			//std::cout << "k: " << kh.compute_kernel( bp_k, bp_l, 4 ) << std::endl;
 		}
 		volumes.push_back(1.0/V_k);
 	}
