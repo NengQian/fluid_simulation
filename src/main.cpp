@@ -147,6 +147,12 @@ int main(int argc, char **argv)
     bool if_print_iteration = false;
     CLIapp.add_option("-p, --log", if_print_iteration, "decide if print iteration count, 0 for unprint or 1 for print");
 
+    int with_viscosity = 1;
+    CLIapp.add_option("-v, --with_viscosity", with_viscosity, "add viscosity");
+
+    int with_XSPH = 1;
+    CLIapp.add_option("-x, --with_XSPH", with_XSPH, "use XSPH to update position");
+
     CLIapp.option_defaults()->required();
     int N = 3;
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
@@ -159,7 +165,7 @@ int main(int argc, char **argv)
 
     CLI11_PARSE(CLIapp, argc, argv);
 
-    Simulation simulation(N, mode, unit_particle_length, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density),output_file,if_print_iteration);
+    Simulation simulation(N, mode, unit_particle_length, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density),output_file,if_print_iteration, with_viscosity, with_XSPH);
 
 
     // Here we currently only load a single scene at startup,

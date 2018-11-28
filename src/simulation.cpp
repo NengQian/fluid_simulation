@@ -30,7 +30,7 @@ namespace Simulator
     }
 
 
-    Simulation::Simulation(int N, int mode,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp, bool if_print)
+    Simulation::Simulation(int N, int mode,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp, bool if_print, int with_viscosity, int with_XSPH)
     {
         file_path = fp;
         frame_count = 0;
@@ -41,7 +41,7 @@ namespace Simulator
   //      is_finished = false;
     	switch(mode) {
     		case 1:
-                p_sphSimulator = new SPHSimulator_rigid_body(N,uParticle_len, dt, eta, B, alpha, rest_density);
+                p_sphSimulator = new SPHSimulator_rigid_body(N,uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH);
     			break;
     		case 2:
                 p_sphSimulator = new SPHSimulator_free_fall_motion(N, uParticle_len, dt,eta, B, alpha, rest_density);
