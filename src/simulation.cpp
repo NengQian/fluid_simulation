@@ -30,7 +30,7 @@ namespace Simulator
     }
 
 
-    Simulation::Simulation(int N, int mode,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp, bool if_print, int with_viscosity, int with_XSPH)
+    Simulation::Simulation(int N, int mode, Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp, bool if_print, int with_viscosity, int with_XSPH)
     {
         file_path = fp;
         frame_count = 0;
@@ -38,10 +38,11 @@ namespace Simulator
         time_step = dt;
         this->eta = eta;
         this->B = B;
+        this->alpha = alpha;
   //      is_finished = false;
     	switch(mode) {
     		case 1:
-                p_sphSimulator = new SPHSimulator_rigid_body(N,uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH);
+                p_sphSimulator = new SPHSimulator_rigid_body(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH);
     			break;
     		case 2:
                 p_sphSimulator = new SPHSimulator_free_fall_motion(N, uParticle_len, dt,eta, B, alpha, rest_density);
@@ -101,9 +102,9 @@ namespace Simulator
 
     void Simulation::render_particles(merely3d::Frame &frame)
     {
-    	std::vector<RealVector3> particles = p_sphSimulator->get_positions();
-    	std::vector<RealVector3> boundary_particles = p_sphSimulator->get_boundary_positions();
+    	static bool render_boundary = true;
 
+    	const std::vector<RealVector3>& particles = p_sphSimulator->get_positions();
         Real particle_radius = p_sphSimulator->get_particle_radius();
 
     	for (size_t i = 0; i < particles.size(); ++i)
@@ -111,25 +112,29 @@ namespace Simulator
        		Eigen::Vector3f p(static_cast<float>(particles[i][0]), static_cast<float>(particles[i][1]), static_cast<float>(particles[i][2]));
         	frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.0f, 0.0f, 1.0f)));
         }
-        for (size_t i = 0; i < boundary_particles.size(); ++i)
-        {
-            Eigen::Vector3f p(static_cast<float>(boundary_particles[i][0]), static_cast<float>(boundary_particles[i][1]), static_cast<float>(boundary_particles[i][2]));
-            frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.5f, 0.5f, 0.5f)));
-        }
 
+    	if (render_boundary)
+    	{
+        	const std::vector<RealVector3>& boundary_particles = p_sphSimulator->get_boundary_positions();
+            for (size_t i = 0; i < boundary_particles.size(); ++i)
+            {
+                Eigen::Vector3f p(static_cast<float>(boundary_particles[i][0]), static_cast<float>(boundary_particles[i][1]), static_cast<float>(boundary_particles[i][2]));
+                frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.5f, 0.5f, 0.5f)));
+            }
+    	}
 
 
         /// Begin begins a new ImGui window that you can move around as you please
-        if (ImGui::Begin(file_path.c_str(), NULL, ImVec2(300, 200)))
+        if (ImGui::Begin("Parameters", NULL, ImVec2(300, 200)))
         {
             ImGui::TextWrapped("B = %0.1f", B  );
             ImGui::TextWrapped("dt = %f", time_step  );
             ImGui::TextWrapped("eta = %0.2f", eta  );
+            ImGui::TextWrapped("alpha = %0.2f", alpha  );
 
+            ImGui::Checkbox("boundary", &render_boundary);
         }
         ImGui::End();
-
-
     }
 }
 

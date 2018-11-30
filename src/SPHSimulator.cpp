@@ -21,14 +21,11 @@ using merely3d::Particle;
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
 
-SPHSimulator::SPHSimulator(int N,Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density) : dt(dt), //
+SPHSimulator::SPHSimulator(int N, Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density) : dt(dt), //
 																				  N(N), //
 																				  particleFunc(rest_density, B, alpha) //
 {
-    //set_N(N);
-
-    set_particle_radius(uParticle_len/2);  // uParticle_len = 2.0 * radius
-    //generate_particles();
+	set_particle_radius(uParticle_len/2);  // uParticle_len = 2.0 * radius
     Real h = eta*uParticle_len;   // h = eta*uParticle_len , in paper it is h = eta*(m/rou)^(1/3). while m/rou = v = uParticle_len^3;
     set_neighbor_search_radius(2.0*h);  // and also since we are using cubic .. so the radius is 2.0 * h...
 
@@ -55,13 +52,9 @@ SPHSimulator::SPHSimulator(Real particle_radius, std::vector<Real>& cuboid_side_
 	    update_sim_record_state();
 }
 */
-
 void SPHSimulator::set_boundary_volumes()
 {
-	if (!boundary_volumes.empty())
-		boundary_volumes.clear();
-
-	boundary_volumes = particleFunc.initialize_boundary_particle_volumes(boundary_positions, static_cast<Real>(neighbor_search_radius));
+	particleFunc.initialize_boundary_particle_volumes(boundary_volumes, boundary_positions, neighbor_search_radius);
 }
 
 void SPHSimulator::generate_particles()
@@ -78,7 +71,7 @@ void SPHSimulator::set_boundary_positions()
         boundary_positions.push_back(RealVector3(bp.position));
 }
 
-std::vector<RealVector3> SPHSimulator::get_boundary_positions()
+const std::vector<RealVector3>& SPHSimulator::get_boundary_positions() const
 {
 	return boundary_positions;
 }
@@ -92,9 +85,9 @@ void SPHSimulator::set_positions()
 		positions.push_back(RealVector3(p.position));
 }
 
-std::vector<RealVector3> SPHSimulator::get_positions()
+const std::vector<RealVector3>& SPHSimulator::get_positions() const
 {
-	update_positions();
+	//update_positions();
 	return positions;
 }
 
@@ -103,11 +96,11 @@ void SPHSimulator::set_particle_radius(Real r)
 	particle_radius = r;
 }
 
+
 Real SPHSimulator::get_particle_radius()
 {
 	return particle_radius;
 }
-
 
 void SPHSimulator::set_N(size_t n)
 {
@@ -119,12 +112,11 @@ int SPHSimulator::get_N()
 	return N;
 }
 
-void SPHSimulator::set_neighbor_search_radius(float r)
+void SPHSimulator::set_neighbor_search_radius(Real r)
 {
 	neighbor_search_radius = r;
-	Real rr = static_cast<Real>(r);
-	neighborSearcher.set_neighbor_search_radius(rr);
-	kernelHandler.set_neighbor_search_radius(rr);
+	neighborSearcher.set_neighbor_search_radius(r);
+	kernelHandler.set_neighbor_search_radius(r);
 }
 
 void SPHSimulator::update_positions()

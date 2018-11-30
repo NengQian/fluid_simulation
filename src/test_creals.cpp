@@ -3,8 +3,10 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include <SPHSimulator.hpp>
-#include <SPHSimulator_2cubes.hpp>
+#include "SPHSimulator.hpp"
+#include "SPHSimulator_2cubes.hpp"
+#include "SPHSimulator_rigid_body.hpp"
+#include "SPHSimulator_free_fall_motion.hpp"
 #include "simulation.hpp"
 #include <CLI11.hpp>
 #include <string>
@@ -13,10 +15,10 @@ using namespace std;
 
 std::string fold = "./sim_result/";
 
-void generate_sim_rec(int N, int mode, int total_simulation, int step_size, std::string& output_file, Real dt, Real eta, Real B, Real alpha, Real rest_density)  // maybe I should directly put all particles in all frame to one vector...
+void generate_sim_rec(int N, int mode, int total_simulation, int step_size, std::string& output_file, Real dt, Real eta, Real B, Real alpha, Real rest_density, int viscosity, int XSPH)  // maybe I should directly put all particles in all frame to one vector...
 {
     // a for loop to generate every thing, and then run...
-    Simulation simulation(N, mode,0.2, dt, eta, B, alpha, rest_density, fold+output_file);
+    Simulation simulation(N, mode, 0.2, dt, eta, B, alpha, rest_density, fold+output_file, false, viscosity, XSPH);
 
     for(int i=0;i<total_simulation;++i)
     {
@@ -64,6 +66,12 @@ int main(int argc, char **argv)
     float alpha = 0.08f;
     CLIapp.add_option("-a, --alpha", alpha, "parameter of viscosity");
 
+    int with_viscosity = 1;
+    CLIapp.add_option("-v, --with_viscosity", with_viscosity, "add viscosity");
+
+    int with_XSPH = 1;
+    CLIapp.add_option("-x, --with_XSPH", with_XSPH, "use XSPH to update position");
+
     CLIapp.option_defaults()->required();
     int N = 3;
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
@@ -81,7 +89,7 @@ int main(int argc, char **argv)
 
     CLI11_PARSE(CLIapp, argc, argv);
 
-    generate_sim_rec(N, mode, total_simulation, step_size, output_file, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density));
+    generate_sim_rec(N, mode, total_simulation, step_size, output_file, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density), with_viscosity, with_XSPH);
 
 
     return 0;

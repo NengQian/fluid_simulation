@@ -23,16 +23,16 @@ class SPHSimulator
 {
 public:
 
-    const RealVector3 gravity = RealVector3(0.0, 0.0, -0.98);
+    const RealVector3 gravity = RealVector3(0.0, 0.0, -9.8);
 	const Real dt;
 
     //SPHSimulator(Real dt, int N=5);
     //SPHSimulator(Real particle_radius, std::vector<Real>& cuboid_side_lengths, Real dt=0.01, Real eta=1.2, Real B=100.0, Real rest_density=1000.0, Real alpha=0.08, int kernel_type=4);
-    SPHSimulator(int N,  Real uParticle_len = 0.2, Real dt=0.01, Real eta=1.2, Real B=100.0, Real alpha=0.08, Real rest_density=1000.0);
+    SPHSimulator(int N,  Real uParticle_len=0.2, Real dt=0.01, Real eta=1.2, Real B=100.0, Real alpha=0.08, Real rest_density=1000.0);
 
 
-    std::vector<RealVector3> get_boundary_positions();
-    std::vector<RealVector3> get_positions();
+    const std::vector<RealVector3>& get_boundary_positions() const;
+    const std::vector<RealVector3>& get_positions() const;
     int get_N();
     Real get_particle_radius();
 
@@ -41,7 +41,7 @@ public:
     void set_positions();
     void set_particle_radius(Real r);
     void set_N(size_t n);
-    void set_neighbor_search_radius(float r);
+    void set_neighbor_search_radius(Real r);
 
 	void sample_density();
 
@@ -77,13 +77,13 @@ protected:
 	std::vector<mParticle> particles;
 	std::vector<mParticle> boundary_particles;
 
-    Real unit_particle_length;
+    //Real unit_particle_length;
 	size_t N;
 	Real particle_radius;
     //std::vector<Real> cuboid_shape;
     std::vector<mCuboid> cuboids;
 
-	float neighbor_search_radius;
+	Real neighbor_search_radius;
 
 
 

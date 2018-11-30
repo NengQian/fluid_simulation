@@ -132,12 +132,6 @@ int main(int argc, char **argv)
     float dt = 0.01f;
     CLIapp.add_option("-t, --dt", dt, "Elapsed time");
 
-    std::vector<float> cuboid_side_lengths = {2.0f};   // what this mean?
-    CLIapp.add_option("-l, --side_lengths", cuboid_side_lengths, "Side length of cuboid(if existed)");
-
-    float particle_radius = 0.1f;    //do we really need this?
-    CLIapp.add_option("-r, --particle_radius", particle_radius, "Radius of particles");
-
     float alpha = 0.08f;
     CLIapp.add_option("-a, --alpha", alpha, "parameter of viscosity");
 
@@ -181,6 +175,7 @@ int main(int argc, char **argv)
 
     while (!window.should_close())
     {
+    	/*
         // Produce real time that the simulation time can consume
         const auto now = std::chrono::steady_clock::now();
         const duration<double> elapsed = now - last_frame_begin;
@@ -191,12 +186,13 @@ int main(int argc, char **argv)
         {
             simulation.timestep(dt);
         }
-        //
+        */
 //        if(simulation.is_simulation_finshed())
 //        {
 //            std::cout<<"simulation finished!"<<std::endl;
 //            break;
 //        }
+
         simulation.update();
 
         window.render_frame([&] (Frame & frame)

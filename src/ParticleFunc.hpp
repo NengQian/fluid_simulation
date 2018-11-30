@@ -22,7 +22,7 @@ public:
 	void update_acceleration( std::vector<mParticle>& particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<Real>& densities, std::vector<RealVector3>& external_forces, Real radius);
 	void update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<Real>& densities, std::vector<Real>& boundary_volumes, std::vector<RealVector3>& external_forces, Real radius, bool with_viscosity);
 
-	std::vector<Real> initialize_boundary_particle_volumes(std::vector<RealVector3>& boundary_positions, Real neighbor_search_radius);
+	void initialize_boundary_particle_volumes(std::vector<Real>& boundary_volumes, std::vector<RealVector3>& boundary_positions, Real neighbor_search_radius);
 
 	std::vector<std::vector<Real>> compute_viscosity(std::vector<mParticle>& particles, std::vector<Real>& densities, Real neighbor_search_radius);
 

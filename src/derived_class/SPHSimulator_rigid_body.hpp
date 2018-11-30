@@ -12,7 +12,6 @@ public:
 
     SPHSimulator_rigid_body(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH):SPHSimulator(N, uParticle_len,dt, eta, B, alpha, rest_density){
 
-
         generate_particles();
         set_boundary_volumes();
         sim_rec.boundary_particles = boundary_particles;
@@ -38,7 +37,7 @@ public:
         std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
         std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
 
-        Real r = static_cast<Real>(neighbor_search_radius);
+        Real r = neighbor_search_radius;
         std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, boundary_volumes, r);
         //std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
 
@@ -88,9 +87,9 @@ public:
             //particleGenerator.generate_rigid_box(boundary_particles, 3*N, particle_radius);
             mCuboid test_cuboid;
             test_cuboid.origin = zero;
-            test_cuboid.x_n = 24;
-            test_cuboid.y_n = 70;
-            test_cuboid.z_n = 30;
+            test_cuboid.x_n = N+4;
+            test_cuboid.y_n = 7*N;
+            test_cuboid.z_n = 3*N;
             test_cuboid.is_hollow = true;
             particleGenerator.generate_cuboid_box(boundary_particles,zero,zero,test_cuboid,particle_radius,false);
 
@@ -105,7 +104,7 @@ public:
             RealVector3 origin = RealVector3(0.0, 0.0, particle_radius);
             //particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
 
-            origin = RealVector3(0.0, particle_radius*(test_cuboid.y_n-N-2), 2*particle_radius);
+            origin = RealVector3(0.0, particle_radius*(test_cuboid.y_n-N-4), 3*particle_radius);
             particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
 
 
@@ -117,23 +116,8 @@ public:
     }
 
 
-
-    void set_boundary_positions()
-    {
-        if (!boundary_positions.empty())
-            boundary_positions.clear();
-
-        for (auto& bp : boundary_particles)
-            boundary_positions.push_back(RealVector3(bp.position));
-    }
-
-
-
-
-
 protected:
     // should I also move all boundary related function to here? Or maybe not...
-
 
 };
 

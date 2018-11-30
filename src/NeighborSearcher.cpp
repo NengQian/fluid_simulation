@@ -35,6 +35,7 @@ void NeighborSearcher::set_boundary_particles_ptr(std::vector<RealVector3>& boun
 	boundary_particles_ptr = std::make_shared<std::vector<RealVector3>>(boundary_particles);
 }
 
+// already set inactive
 std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_in_boundary( )
 {
 	CompactNSearch::NeighborhoodSearch nsearch(neighbor_search_radius);
@@ -43,6 +44,7 @@ std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_in_boundary(
 
 	unsigned int point_set_id_1 = nsearch.add_point_set(particle_positions.front().data(), particle_positions.size());
 	unsigned int point_set_id_2 = nsearch.add_point_set(boundary_positions.front().data(), boundary_positions.size());
+	nsearch.set_active(point_set_id_2, point_set_id_1, false);
 	nsearch.find_neighbors();
 
     CompactNSearch::PointSet const& ps = nsearch.point_set(point_set_id_1);
@@ -52,6 +54,7 @@ std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_in_boundary(
 	for (size_t i =0; i < particle_positions.size(); ++i)
 	{
 		std::vector<size_t> ns;
+		// n_neighbors: returns Number of neighbors of point i in point set point_set
 		for (size_t j = 0; j < ps.n_neighbors(point_set_id_2, i); ++j)
 		{
 			// Return PointID of the jth neighbor of the ith particle in the 2nd point set.
@@ -131,13 +134,12 @@ std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_within_radiu
 
 std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_within_radius( bool use_compactN )
 {
-	std::vector< std::vector<size_t> > m_neighbors;
 	if (use_compactN)
-		m_neighbors = compactN_neighbor_search( );
+		return compactN_neighbor_search( );
 	else
-		m_neighbors = brute_force_neighbor_search( );
+		return brute_force_neighbor_search( );
 
-	return m_neighbors;
+	return {};
 }
 
 std::vector< std::vector<size_t> > NeighborSearcher::find_neighbors_within_radius( std::vector<RealVector3>& point_set )
