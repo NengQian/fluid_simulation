@@ -24,7 +24,8 @@ public:
 
 	void initialize_boundary_particle_volumes(std::vector<Real>& boundary_volumes, std::vector<RealVector3>& boundary_positions, Real neighbor_search_radius);
 
-	std::vector<std::vector<Real>> compute_viscosity(std::vector<mParticle>& particles, std::vector<Real>& densities, Real neighbor_search_radius);
+	//std::vector<std::vector<Real>> compute_viscosity(std::vector<mParticle>& particles, std::vector<Real>& densities, Real neighbor_search_radius);
+	std::vector<Real> compute_viscosity(std::vector<mParticle>& particles, std::vector<Real>& densities, size_t idx_i, std::vector<size_t>& neighbors_of_i, Real neighbor_search_radius);
 
 private:
 	//pressure_force(mParticle p);

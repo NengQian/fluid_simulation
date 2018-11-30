@@ -192,10 +192,11 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 {
 	KernelHandler kh(radius);
 
+	/*
 	std::vector<std::vector<Real>> viscosity;
 	if (with_viscosity)
 		viscosity = compute_viscosity(particles, densities, radius);
-
+	*/
 
 	for (size_t i=0; i<particles.size(); ++i)
 	{
@@ -212,6 +213,12 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 		//std::cout << "density " << i << ": " << d_i << std::endl;
 
 		//std::cout << "neighbor of " << i << ": " << neighbors_of_set[i].size() << std::endl;
+
+
+		/*--------- compute viscosity of i -------*/
+		std::vector<Real> v_i;
+		if (with_viscosity)
+			v_i = compute_viscosity(particles, densities, i, neighbors_of_set[i], radius);
 
 		for (size_t j=0; j<neighbors_of_set[i].size(); ++j)
 		{
@@ -231,7 +238,7 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 			m_j = Pj.mass;
 
 			if (with_viscosity)
-				a1 -= gradient * m_j * (p_i / (d_i * d_i) + p_j / (d_j * d_j) + viscosity[i][j]);
+				a1 -= gradient * m_j * (p_i / (d_i * d_i) + p_j / (d_j * d_j) + v_i[j]);
 			else
 				a1 -= gradient * m_j * (p_i / (d_i * d_i) + p_j / (d_j * d_j));
 
@@ -301,6 +308,9 @@ void ParticleFunc::initialize_boundary_particle_volumes(std::vector<Real>& bound
 }
 
 // most time-costly function: take 20% of the whole time
+// complexity: O(n^2), n : number of particles,
+// for example, when N is 10, we have 1K particles => the matrix has size 1k * 1k * sizeof(Real) = 8GB
+/*
 std::vector<std::vector<Real>> ParticleFunc::compute_viscosity(std::vector<mParticle>& particles, std::vector<Real>& densities, Real neighbor_search_radius)
 {
 	std::vector<std::vector<Real>> vs;
@@ -335,5 +345,37 @@ std::vector<std::vector<Real>> ParticleFunc::compute_viscosity(std::vector<mPart
 	}
 
 	return vs;
+}
+*/
+
+// Instead of computing the whole viscosity matrix, we compute one row each time
+std::vector<Real> ParticleFunc::compute_viscosity(std::vector<mParticle>& particles, std::vector<Real>& densities, size_t idx_i, std::vector<size_t>& neighbors_of_i, Real neighbor_search_radius)
+{
+	std::vector<Real> v_i;
+
+	mParticle Pi = particles[idx_i];
+	for (size_t k=0; k<neighbors_of_i.size(); ++k)
+	{
+		size_t j = neighbors_of_i[k];
+		mParticle Pj = particles[j];
+
+		RealVector3 v_ij = Pi.velocity - Pj.velocity;
+		RealVector3 x_ij = Pi.position - Pj.position;
+
+		Real dotProduct = v_ij[0] * x_ij[0] + v_ij[1] * x_ij[1] + v_ij[2] * x_ij[2];
+
+		if (dotProduct >= 0.0)
+			v_i.push_back(0.0);
+		else {
+			Real h = neighbor_search_radius / 2.0; // assume we use m4 kernel
+			Real u_ij = 2.0 * alpha * h * sqrt(B) / (densities[idx_i] + densities[j]);
+			Real squaredNorm_x_ij = x_ij[0] * x_ij[0] + x_ij[1] * x_ij[1] + x_ij[2] * x_ij[2];
+
+			Real v_ij = -u_ij * dotProduct / (squaredNorm_x_ij + 0.01 * h * h);
+			v_i.push_back(v_ij);
+		}
+	}
+
+	return v_i;
 }
 
