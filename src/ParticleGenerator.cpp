@@ -38,7 +38,46 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
     double y_half_extent = step_size*cuboid.y_n/2.0;
     double z_half_extent = step_size*cuboid.z_n/2.0;
     bool hollow = cuboid.is_hollow;
-    int idx_i = 0;
+    //int idx_i = 0;
+
+    for (int k=0; k<cuboid.z_n; ++k)
+    {
+    	for (int j=0; j<cuboid.y_n; ++j)
+    	{
+    		for (int i=0; i<cuboid.x_n; ++i)
+    		{
+                if (hollow)
+                {
+                    int max_x_n = cuboid.x_n-1;
+                    int max_y_n = cuboid.y_n-1;
+                    if ((k == 0) || (j == 0 || j == max_y_n) || (i == 0 || i == max_x_n))
+                        ;
+                    else
+                        continue;
+                }
+
+                mParticle p;
+
+                Real x = (i+0.5)*step_size-x_half_extent + cuboid.origin[0];
+                Real y = (j+0.5)*step_size-y_half_extent + cuboid.origin[1];
+                Real z = (k+0.5)*step_size + cuboid.origin[2];
+
+                p.position = RealVector3(x,y,z);
+                p.mass = step_size * step_size * step_size * 1000.0;
+
+                p.velocity[0] = v0[0];
+                p.velocity[1] = v0[1];
+                p.velocity[2] = v0[2];
+
+                p.acceleration[0] = a0[0];
+                p.acceleration[1] = a0[1];
+                p.acceleration[2] = a0[2];
+
+                particles.push_back(p);
+    		}
+    	}
+    }
+/*
     for (Real i = 0; i < 2*z_half_extent; i+=step_size)  // z coordinator
     {
         int idx_j = 0;
@@ -88,7 +127,7 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
         }
         ++idx_i;
     }
-
+*/
 }
 
 void ParticleGenerator::generate_cube(std::vector<mParticle>& particles, size_t N, Eigen::Ref<RealVector3> origin, Eigen::Ref<RealVector3> v0, Eigen::Ref<RealVector3> a0, Real halfExtent, bool do_clear, bool hollow)
@@ -99,6 +138,43 @@ void ParticleGenerator::generate_cube(std::vector<mParticle>& particles, size_t 
 
 	Real step_size = 2.0 * halfExtent / N;
 
+    for (int k=0; k<N; ++k)
+    {
+    	for (int j=0; j<N; ++j)
+    	{
+    		for (int i=0; i<N; ++i)
+    		{
+                if (hollow)
+                {
+                    int max_n = N-1;
+                    if ((k == 0) || (j == 0 || j == max_n) || (i == 0 || i == max_n))
+                        ;
+                    else
+                        continue;
+                }
+
+                mParticle p;
+
+                Real x = (i+0.5)*step_size-halfExtent + origin[0];
+                Real y = (j+0.5)*step_size-halfExtent + origin[1];
+                Real z = (k+0.5)*step_size + origin[2];
+
+                p.position = RealVector3(x,y,z);
+                p.mass = step_size * step_size * step_size * 1000.0;
+
+                p.velocity[0] = v0[0];
+                p.velocity[1] = v0[1];
+                p.velocity[2] = v0[2];
+
+                p.acceleration[0] = a0[0];
+                p.acceleration[1] = a0[1];
+                p.acceleration[2] = a0[2];
+
+                particles.push_back(p);
+    		}
+    	}
+    }
+    /*
 	int idx_i = 0;
     for (Real i = 0; i < 2*halfExtent; i+=step_size)
 	{
@@ -155,6 +231,7 @@ void ParticleGenerator::generate_cube(std::vector<mParticle>& particles, size_t 
 		}
 		++idx_i;
 	}
+	*/
 }
 /*
 void ParticleGenerator::generate_cuboid(std::vector<mParticle>& particles, size_t N, Eigen::Ref<RealVector3> origin, Eigen::Ref<RealVector3> v0, Eigen::Ref<RealVector3> a0, Real halfExtent, bool do_clear, bool hollow)

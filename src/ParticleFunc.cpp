@@ -309,7 +309,7 @@ std::vector<std::vector<Real>> ParticleFunc::compute_viscosity(std::vector<mPart
 	for (size_t i=0; i<l; ++i)
 	{
 		std::vector<Real> v_i;
-		mParticles Pi = particles[i];
+		mParticle Pi = particles[i];
 		for (size_t j=0; j<l; ++j)
 		{
 			mParticle Pj = particles[j];
