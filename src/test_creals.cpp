@@ -18,7 +18,7 @@ std::string fold = "./sim_result/";
 void generate_sim_rec(int N, int mode, int total_simulation, int step_size, std::string& output_file, Real dt, Real eta, Real B, Real alpha, Real rest_density, int viscosity, int XSPH)  // maybe I should directly put all particles in all frame to one vector...
 {
     // a for loop to generate every thing, and then run...
-    Simulation simulation(N, mode, 0.2, dt, eta, B, alpha, rest_density, fold+output_file, false, viscosity, XSPH);
+    Simulation simulation(N, mode, 0.05, dt, eta, B, alpha, rest_density, fold+output_file, false, viscosity, XSPH);
 
     for(int i=0;i<total_simulation;++i)
     {
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     CLIapp.add_option("-l, --side_lengths", cuboid_side_lengths, "Side length of cuboid(if existed)");
 
     float particle_radius = 0.1f;
-    CLIapp.add_option("-r, --particle_radius", particle_radius, "Radius of particles");
+    CLIapp.add_option("-r, --particle_radius", particle_radius, "Radius of particles( useless now)");
 
     int step_size = 10;
     CLIapp.add_option("-z, --step_size", step_size, "record once every <step_size> frames");
@@ -85,11 +85,27 @@ int main(int argc, char **argv)
     std::string output_file = "../../sim_result/test.bin";
     CLIapp.add_option("-o, --output_file", output_file, "output filename");
 
+    float unit_particle_length ;
+    CLIapp.add_option("-u, --unit_particle_length", unit_particle_length, " the intervel length between two particles per axis.");
 
 
     CLI11_PARSE(CLIapp, argc, argv);
 
     generate_sim_rec(N, mode, total_simulation, step_size, output_file, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density), with_viscosity, with_XSPH);
+
+
+    // a for loop to generate every thing, and then run...
+    Simulation simulation(N, mode,unit_particle_length, dt, eta, B, alpha, rest_density, fold+output_file, false, with_viscosity, with_XSPH);
+
+    for(int i=0;i<total_simulation;++i)
+    {
+        simulation.p_sphSimulator->update_simulation();
+
+        if (i % step_size == 0)
+            simulation.p_sphSimulator->update_sim_record_state();
+
+        std::cout<<"iteration "<< i <<std::endl;
+    }
 
 
     return 0;
