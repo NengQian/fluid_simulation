@@ -152,7 +152,7 @@ int main(int argc, char **argv)
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
 
     int mode = 1;
-    CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for rigid_body | 2 for free fall | 3 for 2-cube collision");
+    CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for dam breaking | 2 for dropping the water from the center of boundary | 3 for free fall | 4 for 2-cube collision");
 
     float unit_particle_length ;
     CLIapp.add_option("-u, --unit_particle_length", unit_particle_length, " the intervel length between two particles per axis.");

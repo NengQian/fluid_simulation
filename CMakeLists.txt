@@ -76,7 +76,9 @@ set(DERIVED_CLASS_FILES
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_2cubes.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_free_fall_motion.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_rigid_body.hpp
-
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_dam_breaking.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_drop_center.hpp
+   
 # when we have new simulation scenero, we do derive it from sphsimulator class, and add file here.
 )
 

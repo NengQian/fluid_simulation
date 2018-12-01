@@ -11,6 +11,8 @@
 #include "SPHSimulator_2cubes.hpp"
 #include "SPHSimulator_rigid_body.hpp"
 #include "SPHSimulator_free_fall_motion.hpp"
+#include "SPHSimulator_dam_breaking.hpp"
+#include "SPHSimulator_drop_center.hpp"
 
 #include <string>
 

@@ -9,14 +9,9 @@ public:
 	bool viscosity_flag = true;
 	bool XSPH_flag = true;
 
-
-    SPHSimulator_rigid_body(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH):SPHSimulator(N, uParticle_len,dt, eta, B, alpha, rest_density){
-
-        generate_particles();
-        set_boundary_volumes();
-        sim_rec.boundary_particles = boundary_particles;
-        //update_sim_record_state();
-
+    SPHSimulator_rigid_body(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH)
+	 : SPHSimulator(N, uParticle_len,dt, eta, B, alpha, rest_density)
+	{
         if (with_viscosity == 1)
         	viscosity_flag = true;
         else
@@ -66,61 +61,7 @@ public:
         update_positions();;
     }
 
-
-
-    virtual void generate_particles() override
-    {
-            if (!particles.empty())
-                particles.clear();
-
-            if (!positions.empty())
-                positions.clear();
-
-            if (!boundary_particles.empty())
-                boundary_particles.clear();
-
-            if (!boundary_positions.empty())
-                boundary_positions.clear();
-
-            RealVector3 zero(0.0, 0.0, 0.0);
-
-            //particleGenerator.generate_rigid_box(boundary_particles, 3*N, particle_radius);
-            mCuboid test_cuboid;
-            test_cuboid.origin = zero;
-
-            /*
-            test_cuboid.x_n = N+6;
-            test_cuboid.y_n = static_cast<int>(N/4)*N+6;
-            */
-
-            test_cuboid.x_n = N*2;
-            test_cuboid.y_n = N*2;
-            test_cuboid.z_n = 3*N;
-            test_cuboid.is_hollow = true;
-            particleGenerator.generate_cuboid_box(boundary_particles,zero,zero,test_cuboid,particle_radius,false);
-
-//            mCuboid test_cuboid2;
-//            test_cuboid2.origin = RealVector3(0.0, particle_radius, 2*particle_radius);
-//            test_cuboid2.x_n = 1;
-//            test_cuboid2.y_n = 1;
-//            test_cuboid2.z_n = 1;
-//            test_cuboid2.is_hollow = false;
-//            particleGenerator.generate_cuboid_box(particles,zero,zero,test_cuboid2,particle_radius,false);
-            ///////only for test, we generate two cubic, consist of a cuboid
-            RealVector3 origin = RealVector3(0.0, 0.0, particle_radius);
-            //particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
-
-            origin = RealVector3(0.0, 0.0, 3*particle_radius);
-            particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
-
-
-            set_positions();
-            set_boundary_positions();
-
-            neighborSearcher.set_particles_ptr(positions);
-            neighborSearcher.set_boundary_particles_ptr(boundary_positions);
-    }
-
+    //virtual void generate_particles() = 0;
 
 protected:
     // should I also move all boundary related function to here? Or maybe not...

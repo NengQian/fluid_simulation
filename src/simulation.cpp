@@ -42,12 +42,15 @@ namespace Simulator
   //      is_finished = false;
     	switch(mode) {
     		case 1:
-                p_sphSimulator = new SPHSimulator_rigid_body(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH);
+                p_sphSimulator = new SPHSimulator_dam_breaking(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH);
     			break;
     		case 2:
-                p_sphSimulator = new SPHSimulator_free_fall_motion(N, uParticle_len, dt,eta, B, alpha, rest_density);
+                p_sphSimulator = new SPHSimulator_drop_center(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH);
     			break;
     		case 3:
+                p_sphSimulator = new SPHSimulator_free_fall_motion(N, uParticle_len, dt,eta, B, alpha, rest_density);
+    			break;
+    		case 4:
                 p_sphSimulator = new SPHSimulator_2cubes(N,uParticle_len, dt, eta, B, alpha, rest_density);
     			break;
     		default:

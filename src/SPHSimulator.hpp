@@ -46,9 +46,9 @@ public:
 	void sample_density();
 
 
-/*----------virtual function-----------------*/
-    virtual void update_simulation();
-    virtual void generate_particles();
+/*----------virtual function (make it abstract)-----------------*/
+    virtual void update_simulation() = 0;
+    virtual void generate_particles() = 0;
     virtual ~SPHSimulator() = default;
 /*-------------------------------------------*/
 
