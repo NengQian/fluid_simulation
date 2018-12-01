@@ -259,8 +259,8 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 		}
 
 
-        a3 = external_forces[i] / d_i;
-        //a3 = external_forces[i] / particles[i].mass;
+        //a3 = external_forces[i] / d_i;
+        a3 = external_forces[i] / particles[i].mass;
 
 		//std::cout << "a1 after " << i << ": (" << a1[0] << " " << a1[1] << " " << a1[2] << ")" << std::endl;
 		//std::cout << "a2 after " << i << ": (" << a2[0] << " " << a2[1] << " " << a2[2] << ")" << std::endl;
