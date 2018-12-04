@@ -3,13 +3,17 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+
+#include "simulation.hpp"
+#include <CLI11.hpp>
+#include <string>
+
 #include "SPHSimulator.hpp"
 #include "SPHSimulator_2cubes.hpp"
 #include "SPHSimulator_rigid_body.hpp"
 #include "SPHSimulator_free_fall_motion.hpp"
-#include "simulation.hpp"
-#include <CLI11.hpp>
-#include <string>
+#include "SPHSimulator_dam_breaking.hpp"
+#include "SPHSimulator_drop_center.hpp"
 
 using namespace std;
 
@@ -77,7 +81,7 @@ int main(int argc, char **argv)
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
 
     int mode = 1;
-    CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for rigid_body | 2 for free fall | 3 for 2-cube collision");
+    CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for dam breaking | 2 for dropping the water from the center of boundary | 3 for free fall | 4 for 2-cube collision");
 
     int total_simulation = 1000;
     CLIapp.add_option("-s, --total_simulation", total_simulation, "Number of simulations to record");

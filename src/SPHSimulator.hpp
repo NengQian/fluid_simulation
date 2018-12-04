@@ -23,7 +23,7 @@ class SPHSimulator
 {
 public:
 
-    const RealVector3 gravity = RealVector3(0.0, 0.0, -9.8);
+    const RealVector3 gravity = RealVector3(0.0, 0.0, -0.98);
 	const Real dt;
 
     //SPHSimulator(Real dt, int N=5);
@@ -46,9 +46,9 @@ public:
 	void sample_density();
 
 
-/*----------virtual function-----------------*/
-    virtual void update_simulation();
-    virtual void generate_particles();
+/*----------virtual function (make it abstract)-----------------*/
+    virtual void update_simulation() = 0;
+    virtual void generate_particles() = 0;
     virtual ~SPHSimulator() = default;
 /*-------------------------------------------*/
 
