@@ -55,7 +55,7 @@ std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>&
 	return densities;
 }
 
-std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<Real>& volumes, Real radius )
+std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, Real radius )
 {
 	std::vector<Real> densities;
 	KernelHandler kh(radius);
@@ -75,9 +75,9 @@ std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>&
 		for (size_t k=0; k<neighbors_in_boundary[i].size(); ++k)
 		{
 			size_t l = neighbors_in_boundary[i][k];
-			Real V_k = volumes[l];
+			Real m = boundary_particles[l].mass;
 			RealVector3 bp_k = boundary_particles[l].position;
-			d += rest_density * V_k * kh.compute_kernel( p_i, bp_k, 4 );
+			d += m * kh.compute_kernel( p_i, bp_k, 4 );
 		}
 
 		densities.push_back(d);
@@ -188,7 +188,7 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 	}
 }
 
-void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<Real>& densities, std::vector<Real>& boundary_volumes, std::vector<RealVector3>& external_forces, Real radius, bool with_viscosity)
+void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<Real>& densities, std::vector<RealVector3>& external_forces, Real radius, bool with_viscosity)
 {
 	KernelHandler kh(radius);
 
@@ -254,8 +254,9 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 			//std::cout << "pressure " << i << ": " << p_i << std::endl;
 			//std::cout << "pressure " << n_idx << ": " << p_j << std::endl;
 
+			Real mb = BPk.mass;
 
-			a2 -= boundary_volumes[idx_nb] * rest_density * gradient * (p_i / (d_i * d_i));
+			a2 -= mb * gradient * (p_i / (d_i * d_i));
 		}
 
 

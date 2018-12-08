@@ -25,6 +25,7 @@ public:
 
     const RealVector3 gravity = RealVector3(0.0, 0.0, -0.98);
 	const Real dt;
+	const Real rest_density;
 
     //SPHSimulator(Real dt, int N=5);
     //SPHSimulator(Real particle_radius, std::vector<Real>& cuboid_side_lengths, Real dt=0.01, Real eta=1.2, Real B=100.0, Real rest_density=1000.0, Real alpha=0.08, int kernel_type=4);
@@ -37,7 +38,8 @@ public:
     Real get_particle_radius();
 
     void set_boundary_positions();
-    void set_boundary_volumes();
+    //void set_boundary_volumes();
+    void set_boundary_attribute();
     void set_positions();
     void set_particle_radius(Real r);
     void set_N(size_t n);
@@ -72,7 +74,7 @@ protected:
     std::vector<RealVector3> positions;   //why we need this positions... neng
 	std::vector<RealVector3> boundary_positions;
 
-	std::vector<Real> boundary_volumes;
+	//std::vector<Real> boundary_volumes;
 
 	std::vector<mParticle> particles;
 	std::vector<mParticle> boundary_particles;
@@ -84,8 +86,6 @@ protected:
     std::vector<mCuboid> cuboids;
 
 	Real neighbor_search_radius;
-
-
 
     /*----------this is for cereal-------------*/
     SimulationRecord sim_rec;

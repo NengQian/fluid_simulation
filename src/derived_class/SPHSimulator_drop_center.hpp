@@ -9,7 +9,7 @@ public:
 	 : SPHSimulator_rigid_body(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH)
 	{
         generate_particles();
-        set_boundary_volumes();
+        set_boundary_attribute();
         sim_rec.boundary_particles = boundary_particles;
         //update_sim_record_state();
 	}

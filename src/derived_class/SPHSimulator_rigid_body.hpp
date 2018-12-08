@@ -33,7 +33,7 @@ public:
         std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
 
         Real r = neighbor_search_radius;
-        std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, boundary_volumes, r);
+        std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
         //std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
 
         //Real water_rest_density = 1000.0;
@@ -44,7 +44,7 @@ public:
             //external_forces.push_back( RealVector3(0.0, 0.0, -0.981 * particles[i].mass) ); //Neng: we have the gravity in class private
             external_forces.push_back( gravity * particles[i].mass ); //Neng: we have the gravity in class private
 
-        particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, r, viscosity_flag);
+        particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, external_forces, r, viscosity_flag);
         //particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
 
 

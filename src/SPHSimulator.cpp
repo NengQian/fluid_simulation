@@ -22,6 +22,7 @@ using Eigen::AngleAxisf;
 using Eigen::Vector3f;
 
 SPHSimulator::SPHSimulator(int N, Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density) : dt(dt), //
+																				  rest_density(rest_density), //
 																				  N(N), //
 																				  particleFunc(rest_density, B, alpha) //
 {
@@ -52,9 +53,16 @@ SPHSimulator::SPHSimulator(Real particle_radius, std::vector<Real>& cuboid_side_
 	    update_sim_record_state();
 }
 */
-void SPHSimulator::set_boundary_volumes()
+void SPHSimulator::set_boundary_attribute()
 {
+	std::vector<Real> boundary_volumes;
 	particleFunc.initialize_boundary_particle_volumes(boundary_volumes, boundary_positions, neighbor_search_radius);
+
+	// set mass of boundary particle, m = rest_density * volume
+	for (size_t i=0; i<boundary_particles.size(); ++i)
+	{
+		boundary_particles[i].mass = rest_density * boundary_volumes[i];
+	}
 }
 
 void SPHSimulator::generate_particles()
