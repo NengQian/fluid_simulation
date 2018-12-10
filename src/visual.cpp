@@ -54,6 +54,10 @@ namespace Simulator
 
         file_name = fp;
 
+        is_render_boundary = true;
+        boundary_particle_size = particle_radius;
+        particle_size = particle_radius;
+
     }
 
 
@@ -132,28 +136,30 @@ namespace Simulator
             Simulator::mParticle& mparticle = particles[i];
             Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
             if(render_acc_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
-                frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.0f, 0.0f, 1.0f)));
+                frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(0.0f, 0.0f, 1.0f)));
             else if(render_velocity_flag){
                 Eigen::Vector3f v(static_cast<float>(mparticle.velocity[0]), static_cast<float>(mparticle.velocity[1]), static_cast<float>(mparticle.velocity[2]));
                 float r = velocity_to_float(v);
                 float b = 1.0f- r;
-                frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(r, 0.0f, b)));
+                frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));
             }
             else{
                 //render accerlation
                 Eigen::Vector3f a(static_cast<float>(mparticle.acceleration[0]), static_cast<float>(mparticle.acceleration[1]), static_cast<float>(mparticle.acceleration[2]));
                 float r = acc_to_float(a);
                 float b = 1.0f- r;
-                frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(r, 0.0f, b)));            }
+                frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));            }
         }
 
         // render boundary particles
-        std::vector<mParticle>& bp = sim_rec.boundary_particles;
-        for(size_t i =0;i<bp.size();++i)
-        {
-            Simulator::mParticle& mparticle = bp[i];
-            Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
-            frame.draw_particle(Particle(p).with_radius(particle_radius).with_color(Color(0.5f, 0.5f, 0.5f)));
+        if(is_render_boundary){
+            std::vector<mParticle>& bp = sim_rec.boundary_particles;
+            for(size_t i =0;i<bp.size();++i)
+            {
+                Simulator::mParticle& mparticle = bp[i];
+                Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
+                frame.draw_particle(Particle(p).with_radius(boundary_particle_size).with_color(Color(0.5f, 0.5f, 0.5f)));
+            }
         }
 
 
@@ -220,8 +226,14 @@ namespace Simulator
 
             ImGui::Checkbox("render velocity", &render_velocity_flag);ImGui::SameLine();
             ImGui::Checkbox("render acceleration", &render_acc_flag);
+
+            ImGui::Checkbox("render boundary", &is_render_boundary);
+
             ImGui::SliderFloat("max render velocity", &render_max_velocity, 0.1f, 10.0f);
-            ImGui::SliderFloat("max render acc", &render_max_acc, 0.1f, 10.0f);
+            ImGui::SliderFloat("max render acc", &render_max_acc, 0.1f, 100.0f);
+            ImGui::SliderFloat("boundary_pariticle_size", &boundary_particle_size, 0.01f, 1.0f);
+            ImGui::SliderFloat("particles_size", &particle_size, 0.01f, 1.0f);
+
 
 
 
