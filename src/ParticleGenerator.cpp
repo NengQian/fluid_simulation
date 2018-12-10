@@ -304,8 +304,8 @@ void ParticleGenerator::generate_two_freefall_cubes(std::vector<mParticle>& part
 
 	RealVector3 g(0.0, 0.0, -0.98);
 
-    generate_cube(particles, N, o1, v1_init, g, radius*N, false, false);
-    generate_cube(particles, N, o2, v2_init, g, radius*N, false, false);
+    generate_cube(particles, N, o1, v1_init, g, true, false);
+    generate_cube(particles, N, o2, v2_init, g, false, false);
 }
 
 
@@ -319,8 +319,8 @@ void ParticleGenerator::generate_two_colliding_cubes(std::vector<mParticle>& par
 
     RealVector3 a(0.0, 0.0, 0.0);
 
-    generate_cube(particles, N, o1, v1_init, a, 1.0, radius*N, false);
-    generate_cube(particles, N, o2, v2_init, a, 1.0, radius*N, false);
+    generate_cube(particles, N, o1, v1_init, a, radius, true);
+    generate_cube(particles, N, o2, v2_init, a, radius, false);
 }
 
 void ParticleGenerator::generate_rigid_box(std::vector<mParticle>& particles, size_t N, Real radius)

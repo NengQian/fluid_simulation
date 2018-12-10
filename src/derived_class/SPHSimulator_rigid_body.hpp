@@ -85,6 +85,7 @@ protected:
 		for (auto& pos : positions)
 		{
 			old_positions.push_back(RealVector3(pos));
+        	//std::cout << pos[2] << " " << std::endl;
 		}
 
 		// Step 1: preview of particles's status
@@ -95,18 +96,32 @@ protected:
         particleFunc.update_position(particles, dt);
         update_positions();
 
+		for (auto& pos : positions)
+        	std::cout << "after preview: " << pos[2] << " " << std::endl;
+
         // Step 2: search neighbors
         std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
         std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
 
         // Step 3: iteration of lambda and position computing
-        Real r = neighbor_search_radius;
-        std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
-
         for (int itr=0; itr<epoch; ++itr)
         {
+        	// Step 3.0: compute density
+            Real r = neighbor_search_radius;
+            std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
+
+            /*
+            std::cout << "in " << itr << "-th iteration" << std::endl;
+            for (auto& d : densities)
+            	std::cout << d << " ";
+
+			std::cout << std::endl;
+			*/
+
         	// Step 3.1: compute lambda
         	std::vector<Real> lambda; // only contain lambda of fluid particles, cuz lambda
+        	lambda.clear();
+
         	for (size_t i=0; i<particles.size(); ++i)
         	{
         		mParticle P_i = particles[i];
@@ -116,6 +131,7 @@ protected:
 
         		Real C_i = densities[i] / rest_density - 1;
         		std::vector<RealVector3> grad_of_C_i; // vector with size #fluid_neighbors + #boundary_neighbors
+        		grad_of_C_i.clear();
 
         		Real S_i = 0.0;
 
@@ -169,6 +185,7 @@ protected:
         	}
 
         	// Step 3.2: correct position
+        	std::vector<RealVector3> dx;
         	for (size_t i=0; i<particles.size(); ++i)
         	{
         		Real lambda_i = lambda[i];
@@ -194,7 +211,7 @@ protected:
         			{
             			j = neighbors_set[i][k];
             			NP_ij = particles[j];
-            			lambda_j = lambda[k];
+            			lambda_j = lambda[j];
            			}
         			else { // j != i and j is boundary neighbor
            				j = neighbors_in_boundary[i][k-number_of_fluid_neighbors_of_i];
@@ -210,16 +227,33 @@ protected:
         		// computing of dx_i completed here
         		dx_i /= rest_density;
 
+        		dx.push_back(dx_i);
+
         		// correct position x_i
-        		particles[i].position += dx_i;
+        		//particles[i].position += dx_i;
 
         		// Step 4: update velocity
-        		particles[i].velocity = (particles[i].position - old_positions[i]) / dt;
+        		//particles[i].velocity = (particles[i].position - old_positions[i]) / dt;
 
+        		//update_positions();
+        	}
+
+        	// Step 4: update position after every iteration <---- have to do it separately
+        	for (size_t i=0; i<particles.size(); ++i)
+        	{
+        		particles[i].position += dx[i];
         		update_positions();
         	}
         }
 
+		for (auto& pos : positions)
+        	std::cout << "after correction: " << pos[2] << " " << std::endl;
+
+        // Step 5: update velocity after the epochs
+    	for (size_t i=0; i<particles.size(); ++i)
+    	{
+    		particles[i].velocity = (particles[i].position - old_positions[i]) / dt;
+    	}
 	}
 };
 
