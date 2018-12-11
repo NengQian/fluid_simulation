@@ -40,6 +40,8 @@ using Eigen::AngleAxisf;
 using Simulator::Real;
 
 using std::chrono::duration;
+using std::cout;
+using std::endl;
 
 void load_scene(Simulator::Simulation & sim, Camera & camera)
 {
@@ -50,44 +52,6 @@ void load_scene(Simulator::Simulation & sim, Camera & camera)
     // Add bodies to your simulation
 }
 
-/// Simple helper class to manage time.
-///
-/// Whenever time passes in the real world, time is "produced".
-/// In order to advance the simulation time, there must be
-/// enough available time for consumption.
-///
-/// This approach allows you to decouple the physics time step
-/// from your rendering updates. See
-/// https://gafferongames.com/post/fix_your_timestep/
-/// for more information.
-class TimeKeeper
-{
-public:
-    TimeKeeper()
-            : _available_time(0.0)
-    {}
-
-    bool consume(double dt)
-    {
-        if (dt > 0.0 && _available_time >= dt)
-        {
-            _available_time -= dt;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    void produce(double dt)
-    {
-        _available_time += dt;
-    }
-
-private:
-    double _available_time;
-};
 
 int main(int argc, char **argv)
 {
@@ -158,6 +122,19 @@ int main(int argc, char **argv)
     CLIapp.add_option("-u, --unit_particle_length", unit_particle_length, " the intervel length between two particles per axis.");
 
     CLI11_PARSE(CLIapp, argc, argv);
+    cout<<"Eta = "<<eta<<endl;
+    cout<<"rest_density = "<< rest_density <<endl;
+    cout<<"stiffness = "<< B <<endl;
+    cout<<"elapsed time = "<< dt <<endl;
+    cout<<"alpha = "<<alpha<<endl;
+    cout<<"with_viscosity = "<< with_viscosity<<endl;
+    cout<<"with_XSPH = "<<with_XSPH<<endl;
+    cout<<"particles number per edge = "<< N <<endl;
+    cout<<"mode = "<< mode<< endl;
+    cout<<"unit_particle_length = "<< unit_particle_length<<endl;
+    cout<<"output_file = "<< output_file<<endl;
+    cout<<"print iteration = "<< if_print_iteration<<endl;
+    cout<<endl;
 
     Simulation simulation(N, mode, unit_particle_length, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density),output_file,if_print_iteration, with_viscosity, with_XSPH);
 
@@ -169,32 +146,11 @@ int main(int argc, char **argv)
 
     // You might want to make this configurable through your GUI!
 
-    TimeKeeper keeper;
 
-    auto last_frame_begin = std::chrono::steady_clock::now();
 
     while (!window.should_close())
     {
-    	/*
-        // Produce real time that the simulation time can consume
-        const auto now = std::chrono::steady_clock::now();
-        const duration<double> elapsed = now - last_frame_begin;
-        last_frame_begin = now;
-        keeper.produce(elapsed.count());
-
-        while (keeper.consume(dt))
-        {
-            simulation.timestep(dt);
-        }
-        */
-//        if(simulation.is_simulation_finshed())
-//        {
-//            std::cout<<"simulation finished!"<<std::endl;
-//            break;
-//        }
-
         simulation.update();
-
         window.render_frame([&] (Frame & frame)
         {
             // Render the current state of your simulation.

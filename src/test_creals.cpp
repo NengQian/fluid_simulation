@@ -53,16 +53,11 @@ int main(int argc, char **argv)
     CLIapp.add_option("-d, --rest_density", rest_density, "Fluid Rest density: 1000 (kg/m^3) on water for instance");
 
     float B = 1000.0f;
-    CLIapp.add_option("-b, --stiffness", B, "Stiffness of pressure force");
+    CLIapp.add_option("-s, --stiffness", B, "Stiffness of pressure force, the B");
 
     float dt = 0.01f;
     CLIapp.add_option("-t, --dt", dt, "Elapsed time");
 
-    std::vector<float> cuboid_side_lengths = {2.0f};
-    CLIapp.add_option("-l, --side_lengths", cuboid_side_lengths, "Side length of cuboid(if existed)");
-
-    float particle_radius = 0.1f;
-    CLIapp.add_option("-r, --particle_radius", particle_radius, "Radius of particles( useless now)");
 
     int step_size = 10;
     CLIapp.add_option("-z, --step_size", step_size, "record once every <step_size> frames");
@@ -70,11 +65,13 @@ int main(int argc, char **argv)
     float alpha = 0.08f;
     CLIapp.add_option("-a, --alpha", alpha, "parameter of viscosity");
 
+
     int with_viscosity = 1;
     CLIapp.add_option("-v, --with_viscosity", with_viscosity, "add viscosity");
 
     int with_XSPH = 1;
     CLIapp.add_option("-x, --with_XSPH", with_XSPH, "use XSPH to update position");
+
 
     CLIapp.option_defaults()->required();
     int N = 3;
@@ -83,8 +80,9 @@ int main(int argc, char **argv)
     int mode = 1;
     CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for dam breaking | 2 for dropping the water from the center of boundary | 3 for free fall | 4 for 2-cube collision");
 
+
     int total_simulation = 1000;
-    CLIapp.add_option("-s, --total_simulation", total_simulation, "Number of simulations to record");
+    CLIapp.add_option("-f, --total_simulation_frame_number", total_simulation, "Number of simulations to record");
 
     std::string output_file = "../../sim_result/test.bin";
     CLIapp.add_option("-o, --output_file", output_file, "output filename");
@@ -94,6 +92,20 @@ int main(int argc, char **argv)
 
 
     CLI11_PARSE(CLIapp, argc, argv);
+    cout<<"Eta = "<<eta<<endl;
+    cout<<"rest_density = "<< rest_density <<endl;
+    cout<<"stiffness = "<< B <<endl;
+    cout<<"elapsed time = "<< dt <<endl;
+    cout<<"record step_size"<<step_size<<endl;
+    cout<<"alpha = "<<alpha<<endl;
+    cout<<"with_viscosity = "<< with_viscosity<<endl;
+    cout<<"with_XSPH = "<<with_XSPH<<endl;
+    cout<<"particles number per edge = "<< N <<endl;
+    cout<<"mode = "<< mode<< endl;
+    cout<<"total number of simulation frames = "<< total_simulation<<endl;
+    cout<<"unit_particle_length = "<< unit_particle_length<<endl;
+    cout<<"output_file = "<< output_file<<endl;
+    cout<<endl;
 
     //generate_sim_rec(N, mode, total_simulation, step_size, output_file, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density), with_viscosity, with_XSPH);
 
