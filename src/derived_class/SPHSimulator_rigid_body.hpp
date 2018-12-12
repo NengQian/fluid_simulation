@@ -64,14 +64,13 @@ protected:
             external_forces.push_back( gravity * particles[i].mass ); //Neng: we have the gravity in class private
 
         particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, external_forces, r, viscosity_flag);
+        particleFunc.update_velocity(particles, dt);
 
         if (XSPH_flag == false)
         {
-            particleFunc.update_velocity(particles, dt);
             particleFunc.update_position(particles, dt);
         } else {
             /* --------- using XSPH -------------------*/
-            particleFunc.update_velocity(particles, dt);
             particleFunc.update_position(particles, dt, neighbors_set, r, densities);
         }
 
@@ -93,8 +92,9 @@ protected:
 		{
     		particles[i].velocity += gravity * dt;
 		}
-        particleFunc.update_position(particles, dt);
-        update_positions();
+
+    	particleFunc.update_position(particles, dt);
+    	update_positions();
 
 		for (auto& pos : positions)
         	std::cout << pos[2] << std::endl;
@@ -104,11 +104,12 @@ protected:
         std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
 
         // Step 3: iteration of lambda and position computing
+        Real r = neighbor_search_radius;
+        std::vector<Real> densities;
         for (int itr=0; itr<epoch; ++itr)
         {
         	// Step 3.0: compute density
-            Real r = neighbor_search_radius;
-            std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
+            densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
 
             /*
             std::cout << "in " << itr << "-th iteration" << std::endl;
@@ -228,14 +229,6 @@ protected:
         		dx_i /= rest_density;
 
         		dx.push_back(dx_i);
-
-        		// correct position x_i
-        		//particles[i].position += dx_i;
-
-        		// Step 4: update velocity
-        		//particles[i].velocity = (particles[i].position - old_positions[i]) / dt;
-
-        		//update_positions();
         	}
 
         	// Step 4: update position after every iteration <---- have to do it separately
@@ -254,6 +247,15 @@ protected:
     	{
     		particles[i].velocity = (particles[i].position - old_positions[i]) / dt;
     	}
+
+    	// (Optional)Step 6: add XSPH
+        if (XSPH_flag == true)
+        {
+            /* --------- using XSPH -------------------*/
+            particleFunc.update_position(particles, dt, neighbors_set, r, densities);
+        }
+
+        update_positions();
 	}
 };
 
