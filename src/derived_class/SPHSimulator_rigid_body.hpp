@@ -97,7 +97,7 @@ protected:
         update_positions();
 
 		for (auto& pos : positions)
-        	std::cout << "after preview: " << pos[2] << " " << std::endl;
+        	std::cout << pos[2] << std::endl;
 
         // Step 2: search neighbors
         std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
@@ -247,7 +247,7 @@ protected:
         }
 
 		for (auto& pos : positions)
-        	std::cout << "after correction: " << pos[2] << " " << std::endl;
+        	std::cout << pos[2] << std::endl;
 
         // Step 5: update velocity after the epochs
     	for (size_t i=0; i<particles.size(); ++i)

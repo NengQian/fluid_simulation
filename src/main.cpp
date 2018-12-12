@@ -47,7 +47,7 @@ void load_scene(Simulator::Simulation & sim, Camera & camera)
 {
     // Set up the camera the way you want it
     camera.look_in(Vector3f(1.0, 0.0, -1), Vector3f(0.0, 0.0, 1.0));
-    camera.set_position(Vector3f(-1.0, 0.0, 3.0));
+    camera.set_position(Vector3f(-1.0, 0.0, 1.0));
 
     // Add bodies to your simulation
 }
