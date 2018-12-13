@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     cout << "rest_density = "				<< rest_density << endl;
     cout << "stiffness = "					<< B << endl;
     cout << "elapsed time = " 				<< dt << endl;
-    cout << "record step_size"				<< step_size << endl;
+    cout << "record step_size = "				<< step_size << endl;
     cout << "alpha = " 						<< alpha << endl;
     cout << "with_viscosity = " 			<< with_viscosity << endl;
     cout << "with_XSPH = " 					<< with_XSPH << endl;

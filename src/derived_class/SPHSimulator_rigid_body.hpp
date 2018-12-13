@@ -93,7 +93,7 @@ protected:
 		}
 
     	particleFunc.update_position(particles, dt);
-    	update_positions();
+    	update_positions(); // needed
 
     	/*
 		for (auto& pos : positions)
@@ -236,7 +236,7 @@ protected:
         	for (size_t i=0; i<particles.size(); ++i)
         	{
         		particles[i].position += dx[i];
-        		update_positions();
+        		//update_positions();
         	}
         }
 
