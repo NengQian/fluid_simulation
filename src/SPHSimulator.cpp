@@ -21,10 +21,11 @@ using merely3d::Particle;
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
 
-SPHSimulator::SPHSimulator(int N, Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density) : dt(dt), //
+SPHSimulator::SPHSimulator(int N, Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int solver_type) : dt(dt), //
 																				  rest_density(rest_density), //
 																				  N(N), //
-																				  particleFunc(rest_density, B, alpha) //
+																				  particleFunc(rest_density, B, alpha), //
+																				  solver_type(solver_type) //
 {
 	set_particle_radius(uParticle_len/2);  // uParticle_len = 2.0 * radius
     Real h = eta*uParticle_len;   // h = eta*uParticle_len , in paper it is h = eta*(m/rou)^(1/3). while m/rou = v = uParticle_len^3;

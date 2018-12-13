@@ -26,10 +26,11 @@ public:
     const RealVector3 gravity = RealVector3(0.0, 0.0, -0.98);
 	const Real dt;
 	const Real rest_density;
+	const int solver_type;
 
     //SPHSimulator(Real dt, int N=5);
     //SPHSimulator(Real particle_radius, std::vector<Real>& cuboid_side_lengths, Real dt=0.01, Real eta=1.2, Real B=100.0, Real rest_density=1000.0, Real alpha=0.08, int kernel_type=4);
-    SPHSimulator(int N,  Real uParticle_len=0.2, Real dt=0.01, Real eta=1.2, Real B=100.0, Real alpha=0.08, Real rest_density=1000.0);
+    SPHSimulator(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int solver_type=0);
 
 
     const std::vector<RealVector3>& get_boundary_positions() const;

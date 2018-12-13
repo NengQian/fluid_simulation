@@ -5,8 +5,8 @@
 class SPHSimulator_drop_center : public SPHSimulator_rigid_body
 {
 public:
-	SPHSimulator_drop_center(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH)
-	 : SPHSimulator_rigid_body(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH)
+	SPHSimulator_drop_center(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH, int solver_type)
+	 : SPHSimulator_rigid_body(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type)
 	{
         generate_particles();
         set_boundary_attribute();

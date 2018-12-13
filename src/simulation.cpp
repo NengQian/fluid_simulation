@@ -30,7 +30,7 @@ namespace Simulator
     }
 
 
-    Simulation::Simulation(int N, int mode, Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp, bool if_print, int with_viscosity, int with_XSPH)
+    Simulation::Simulation(int N, int mode, Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, string fp, bool if_print, int with_viscosity, int with_XSPH, int solver_type)
     {
         file_path = fp;
         frame_count = 0;
@@ -42,16 +42,16 @@ namespace Simulator
   //      is_finished = false;
     	switch(mode) {
     		case 1:
-                p_sphSimulator = new SPHSimulator_dam_breaking(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH);
+                p_sphSimulator = new SPHSimulator_dam_breaking(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type);
     			break;
     		case 2:
-                p_sphSimulator = new SPHSimulator_drop_center(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH);
+                p_sphSimulator = new SPHSimulator_drop_center(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type);
     			break;
     		case 3:
                 p_sphSimulator = new SPHSimulator_free_fall_motion(N, uParticle_len, dt,eta, B, alpha, rest_density);
     			break;
     		case 4:
-                p_sphSimulator = new SPHSimulator_2cubes(N,uParticle_len, dt, eta, B, alpha, rest_density);
+                p_sphSimulator = new SPHSimulator_2cubes(N,uParticle_len, dt, eta, B, alpha, rest_density, solver_type);
     			break;
     		default:
     			std::cout << "Unknown model." << std::endl;

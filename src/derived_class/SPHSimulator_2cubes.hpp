@@ -12,7 +12,9 @@
 class SPHSimulator_2cubes : public SPHSimulator
 {
 public:
-    SPHSimulator_2cubes(int N, Real uParticle_len , Real dt, Real eta, Real B, Real alpha, Real rest_density):SPHSimulator(N,uParticle_len,dt, eta, B, alpha, rest_density){
+    SPHSimulator_2cubes(int N, Real uParticle_len , Real dt, Real eta, Real B, Real alpha, Real rest_density, int solver_type) //
+												  : SPHSimulator(N,uParticle_len,dt, eta, B, alpha, rest_density, solver_type)
+	{
         generate_particles();
         //update_sim_record_state();
     }
@@ -50,7 +52,7 @@ public:
 
 
 protected:
-	int solver_type = 1;
+	//int solver_type = 1;
 	int epoch = 5;
 
     virtual void update_simulation_WCSPH()

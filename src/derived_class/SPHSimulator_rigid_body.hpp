@@ -10,8 +10,8 @@
 class SPHSimulator_rigid_body : public SPHSimulator
 {
 public:
-    SPHSimulator_rigid_body(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH)
-	 : SPHSimulator(N, uParticle_len,dt, eta, B, alpha, rest_density)
+    SPHSimulator_rigid_body(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH, int solver_type)
+	 : SPHSimulator(N, uParticle_len,dt, eta, B, alpha, rest_density, solver_type)
 	{
         if (with_viscosity == 1)
         	viscosity_flag = true;
@@ -22,7 +22,6 @@ public:
         	XSPH_flag = true;
         else
         	XSPH_flag = false;
-
     }
 
     virtual void update_simulation() override
@@ -48,7 +47,7 @@ protected:
 	bool viscosity_flag = true;
 	bool XSPH_flag = true;
 
-	int solver_type = 1;
+	//int solver_type;
 	int epoch = 5;
 
 	void update_simulation_WCSPH()
@@ -96,8 +95,10 @@ protected:
     	particleFunc.update_position(particles, dt);
     	update_positions();
 
+    	/*
 		for (auto& pos : positions)
         	std::cout << pos[2] << std::endl;
+		*/
 
         // Step 2: search neighbors
         std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
@@ -239,8 +240,10 @@ protected:
         	}
         }
 
+        /*
 		for (auto& pos : positions)
         	std::cout << pos[2] << std::endl;
+        */
 
         // Step 5: update velocity after the epochs
     	for (size_t i=0; i<particles.size(); ++i)

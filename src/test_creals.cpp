@@ -72,46 +72,58 @@ int main(int argc, char **argv)
     int with_XSPH = 1;
     CLIapp.add_option("-x, --with_XSPH", with_XSPH, "use XSPH to update position");
 
-
-    CLIapp.option_defaults()->required();
-    int N = 3;
-    CLIapp.add_option("-n, --N", N, "Number of particles per edge");
-
-    int mode = 1;
-    CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for dam breaking | 2 for dropping the water from the center of boundary | 3 for free fall | 4 for 2-cube collision");
-
-
-    int total_simulation = 1000;
-    CLIapp.add_option("-f, --total_simulation_frame_number", total_simulation, "Number of simulations to record");
-
-    std::string output_file = "../../sim_result/test.bin";
-    CLIapp.add_option("-o, --output_file", output_file, "output filename");
-
-    float unit_particle_length ;
+    float unit_particle_length = 0.1f;
     CLIapp.add_option("-u, --unit_particle_length", unit_particle_length, " the intervel length between two particles per axis.");
 
 
-    CLI11_PARSE(CLIapp, argc, argv);
-    cout<<"Eta = "<<eta<<endl;
-    cout<<"rest_density = "<< rest_density <<endl;
-    cout<<"stiffness = "<< B <<endl;
-    cout<<"elapsed time = "<< dt <<endl;
-    cout<<"record step_size"<<step_size<<endl;
-    cout<<"alpha = "<<alpha<<endl;
-    cout<<"with_viscosity = "<< with_viscosity<<endl;
-    cout<<"with_XSPH = "<<with_XSPH<<endl;
-    cout<<"particles number per edge = "<< N <<endl;
-    cout<<"mode = "<< mode<< endl;
-    cout<<"total number of simulation frames = "<< total_simulation<<endl;
-    cout<<"unit_particle_length = "<< unit_particle_length<<endl;
-    cout<<"output_file = "<< output_file<<endl;
-    cout<<endl;
+    CLIapp.option_defaults()->required();
+
+    int N;
+    CLIapp.add_option("-n, --N", N, "Number of particles per edge");
+
+    int mode;
+    CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for dam breaking | 2 for dropping the water from the center of boundary | 3 for free fall | 4 for 2-cube collision");
+
+    int total_simulation;
+    CLIapp.add_option("-f, --total_simulation_frame_number", total_simulation, "Number of simulations to record");
+
+    std::string output_file;
+    CLIapp.add_option("-o, --output_file", output_file, "output filename");
+
+    int solver_type;
+    CLIapp.add_option("-c, --solver", solver_type, "Solver Type: 0 for WCSPH | 1 for PBF");
+
+    try {
+    	CLIapp.parse(argc, argv);
+    } catch(const CLI::ParseError &e) {
+        return CLIapp.exit(e);
+    }
+    //CLI11_PARSE(CLIapp, argc, argv);
+
+    cout << "eta = "         				<< eta << endl;
+    cout << "rest_density = "				<< rest_density << endl;
+    cout << "stiffness = "					<< B << endl;
+    cout << "elapsed time = " 				<< dt << endl;
+    cout << "record step_size"				<< step_size << endl;
+    cout << "alpha = " 						<< alpha << endl;
+    cout << "with_viscosity = " 			<< with_viscosity << endl;
+    cout << "with_XSPH = " 					<< with_XSPH << endl;
+    cout << "particles number per edge = " 	<< N << endl;
+    cout << "mode = " 						<< mode << endl;
+    cout << "total number of simulation frames = " << total_simulation << endl;
+    cout << "unit_particle_length = " 		<< unit_particle_length << endl;
+    cout << "output_file = " 				<< output_file << endl;
+    if (solver_type == 0)
+    	cout << "solver = WCSPH" << endl;
+    else if (solver_type == 1)
+    	cout << "solver = PBF" << endl;
+    cout << endl;
 
     //generate_sim_rec(N, mode, total_simulation, step_size, output_file, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density), with_viscosity, with_XSPH);
 
 
     // a for loop to generate every thing, and then run...
-    Simulation simulation(N, mode,unit_particle_length, dt, eta, B, alpha, rest_density, fold+output_file, false, with_viscosity, with_XSPH);
+    Simulation simulation(N, mode, unit_particle_length, dt, eta, B, alpha, rest_density, fold+output_file, false, with_viscosity, with_XSPH, solver_type);
 
     for(int i=0;i<total_simulation;++i)
     {

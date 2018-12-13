@@ -111,32 +111,48 @@ int main(int argc, char **argv)
     int with_XSPH = 1;
     CLIapp.add_option("-x, --with_XSPH", with_XSPH, "use XSPH to update position");
 
+    float unit_particle_length = 0.1f;
+    CLIapp.add_option("-u, --unit_particle_length", unit_particle_length, " the interval length between two particles per axis.");
+
     CLIapp.option_defaults()->required();
-    int N = 3;
+
+    int N;
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
 
-    int mode = 1;
+    int solver_type;
+    CLIapp.add_option("-c, --solver", solver_type, "Solver Type: 0 for WCSPH | 1 for PBF");
+
+    int mode;
     CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for dam breaking | 2 for dropping the water from the center of boundary | 3 for free fall | 4 for 2-cube collision");
 
-    float unit_particle_length ;
-    CLIapp.add_option("-u, --unit_particle_length", unit_particle_length, " the intervel length between two particles per axis.");
 
-    CLI11_PARSE(CLIapp, argc, argv);
-    cout<<"Eta = "<<eta<<endl;
-    cout<<"rest_density = "<< rest_density <<endl;
-    cout<<"stiffness = "<< B <<endl;
-    cout<<"elapsed time = "<< dt <<endl;
-    cout<<"alpha = "<<alpha<<endl;
-    cout<<"with_viscosity = "<< with_viscosity<<endl;
-    cout<<"with_XSPH = "<<with_XSPH<<endl;
-    cout<<"particles number per edge = "<< N <<endl;
-    cout<<"mode = "<< mode<< endl;
-    cout<<"unit_particle_length = "<< unit_particle_length<<endl;
-    cout<<"output_file = "<< output_file<<endl;
-    cout<<"print iteration = "<< if_print_iteration<<endl;
-    cout<<endl;
 
-    Simulation simulation(N, mode, unit_particle_length, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density),output_file,if_print_iteration, with_viscosity, with_XSPH);
+    try {
+    	CLIapp.parse(argc, argv);
+    } catch(const CLI::ParseError &e) {
+        return CLIapp.exit(e);
+    }
+    //CLI11_PARSE(CLIapp, argc, argv);
+
+    cout << "eta = "         				<< eta << endl;
+    cout << "rest_density = "				<< rest_density << endl;
+    cout << "stiffness = "					<< B << endl;
+    cout << "elapsed time = " 				<< dt << endl;
+    cout << "alpha = " 						<< alpha << endl;
+    cout << "with_viscosity = " 			<< with_viscosity << endl;
+    cout << "with_XSPH = " 					<< with_XSPH << endl;
+    cout << "particles number per edge = " 	<< N << endl;
+    cout << "mode = " 						<< mode << endl;
+    cout << "unit_particle_length = " 		<< unit_particle_length << endl;
+    cout << "output_file = " 				<< output_file << endl;
+    cout << "print iteration = " 			<< if_print_iteration << endl;
+    if (solver_type == 0)
+    	cout << "solver = WCSPH" << endl;
+    else if (solver_type == 1)
+    	cout << "solver = PBF" << endl;
+    cout << endl;
+
+    Simulation simulation(N, mode, static_cast<Real>(unit_particle_length), static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density),output_file,if_print_iteration, with_viscosity, with_XSPH, solver_type);
 
 
     // Here we currently only load a single scene at startup,
