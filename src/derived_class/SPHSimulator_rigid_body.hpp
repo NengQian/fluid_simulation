@@ -78,6 +78,11 @@ protected:
 
 	void update_simulation_PBFSPH()
 	{
+		std::vector< std::vector<size_t> > neighbors_set;
+		std::vector< std::vector<size_t> > neighbors_in_boundary;
+        Real r = neighbor_search_radius;
+        std::vector<Real> densities;
+
 		// Step 0: save the current position information before any updates
 		std::vector<RealVector3> old_positions;
 		for (auto& pos : positions)
@@ -92,7 +97,20 @@ protected:
     		particles[i].velocity += gravity * dt;
 		}
 
-    	particleFunc.update_position(particles, dt);
+    	//particleFunc.update_position(particles, dt);
+
+    	if (XSPH_flag == false)
+    	{
+    		particleFunc.update_position(particles, dt);
+    	} else { // use XSPH
+        	neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
+        	neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
+
+        	densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
+
+            particleFunc.update_position(particles, dt, neighbors_set, r, densities);
+    	}
+
     	update_positions(); // needed
 
     	/*
@@ -101,12 +119,10 @@ protected:
 		*/
 
         // Step 2: search neighbors
-        std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
-        std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
+        neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
+        neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
 
         // Step 3: iteration of lambda and position computing
-        Real r = neighbor_search_radius;
-        std::vector<Real> densities;
         for (int itr=0; itr<epoch; ++itr)
         {
         	// Step 3.0: compute density
@@ -251,12 +267,22 @@ protected:
     		particles[i].velocity = (particles[i].position - old_positions[i]) / dt;
     	}
 
+    	/*
+    	// Experiment: Add XSPH at the final stage according to the paper
     	// (Optional)Step 6: add XSPH
         if (XSPH_flag == true)
         {
-            /* --------- using XSPH -------------------*/
+        	// need to recompute neighbors and densities
+        	update_positions();
+
+        	neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
+        	neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
+
+        	densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
+
             particleFunc.update_position(particles, dt, neighbors_set, r, densities);
         }
+        */
 
         update_positions();
 	}
