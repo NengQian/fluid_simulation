@@ -62,12 +62,12 @@ namespace Simulator
         bool playback_flag;
         bool pausing_flag;
         bool render_velocity_flag;
-        bool render_acc_flag;
+        bool render_density_flag;
         bool is_render_boundary;
         float boundary_particle_size;
         float particle_size;
         float render_max_velocity;
-        float render_max_acc;
+        float render_max_density;
 
 
 

@@ -6,8 +6,9 @@
 class SPHSimulator_free_fall_motion: public SPHSimulator
 {
 public:
-    SPHSimulator_free_fall_motion(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density):
-    SPHSimulator(N,  uParticle_len, dt, eta, B, alpha, rest_density){
+    SPHSimulator_free_fall_motion(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density)
+								 :SPHSimulator(N,  uParticle_len, dt, eta, B, alpha, rest_density)
+	{
         generate_particles();
         //update_sim_record_state();
     }
@@ -15,11 +16,7 @@ public:
 
     virtual void update_simulation() override
     {
-        for (auto& p : particles)
-        {
-            p.acceleration = gravity;
-        }
-        particleFunc.update_velocity(particles, dt);
+        particleFunc.update_velocity(particles, dt, SPHSimulator::gravity);
         particleFunc.update_position(particles, dt);
 
         update_positions();
@@ -33,7 +30,7 @@ public:
             if (!positions.empty())
                 positions.clear();
 
-            particleGenerator.generate_two_freefall_cubes(particles, N, particle_radius);
+            particleGenerator.generate_two_freefall_cubes(particles, N, particle_radius*N);
             set_positions();
             neighborSearcher.set_particles_ptr(positions);
     }

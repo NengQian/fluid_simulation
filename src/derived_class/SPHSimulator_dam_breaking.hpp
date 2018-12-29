@@ -39,13 +39,13 @@ public:
             test_cuboid.y_n = static_cast<int>(N/4)*N+6;
             test_cuboid.z_n = 3*N;
             test_cuboid.is_hollow = true;
-            particleGenerator.generate_cuboid_box(boundary_particles,zero,zero,test_cuboid,particle_radius,false);
+            particleGenerator.generate_cuboid_box(boundary_particles,zero,test_cuboid,particle_radius,false);
 
             RealVector3 origin = RealVector3(0.0, 0.0, particle_radius);
             //particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
 
             origin = RealVector3(0.0, particle_radius*(test_cuboid.y_n-N-6), 3*particle_radius);
-            particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
+            particleGenerator.generate_cube(particles, N, origin, zero, particle_radius*N, false, false);
 
             set_positions();
             set_boundary_positions();

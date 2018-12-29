@@ -46,13 +46,13 @@ public:
             }
 
             test_cuboid.is_hollow = true;
-            particleGenerator.generate_cuboid_box(boundary_particles,zero,zero,test_cuboid,particle_radius,false);
+            particleGenerator.generate_cuboid_box(boundary_particles,zero,test_cuboid,particle_radius,false);
 
             RealVector3 origin = RealVector3(0.0, 0.0, particle_radius);
             //particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
 
             origin = RealVector3(0.0, 0.0, 10*particle_radius);
-            particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
+            particleGenerator.generate_cube(particles, N, origin, zero, particle_radius*N, false, false);
 
             set_positions();
             set_boundary_positions();

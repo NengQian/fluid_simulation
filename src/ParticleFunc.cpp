@@ -13,9 +13,8 @@ ParticleFunc::ParticleFunc(Real rest_density, Real B, Real alpha) : rest_density
 
 }
 
-std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<mParticle>& samples, std::vector<mParticle>& particles, Real radius )
+void ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<mParticle>& samples, std::vector<mParticle>& particles, Real radius )
 {
-	std::vector<Real> densities;
 	KernelHandler kh(radius);
 	for (size_t i=0; i<neighbors_of_set.size(); ++i)
 	{
@@ -26,14 +25,12 @@ std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>&
 			std::cout << m << std::endl;
 			d += m * kh.compute_kernel( samples[i].position, particles[neighbors_of_set[i][j]].position, 4 );
 		}
-		densities.push_back(d);
+		particles[i].density = d;
 	}
-	return densities;
 }
 
-std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<mParticle>& particles, Real radius )
+void ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<mParticle>& particles, Real radius )
 {
-	std::vector<Real> densities;
 	KernelHandler kh(radius);
 	for (size_t i=0; i<neighbors_of_set.size(); ++i)
 	{
@@ -46,18 +43,13 @@ std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>&
 			Real m = particles[neighbors_of_set[i][j]].mass;
 			d += m * kh.compute_kernel( particles[i].position, particles[neighbors_of_set[i][j]].position, 4 );
 		}
-		densities.push_back(d);
 
-		//std::cout << "density of " << i << ": " << d << std::endl;
-		// remove itself from neighbors list
-		//neighbors_of_set[i].pop_back();
+		particles[i].density = d;
 	}
-	return densities;
 }
 
-std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, Real radius )
+void ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, Real radius )
 {
-	std::vector<Real> densities;
 	KernelHandler kh(radius);
 	for (size_t i=0; i<neighbors_of_set.size(); ++i)
 	{
@@ -80,21 +72,24 @@ std::vector<Real> ParticleFunc::update_density(std::vector<std::vector<size_t>>&
 			d += m * kh.compute_kernel( p_i, bp_k, 4 );
 		}
 
-		densities.push_back(d);
-
-		//std::cout << "density of " << i << ": " << d << std::endl;
-		// remove itself from neighbors list
-		//neighbors_of_set[i].pop_back();
+		particles[i].density = d;
 	}
-	return densities;
 }
 
 
-void ParticleFunc::update_velocity( std::vector<mParticle>& particles, Real dt )
+void ParticleFunc::update_velocity( std::vector<mParticle>& particles, Real dt, Eigen::Ref<const RealVector3> a )
 {
 	for (auto& p : particles)
 	{
-		p.velocity += p.acceleration * dt;
+		p.velocity += a * dt;
+	}
+}
+
+void ParticleFunc::update_velocity( std::vector<mParticle>& particles, Real dt, std::vector<RealVector3>& as )
+{
+	for (size_t i=0; i<particles.size(); ++i)
+	{
+		particles[i].velocity += as[i] * dt;
 	}
 }
 
@@ -109,7 +104,7 @@ void ParticleFunc::update_position( std::vector<mParticle>& particles, Real dt )
 
 
 // with XSPH
-void ParticleFunc::update_position( std::vector<mParticle>& particles, Real dt, std::vector<std::vector<size_t>>& neighbors_set, Real radius, std::vector<Real>& densities)
+void ParticleFunc::update_position( std::vector<mParticle>& particles, Real dt, std::vector<std::vector<size_t>>& neighbors_set, Real radius)
 {
 	KernelHandler kh(radius);
 
@@ -123,7 +118,7 @@ void ParticleFunc::update_position( std::vector<mParticle>& particles, Real dt, 
 			size_t j = neighbors_set[i][k];
 			mParticle p_j = particles[j];
 
-			sum += 2.0 * p_j.mass / (densities[i] + densities[j]) * kh.compute_kernel(p_i.position, p_j.position, 4) * (p_j.velocity - p_i.velocity);
+			sum += 2.0 * p_j.mass / (p_i.density + p_j.density) * kh.compute_kernel(p_i.position, p_j.position, 4) * (p_j.velocity - p_i.velocity);
 		}
 
 		RealVector3 v_i_star = p_i.velocity + 0.5 * sum;
@@ -133,9 +128,12 @@ void ParticleFunc::update_position( std::vector<mParticle>& particles, Real dt, 
 }
 
 
-void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<Real>& densities, std::vector<RealVector3>& external_forces, Real radius)
+std::vector<RealVector3> ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<RealVector3>& external_forces, Real radius)
 {
+	std::vector<RealVector3> as;
+
 	KernelHandler kh(radius);
+
 	for (size_t i=0; i<particles.size(); ++i)
 	{
 		RealVector3 a(0.0, 0.0, 0.0);
@@ -147,7 +145,7 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 		// add itself
 		//neighbors_of_set[i].push_back(i);
 
-		Real d_i = densities[i];
+		Real d_i = particles[i].density;
 		//std::cout << "density " << i << ": " << d_i << std::endl;
 
 		//std::cout << "neighbor of " << i << ": " << neighbors_of_set[i].size() << std::endl;
@@ -159,13 +157,13 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 			//std::cout << "gradient (" << i << ", " << j << "): " << "(" << gradient[0] << " " << gradient[1] << " " << gradient[2] << ")" << std::endl;
 			Real p_i, p_j, d_j, m_j;
 
-			p_i = std::max(0.0, B * (densities[i] - rest_density));
-			p_j = std::max(0.0, B * (densities[neighbors_of_set[i][j]] - rest_density));
+			d_j = particles[neighbors_of_set[i][j]].density;
+
+			p_i = std::max(0.0, B * (d_i - rest_density));
+			p_j = std::max(0.0, B * (d_j - rest_density));
 
 			//std::cout << "pressure " << i << ": " << p_i << std::endl;
 			//std::cout << "pressure " << n_idx << ": " << p_j << std::endl;
-
-			d_j = densities[neighbors_of_set[i][j]];
 
 			m_j = particles[neighbors_of_set[i][j]].mass;
 
@@ -181,15 +179,19 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 
 
 		// deep copy
-		particles[i].acceleration = a;
+		as.push_back(a);
 
 		// remove itself
 		//neighbors_of_set[i].pop_back();
 	}
+
+	return as;
 }
 
-void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<Real>& densities, std::vector<RealVector3>& external_forces, Real radius, bool with_viscosity)
+std::vector<RealVector3> ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::vector<mParticle>& boundary_particles, std::vector<std::vector<size_t>>& neighbors_of_set, std::vector<std::vector<size_t>>& neighbors_in_boundary, std::vector<RealVector3>& external_forces, Real radius, bool with_viscosity)
 {
+	std::vector<RealVector3> as;
+
 	KernelHandler kh(radius);
 
 	/*
@@ -208,7 +210,7 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 		//std::cout << "a1 before " << i << ": (" << a1[0] << " " << a1[1] << " " << a1[2] << ")" << std::endl;
 
 		mParticle Pi = particles[i];
-		Real d_i = densities[i];
+		Real d_i = particles[i].density;
 		Real p_i = std::max(0.0, B * (d_i - rest_density));
 		//std::cout << "density " << i << ": " << d_i << std::endl;
 
@@ -218,7 +220,7 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 		/*--------- compute viscosity of i -------*/
 		std::vector<Real> v_i;
 		if (with_viscosity)
-			v_i = compute_viscosity(particles, densities, i, neighbors_of_set[i], radius);
+			v_i = compute_viscosity(particles, i, neighbors_of_set[i], radius);
 
 		for (size_t j=0; j<neighbors_of_set[i].size(); ++j)
 		{
@@ -228,7 +230,7 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 			//std::cout << "gradient (" << i << ", " << j << "): " << "(" << gradient[0] << " " << gradient[1] << " " << gradient[2] << ")" << std::endl;
 			Real p_j, d_j, m_j;
 
-			d_j = densities[idx_n];
+			d_j = particles[idx_n].density;
 			p_j = std::max(0.0, B * (d_j - rest_density));
 
 			//std::cout << "pressure " << i << ": " << p_i << std::endl;
@@ -272,11 +274,13 @@ void ParticleFunc::update_acceleration( std::vector<mParticle>& particles, std::
 
 
 		// deep copy
-		particles[i].acceleration = a;
+		as.push_back(a);
 
 		// remove itself
 		//neighbors_of_set[i].pop_back();
 	}
+
+	return as;
 }
 
 void ParticleFunc::initialize_boundary_particle_volumes(std::vector<Real>& boundary_volumes, std::vector<RealVector3>& boundary_positions, Real neighbor_search_radius)
@@ -350,7 +354,7 @@ std::vector<std::vector<Real>> ParticleFunc::compute_viscosity(std::vector<mPart
 */
 
 // Instead of computing the whole viscosity matrix, we compute one row each time
-std::vector<Real> ParticleFunc::compute_viscosity(std::vector<mParticle>& particles, std::vector<Real>& densities, size_t idx_i, std::vector<size_t>& neighbors_of_i, Real neighbor_search_radius)
+std::vector<Real> ParticleFunc::compute_viscosity(std::vector<mParticle>& particles, size_t idx_i, std::vector<size_t>& neighbors_of_i, Real neighbor_search_radius)
 {
 	std::vector<Real> v_i;
 
@@ -369,7 +373,7 @@ std::vector<Real> ParticleFunc::compute_viscosity(std::vector<mParticle>& partic
 			v_i.push_back(0.0);
 		else {
 			Real h = neighbor_search_radius / 2.0; // assume we use m4 kernel
-			Real u_ij = 2.0 * alpha * h * sqrt(B) / (densities[idx_i] + densities[j]);
+			Real u_ij = 2.0 * alpha * h * sqrt(B) / (particles[idx_i].density + particles[j].density);
 			Real squaredNorm_x_ij = x_ij[0] * x_ij[0] + x_ij[1] * x_ij[1] + x_ij[2] * x_ij[2];
 
 			Real v_ij = -u_ij * dotProduct / (squaredNorm_x_ij + 0.01 * h * h);

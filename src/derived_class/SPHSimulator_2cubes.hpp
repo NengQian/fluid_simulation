@@ -60,14 +60,14 @@ protected:
             std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
 
             Real r = static_cast<Real>(neighbor_search_radius);
-            std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
+            particleFunc.update_density(neighbors_set, particles, r);
 
             std::vector<RealVector3> external_forces;
             for (size_t i=0; i<particles.size(); ++i)
                 external_forces.push_back( RealVector3(0.0, 0.0, 0.0) );
 
-            particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, r);
-            particleFunc.update_velocity(particles, dt);
+            std::vector<RealVector3> as = particleFunc.update_acceleration( particles, neighbors_set, external_forces, r);
+            particleFunc.update_velocity(particles, dt, as);
             particleFunc.update_position(particles, dt);
 
             update_positions();
@@ -98,7 +98,7 @@ protected:
         {
         	// Step 3.0: compute density
             Real r = neighbor_search_radius;
-            std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
+            particleFunc.update_density(neighbors_set, particles, r);
 
             /*
             std::cout << "in " << itr << "-th iteration" << std::endl;
@@ -118,7 +118,7 @@ protected:
 
         		size_t number_of_fluid_neighbors_of_i = neighbors_set[i].size();
 
-        		Real C_i = densities[i] / rest_density - 1;
+        		Real C_i = P_i.density / rest_density - 1;
         		std::vector<RealVector3> grad_of_C_i; // vector with size #fluid_neighbors + #boundary_neighbors
         		grad_of_C_i.clear();
 

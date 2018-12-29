@@ -144,113 +144,6 @@ void SPHSimulator::update_simulation()
 {
 }
 
-
-//void SPHSimulator::update_freefall_motion()
-//{
-//	for (auto& p : particles)
-//	{
-//		p.acceleration = gravity;
-//	}
-//	particleFunc.update_velocity(particles, dt);
-//	particleFunc.update_position(particles, dt);
-
-//	update_positions();
-//}
-
-//void SPHSimulator::update_two_cubes_collision()
-//{
-//	set_neighbor_search_radius( 2.4/N * 2 );
-//	std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
-
-//	/*
-//	for (size_t i=0; i<neighbors_set.size(); ++i)
-//	{
-//		std::cout << i << std::endl;
-
-//		for (size_t j=0; j<neighbors_set[i].size(); ++j)
-//			std::cout << neighbors_set[i][j] << " ";
-/*
-<<<<<<< HEAD
-	std::vector<RealVector3> external_forces;
-	for (size_t i=0; i<particles.size(); ++i)
-		external_forces.push_back( RealVector3(0.0, 0.0, 0.0) );
-
-	particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, r);
-	particleFunc.update_velocity(particles, dt);
-	particleFunc.update_position(particles, dt);
-=======
-*/
-//		std::cout << std::endl;
-//	}
-//	*/
-
-//	Real r = static_cast<Real>(neighbor_search_radius);
-//	std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
-
-//	Real water_rest_density = 1000.0;
-//    Real B = 1000.0;
-//>>>>>>> neng3
-
-//	std::vector<RealVector3> external_forces;
-//	for (size_t i=0; i<particles.size(); ++i)
-//		external_forces.push_back( RealVector3(0.0, 0.0, 0.0) );
-
-//	particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
-//	particleFunc.update_velocity(particles, dt);
-//	particleFunc.update_position(particles, dt);
-
-//	update_positions();
-//}
-
-//void SPHSimulator::update_rigid_body_simulation()
-//{
-//	float r = 2.4/N * 2 ;
-//	set_neighbor_search_radius(r);
-
-//	std::vector< std::vector<size_t> > neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
-//	std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
-
-///*
-//	for (size_t i=0; i<neighbors_set.size(); ++i)
-//	{
-//		std::cout << i << std::endl;
-/*
-<<<<<<< HEAD
-	std::vector<RealVector3> external_forces;
-	for (size_t i=0; i<particles.size(); ++i)
-		external_forces.push_back( RealVector3(0.0, 0.0, -0.981 * particles[i].mass) );
-
-	particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, r);
-	//particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
-=======
-*/
-//		for (size_t j=0; j<neighbors_set[i].size(); ++j)
-//			std::cout << neighbors_set[i][j] << " ";
-
-//		std::cout << std::endl;
-//	}
-//*/
-//	std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, boundary_volumes, r);
-//	//std::vector<Real> densities = particleFunc.update_density(neighbors_set, particles, r);
-
-//	Real water_rest_density = 1000.0;
-//    Real B = 100.0;
-//>>>>>>> neng3
-
-//	std::vector<RealVector3> external_forces;
-//	for (size_t i=0; i<particles.size(); ++i)
-//        //external_forces.push_back( RealVector3(0.0, 0.0, -0.981 * particles[i].mass) ); //Neng: we have the gravity in class private
-//        external_forces.push_back( gravity * particles[i].mass ); //Neng: we have the gravity in class private
-
-//	particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, boundary_volumes, external_forces, water_rest_density, r, B);
-//	//particleFunc.update_acceleration( particles, neighbors_set, densities, external_forces, water_rest_density, r, B);
-
-//	particleFunc.update_velocity(particles, dt);
-//	particleFunc.update_position(particles, dt);
-
-//	update_positions();
-//}
-
 void SPHSimulator::update_sim_record_state()
 {
     SimulationState sim_state;
@@ -273,7 +166,7 @@ void SPHSimulator::print_all_particles()
         mParticle particle(particles[i]);
         std::cout<<"position is"<< std::endl<<particle.position<<std::endl;
         std::cout<<"velocity is"<<  std::endl<<particle.velocity<<std::endl;
-        std::cout<<"acceleration is"<< std::endl<<particle.acceleration<<std::endl;
+        std::cout<<"density is"<< std::endl<<particle.density<<std::endl;
         std::cout<<"mass is"<< std::endl<<particle.mass<<std::endl;
     }
 }

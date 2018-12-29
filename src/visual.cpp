@@ -46,8 +46,8 @@ namespace Simulator
         playback_flag = false;
         pausing_flag = false;
         render_velocity_flag = false;
-        render_acc_flag = false;
-        render_max_acc = 0.25f;
+        render_density_flag = false;
+        render_max_density = 1000.0f;
         render_max_velocity = 0.25f;
         counter = 0;
         render_step = 1;
@@ -85,13 +85,14 @@ namespace Simulator
         return velocity_norm/render_max_velocity;
     }
 
+    /*
     float Visualization::acc_to_float(const Eigen::Vector3f& acc)
     {
         float acc_norm = acc.norm();
         acc_norm = std::min(acc_norm,render_max_acc);
         return acc_norm/render_max_acc;
     }
-
+	*/
 
     void Visualization::render(merely3d::Frame &frame)
     {
@@ -135,26 +136,35 @@ namespace Simulator
         {
             Simulator::mParticle& mparticle = particles[i];
             Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
-            if(render_acc_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
-                frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(0.0f, 0.0f, 1.0f)));
-            else if(render_velocity_flag){
+
+            if(render_density_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
+            {
+            	frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(0.0f, 0.0f, 1.0f)));
+            }
+            else if(render_velocity_flag)
+            {
                 Eigen::Vector3f v(static_cast<float>(mparticle.velocity[0]), static_cast<float>(mparticle.velocity[1]), static_cast<float>(mparticle.velocity[2]));
                 float r = velocity_to_float(v);
-                float b = 1.0f- r;
+                float b = 1.0f - r;
                 frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));
             }
-            else{
-                //render accerlation
-                Eigen::Vector3f a(static_cast<float>(mparticle.acceleration[0]), static_cast<float>(mparticle.acceleration[1]), static_cast<float>(mparticle.acceleration[2]));
-                float r = acc_to_float(a);
-                float b = 1.0f- r;
-                frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));            }
+            else
+            {
+                //render density
+                float d = static_cast<float>(mparticle.density);
+
+                float f = std::min(d, render_max_density) / render_max_density;
+                float r = f * f * f * f;
+                float b = 1.0f - r;
+                frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));
+            }
         }
 
         // render boundary particles
-        if(is_render_boundary){
+        if (is_render_boundary)
+        {
             std::vector<mParticle>& bp = sim_rec.boundary_particles;
-            for(size_t i =0;i<bp.size();++i)
+            for (size_t i =0;i<bp.size();++i)
             {
                 Simulator::mParticle& mparticle = bp[i];
                 Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
@@ -163,9 +173,10 @@ namespace Simulator
         }
 
 
-        if(pausing_flag==false){
+        if (pausing_flag==false)
+        {
 
-            if(speed_ratio<1.0)
+            if (speed_ratio<1.0)
             {
                 counter++;
                 if(counter < std::abs(static_cast<int>(1.0/speed_ratio+0.5)))
@@ -225,12 +236,12 @@ namespace Simulator
             ImGui::TextWrapped("particles number %d",particles_num);
 
             ImGui::Checkbox("render velocity", &render_velocity_flag);ImGui::SameLine();
-            ImGui::Checkbox("render acceleration", &render_acc_flag);
+            ImGui::Checkbox("render density", &render_density_flag);
 
             ImGui::Checkbox("render boundary", &is_render_boundary);
 
             ImGui::SliderFloat("max render velocity", &render_max_velocity, 0.1f, 10.0f);
-            ImGui::SliderFloat("max render acc", &render_max_acc, 0.1f, 100.0f);
+            ImGui::SliderFloat("max render density", &render_max_density, 100.0f, 3000.0f);
             ImGui::SliderFloat("boundary_pariticle_size", &boundary_particle_size, 0.01f, 1.0f);
             ImGui::SliderFloat("particles_size", &particle_size, 0.01f, 1.0f);
 

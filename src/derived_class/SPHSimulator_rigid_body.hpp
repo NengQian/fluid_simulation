@@ -56,21 +56,21 @@ protected:
         std::vector< std::vector<size_t> > neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
 
         Real r = neighbor_search_radius;
-        std::vector<Real> densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
+        particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
 
         std::vector<RealVector3> external_forces;
         for (size_t i=0; i<particles.size(); ++i)
             external_forces.push_back( gravity * particles[i].mass ); //Neng: we have the gravity in class private
 
-        particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, densities, external_forces, r, viscosity_flag);
-        particleFunc.update_velocity(particles, dt);
+        std::vector<RealVector3> as = particleFunc.update_acceleration( particles, boundary_particles, neighbors_set, neighbors_in_boundary, external_forces, r, viscosity_flag);
+        particleFunc.update_velocity(particles, dt, as);
 
         if (XSPH_flag == false)
         {
             particleFunc.update_position(particles, dt);
         } else {
             /* --------- using XSPH -------------------*/
-            particleFunc.update_position(particles, dt, neighbors_set, r, densities);
+            particleFunc.update_position(particles, dt, neighbors_set, r);
         }
 
         update_positions();
@@ -81,7 +81,6 @@ protected:
 		std::vector< std::vector<size_t> > neighbors_set;
 		std::vector< std::vector<size_t> > neighbors_in_boundary;
         Real r = neighbor_search_radius;
-        std::vector<Real> densities;
 
 		// Step 0: save the current position information before any updates
 		std::vector<RealVector3> old_positions;
@@ -106,9 +105,9 @@ protected:
         	neighbors_set = neighborSearcher.find_neighbors_within_radius(true);
         	neighbors_in_boundary = neighborSearcher.find_neighbors_in_boundary( );
 
-        	densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
+        	particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
 
-            particleFunc.update_position(particles, dt, neighbors_set, r, densities);
+            particleFunc.update_position(particles, dt, neighbors_set, r);
     	}
 
     	update_positions(); // needed
@@ -126,7 +125,7 @@ protected:
         for (int itr=0; itr<epoch; ++itr)
         {
         	// Step 3.0: compute density
-            densities = particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
+            particleFunc.update_density(neighbors_set, neighbors_in_boundary, particles, boundary_particles, r);
 
             /*
             std::cout << "in " << itr << "-th iteration" << std::endl;
@@ -147,7 +146,7 @@ protected:
         		size_t number_of_fluid_neighbors_of_i = neighbors_set[i].size();
         		size_t number_of_boundary_neighbors_of_i = neighbors_in_boundary[i].size();
 
-        		Real C_i = densities[i] / rest_density - 1;
+        		Real C_i = P_i.density / rest_density - 1;
         		std::vector<RealVector3> grad_of_C_i; // vector with size #fluid_neighbors + #boundary_neighbors
         		grad_of_C_i.clear();
 
