@@ -19,26 +19,6 @@ using namespace std;
 
 std::string fold = "./sim_result/";
 
-void generate_sim_rec(int N, int mode, int total_simulation, int step_size, std::string& output_file, Real dt, Real eta, Real B, Real alpha, Real rest_density, int viscosity, int XSPH)  // maybe I should directly put all particles in all frame to one vector...
-{
-    // a for loop to generate every thing, and then run...
-    Simulation simulation(N, mode, 0.05, dt, eta, B, alpha, rest_density, fold+output_file, false, viscosity, XSPH);
-
-    for(int i=0;i<total_simulation;++i)
-    {
-        simulation.p_sphSimulator->update_simulation();
-
-        if (i % step_size == 0)
-        	simulation.p_sphSimulator->update_sim_record_state();
-
-        std::cout<<"iteration "<< i <<std::endl;
-    }
-
-    //simulation.p_sphSimulator->output_sim_record_bin(fold+output_file);
-
-    return;
-}
-
 
 
 int main(int argc, char **argv)

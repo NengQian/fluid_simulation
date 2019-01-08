@@ -50,7 +50,7 @@ set(UTIL_FILES
         src/util/triangle_mesh.cpp)
 
 set(SOURCE_FILES
-		${CLI11_FILES}
+        ${CLI11_FILES}
         ${IMGUI_FILES}
         ${UTIL_FILES}
         src/math_types.hpp
@@ -152,4 +152,26 @@ target_include_directories(kernel_test PRIVATE extern/merely3d/extern/catch )
 add_executable(test_creals src/test_creals.cpp)
 target_link_libraries(test_creals simulator_lib)
 target_include_directories(test_creals PRIVATE ${EIGEN3_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
+
+
+
+
+set(MARCHING_CUBE_LIB_FILES
+        ${CLI11_FILES}
+        ${IMGUI_FILES}
+        src/marching_cube.cpp
+        src/marching_cube.hpp
+        src/marching_cube_visual.hpp
+)
+
+add_library(marching_cube_lib STATIC ${MARCHING_CUBE_LIB_FILES} )
+target_link_libraries(marching_cube_lib merely3d)
+target_include_directories(marching_cube_lib PUBLIC
+                            ${CMAKE_SOURCE_DIR}/src
+                            ${CLI11_ROOT}
+                            ${EIGEN_ROOT})
+
+add_executable(test_marching_cube src/test_marching_cube.cpp)
+target_link_libraries(test_marching_cube marching_cube_lib)
+#target_include_directories(test_marching_cube PUBLIC ${CMAKE_SOURCE_DIR}/src )
 
