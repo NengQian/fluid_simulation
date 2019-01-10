@@ -71,11 +71,11 @@ void marching_cube::output_marching_indices(std::vector<unsigned int>& output_in
     return;
 }
 
-//void marching_cube::linear_interpolate_vertex_pos(const mVoxel_vertex& vertex1,
-//                                                  const mVoxel_vertex& vertex2,
-//                                                  Vector3f& result_pos){
-//    vertex1.phi
-//}
+inline void marching_cube::linear_interpolate_vertex_pos(const mVoxel_vertex& vertex1,
+                                                  const mVoxel_vertex& vertex2,
+                                                  Vector3f& result_pos){
+    result_pos = (-vertex1.phi/(vertex2.phi - vertex1.phi))*(vertex2.position - vertex1.position)+vertex1.position;
+}
 
 void marching_cube::insect_vertex_to_edges( mVoxel_edge& edge){
     if(edge.has_mesh_vertex)  // if this edge already has a vertex, do nothing but return directly
@@ -85,7 +85,11 @@ void marching_cube::insect_vertex_to_edges( mVoxel_edge& edge){
         unsigned int vertex_id = len;
 
         // compute its postion, now we just use midpoint
-        Vector3f vertex_pos = (edge.vertex1_ptr->position + edge.vertex2_ptr->position)/2.0f;
+        //Vector3f vertex_pos = (edge.vertex1_ptr->position + edge.vertex2_ptr->position)/2.0f;
+
+        // use linear interpolate
+        Vector3f vertex_pos;
+        linear_interpolate_vertex_pos(*(edge.vertex1_ptr), *(edge.vertex2_ptr),vertex_pos);
         //Vector3f vertex_normal; // we also dont compute normal now!
 
         mMesh_vertex mv(vertex_pos,vertex_id);
