@@ -62,19 +62,15 @@ public:
     marching_cube(float unit_length);
     virtual ~marching_cube() = default;
 
-    // output
-//    std::vector<float> output_vertices;
-//    std::vector<unsigned int> output_indices;
-
     void output_marching_vertices(std::vector<float>& output_vertices);
     void output_marching_indices(std::vector<unsigned int>& output_vertices);
 
 protected:
 
     const float unit_voxel_length;   // resolution
-    const float total_z_length = 3.0f;
-    const float total_x_length = 3.0f;
-    const float total_y_length = 3.0f;
+    const float total_z_length = 2.0f;
+    const float total_x_length = 2.0f;
+    const float total_y_length = 2.0f;
     // voxels number along 3 axis;
     size_t voxelx_n;
     size_t voxely_n;
@@ -84,7 +80,7 @@ protected:
     size_t voxel_verticesx_n;
     size_t voxel_verticesy_n;
     size_t voxel_verticesz_n;
-    const Vector3f origin = {0.0f,0.0f,-1.5f};  // this origin is the buttom center of the
+    const Vector3f origin = {0.0f,0.0f,-1.0f};  // this origin is the buttom center of the
                                                          //cuboid we want to reconstruct
 
     // private method, which only used by internal.
@@ -95,10 +91,12 @@ protected:
     void generate_bitcode();
     void bitcode_to_mesh_vertices();
     void insect_vertex_to_edges( mVoxel_edge& edge);
+    void linear_interpolate_vertex_pos(const mVoxel_vertex &vertex1, const mVoxel_vertex &vertex2, Vector3f& result_pos);
+
 
 
     std::vector<mVoxel_vertex> voxel_vertices;
-    std::vector<mVoxel> voxels;
+    std::list<mVoxel> voxels;
 
     // store internel triangle face and mesh vertex
     std::list<mMesh_vertex> mesh_vertex_vector;

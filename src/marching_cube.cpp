@@ -13,15 +13,12 @@ marching_cube::marching_cube(float unit_length):unit_voxel_length(unit_length)
     voxelx_n = static_cast<size_t>(total_x_length/unit_voxel_length);
     voxely_n = static_cast<size_t>(total_y_length/unit_voxel_length);
     voxelz_n = static_cast<size_t>(total_z_length/unit_voxel_length);
-    voxels.reserve(voxelx_n*voxely_n*voxelz_n);
 
     voxel_verticesx_n = voxelx_n+1;
     voxel_verticesy_n = voxely_n+1;
     voxel_verticesz_n = voxelz_n+1;
     voxel_vertices.reserve(voxel_verticesx_n*voxel_verticesy_n*voxel_verticesz_n);
 
-    //mesh_vertex_vector.reserve(12*voxelx_n*voxely_n*voxelz_n);
-    //mesh_triangle_vector.reserve(6*voxelx_n*voxely_n*voxelz_n);
 
     cout<<"size of mvoxel_vertex "<<sizeof(mVoxel_vertex)<<endl;
     cout<<"size of mvoxel "<<sizeof(mVoxel)<<endl;
@@ -30,9 +27,9 @@ marching_cube::marching_cube(float unit_length):unit_voxel_length(unit_length)
 
 
     this->initialize_vertices();
-    this->initialize_voxels();
     this->compute_vertices_phi(); // for each vertices, compute its phi value
     this->mark_vertices();
+    this->initialize_voxels();
     this->generate_bitcode();
     //
     this->bitcode_to_mesh_vertices();
@@ -44,8 +41,7 @@ marching_cube::marching_cube(float unit_length):unit_voxel_length(unit_length)
 
     //release mvoxel_vertex space
     std::vector<mVoxel_vertex>().swap(voxel_vertices);
-    //release mvoxel space
-    std::vector<mVoxel>().swap(voxels);
+
 }
 
 void marching_cube::output_marching_vertices(std::vector<float>& output_vertices){
@@ -75,6 +71,12 @@ void marching_cube::output_marching_indices(std::vector<unsigned int>& output_in
     return;
 }
 
+//void marching_cube::linear_interpolate_vertex_pos(const mVoxel_vertex& vertex1,
+//                                                  const mVoxel_vertex& vertex2,
+//                                                  Vector3f& result_pos){
+//    vertex1.phi
+//}
+
 void marching_cube::insect_vertex_to_edges( mVoxel_edge& edge){
     if(edge.has_mesh_vertex)  // if this edge already has a vertex, do nothing but return directly
         return;
@@ -95,9 +97,10 @@ void marching_cube::insect_vertex_to_edges( mVoxel_edge& edge){
 }
 
 void marching_cube::bitcode_to_mesh_vertices(){
-    size_t len = voxels.size();
-    for (size_t i = 0; i<len;++i){
-        const char* cur_voxel_lut = marching_cubes_lut[voxels[i].bitcode];
+     for(auto it = voxels.begin(); it!=voxels.end();++it)
+     {
+        const char* cur_voxel_lut = marching_cubes_lut[it->bitcode];
+
         for(size_t j = 0; j < 16; j=j+3) //because in the marching_cubes_lut is 256*16
                                             // j = j+3, because 3 entries build a triangle
         {
@@ -106,9 +109,9 @@ void marching_cube::bitcode_to_mesh_vertices(){
             else
             {
 
-                 mVoxel_edge& edge1 = voxels[i].voxel_edges[cur_voxel_lut[j]];
-                 mVoxel_edge& edge2 = voxels[i].voxel_edges[cur_voxel_lut[j+1]];
-                 mVoxel_edge& edge3 = voxels[i].voxel_edges[cur_voxel_lut[j+2]];
+                 mVoxel_edge& edge1 = it->voxel_edges[cur_voxel_lut[j]];
+                 mVoxel_edge& edge2 = it->voxel_edges[cur_voxel_lut[j+1]];
+                 mVoxel_edge& edge3 = it->voxel_edges[cur_voxel_lut[j+2]];
 
                 // compute postion for insect vertiecs, accroding 3 edges
                  insect_vertex_to_edges(edge1);
@@ -154,10 +157,9 @@ void marching_cube::mark_vertices(){
 }
 
 void marching_cube::generate_bitcode(){
-    size_t len = voxels.size();
-    for(size_t i = 0; i<len;++i)
+    for(auto it = voxels.begin(); it!=voxels.end();++it)
     {
-        mVoxel& vox = voxels[i];
+        mVoxel& vox = *it;
         bitset<8> bitcode(0x00); // initialize to all 0
         for(size_t j = 0; j<8;++j) // since for each voxel we have 8 vertices
         {
@@ -179,6 +181,7 @@ void marching_cube::initialize_voxels(){
             for(size_t x = 0; x<voxelx_n ;++x)
             {
                 mVoxel v;
+                bool is_useful_voxel = false;
 
                 size_t voxel_front_left_bottom_index = x+y*voxel_verticesx_n+z*voxel_verticesx_n*voxel_verticesy_n;
                 v.vertex_ptrs[0]=&(voxel_vertices[voxel_front_left_bottom_index]);
@@ -192,43 +195,78 @@ void marching_cube::initialize_voxels(){
                 v.vertex_ptrs[6]=&(voxel_vertices[voxel_front_left_top_index+voxel_verticesx_n+1]);
                 v.vertex_ptrs[7]=&(voxel_vertices[voxel_front_left_top_index+voxel_verticesx_n]);
 
-                v.voxel_edges[0].vertex1_ptr = v.vertex_ptrs[0];
-                v.voxel_edges[0].vertex2_ptr = v.vertex_ptrs[1];
+                // determine if it is a useful voxel
+                if(v.vertex_ptrs[0]->is_inside)
+                {// if the first vertex is inside, then we try to find if other vertiecs are outside
+                    for(int i=1;i<8;++i)
+                    {
+                        if(!v.vertex_ptrs[i]->is_inside)
+                        {// if outside, it is a useful voxel
+                            is_useful_voxel = true;
+                            break;
+                        }
+                        else
+                        {
+                            is_useful_voxel = false;
+                        }
+                    }
+                }
+                else
+                {
+                    for(int i=1;i<8;++i)
+                    {
+                        if(v.vertex_ptrs[i]->is_inside)
+                        {
+                            is_useful_voxel = true;
+                            break;
+                        }
+                        else
+                        {
+                            is_useful_voxel = false;
+                        }
+                    }
+                }
 
-                v.voxel_edges[1].vertex1_ptr = v.vertex_ptrs[1];
-                v.voxel_edges[1].vertex2_ptr = v.vertex_ptrs[2];
+                if(is_useful_voxel)
+                {//only store useful voxel
+                    v.voxel_edges[0].vertex1_ptr = v.vertex_ptrs[0];
+                    v.voxel_edges[0].vertex2_ptr = v.vertex_ptrs[1];
 
-                v.voxel_edges[2].vertex1_ptr = v.vertex_ptrs[2];
-                v.voxel_edges[2].vertex2_ptr = v.vertex_ptrs[3];
+                    v.voxel_edges[1].vertex1_ptr = v.vertex_ptrs[1];
+                    v.voxel_edges[1].vertex2_ptr = v.vertex_ptrs[2];
 
-                v.voxel_edges[3].vertex1_ptr = v.vertex_ptrs[3];
-                v.voxel_edges[3].vertex2_ptr = v.vertex_ptrs[0];
+                    v.voxel_edges[2].vertex1_ptr = v.vertex_ptrs[2];
+                    v.voxel_edges[2].vertex2_ptr = v.vertex_ptrs[3];
 
-                v.voxel_edges[4].vertex1_ptr = v.vertex_ptrs[4];
-                v.voxel_edges[4].vertex2_ptr = v.vertex_ptrs[5];
+                    v.voxel_edges[3].vertex1_ptr = v.vertex_ptrs[3];
+                    v.voxel_edges[3].vertex2_ptr = v.vertex_ptrs[0];
 
-                v.voxel_edges[5].vertex1_ptr = v.vertex_ptrs[5];
-                v.voxel_edges[5].vertex2_ptr = v.vertex_ptrs[6];
+                    v.voxel_edges[4].vertex1_ptr = v.vertex_ptrs[4];
+                    v.voxel_edges[4].vertex2_ptr = v.vertex_ptrs[5];
 
-                v.voxel_edges[6].vertex1_ptr = v.vertex_ptrs[6];
-                v.voxel_edges[6].vertex2_ptr = v.vertex_ptrs[7];
+                    v.voxel_edges[5].vertex1_ptr = v.vertex_ptrs[5];
+                    v.voxel_edges[5].vertex2_ptr = v.vertex_ptrs[6];
 
-                v.voxel_edges[7].vertex1_ptr = v.vertex_ptrs[7];
-                v.voxel_edges[7].vertex2_ptr = v.vertex_ptrs[4];
+                    v.voxel_edges[6].vertex1_ptr = v.vertex_ptrs[6];
+                    v.voxel_edges[6].vertex2_ptr = v.vertex_ptrs[7];
 
-                v.voxel_edges[8].vertex1_ptr = v.vertex_ptrs[0];
-                v.voxel_edges[8].vertex2_ptr = v.vertex_ptrs[4];
+                    v.voxel_edges[7].vertex1_ptr = v.vertex_ptrs[7];
+                    v.voxel_edges[7].vertex2_ptr = v.vertex_ptrs[4];
 
-                v.voxel_edges[9].vertex1_ptr = v.vertex_ptrs[5];
-                v.voxel_edges[9].vertex2_ptr = v.vertex_ptrs[1];
+                    v.voxel_edges[8].vertex1_ptr = v.vertex_ptrs[0];
+                    v.voxel_edges[8].vertex2_ptr = v.vertex_ptrs[4];
 
-                v.voxel_edges[10].vertex1_ptr = v.vertex_ptrs[6];
-                v.voxel_edges[10].vertex2_ptr = v.vertex_ptrs[2];
+                    v.voxel_edges[9].vertex1_ptr = v.vertex_ptrs[5];
+                    v.voxel_edges[9].vertex2_ptr = v.vertex_ptrs[1];
 
-                v.voxel_edges[11].vertex1_ptr = v.vertex_ptrs[3];
-                v.voxel_edges[11].vertex2_ptr = v.vertex_ptrs[7];
+                    v.voxel_edges[10].vertex1_ptr = v.vertex_ptrs[6];
+                    v.voxel_edges[10].vertex2_ptr = v.vertex_ptrs[2];
 
-                voxels.push_back(v);
+                    v.voxel_edges[11].vertex1_ptr = v.vertex_ptrs[3];
+                    v.voxel_edges[11].vertex2_ptr = v.vertex_ptrs[7];
+
+                    voxels.push_back(v);
+                }
             }
         }
     }
@@ -241,11 +279,11 @@ void marching_cube::initialize_vertices(){
     float x_half_extent = step_size*voxelx_n/2.0;
     float y_half_extent = step_size*voxely_n/2.0;
     //
-    for (int k=0; k<voxel_verticesz_n; ++k)
+    for (size_t k=0; k<voxel_verticesz_n; ++k)
     {
-        for (int j=0; j<voxel_verticesy_n; ++j)
+        for (size_t j=0; j<voxel_verticesy_n; ++j)
         {
-            for (int i=0; i<voxel_verticesx_n; ++i)
+            for (size_t i=0; i<voxel_verticesx_n; ++i)
             {
                 mVoxel_vertex p;
 
