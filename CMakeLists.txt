@@ -3,9 +3,11 @@ cmake_minimum_required(VERSION 3.1)
 project(simulator)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+# set debug flag
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+set(CMAKE_BUILD_TYPE Debug)
 # Setting EIGEN3_ROOT here lets us override which Eigen library merely3d chooses
 set(EIGEN3_ROOT ${PROJECT_SOURCE_DIR}/extern/eigen_3.3.4)
 
@@ -161,7 +163,7 @@ set(MARCHING_CUBE_LIB_FILES
         ${IMGUI_FILES}
         src/marching_cube.cpp
         src/marching_cube.hpp
-        src/marching_cube_visual.hpp
+        src/marching_cubes_lut.hpp
 )
 
 add_library(marching_cube_lib STATIC ${MARCHING_CUBE_LIB_FILES} )
