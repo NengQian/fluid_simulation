@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 # set debug flag
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 # Setting EIGEN3_ROOT here lets us override which Eigen library merely3d chooses
 set(EIGEN3_ROOT ${PROJECT_SOURCE_DIR}/extern/eigen_3.3.4)
 
@@ -164,6 +164,7 @@ set(MARCHING_CUBE_LIB_FILES
         src/marching_cube.cpp
         src/marching_cube.hpp
         src/marching_cubes_lut.hpp
+        src/derived_class/marching_cube_torus.h
 )
 
 add_library(marching_cube_lib STATIC ${MARCHING_CUBE_LIB_FILES} )
@@ -171,7 +172,9 @@ target_link_libraries(marching_cube_lib merely3d)
 target_include_directories(marching_cube_lib PUBLIC
                             ${CMAKE_SOURCE_DIR}/src
                             ${CLI11_ROOT}
-                            ${EIGEN_ROOT})
+                            ${EIGEN_ROOT}
+                            ${CMAKE_SOURCE_DIR}/src/derived_class
+    )
 
 add_executable(test_marching_cube src/test_marching_cube.cpp)
 target_link_libraries(test_marching_cube marching_cube_lib)

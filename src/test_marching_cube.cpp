@@ -16,6 +16,7 @@
 
 #include "math_types.hpp"
 #include "marching_cube.hpp"
+#include "marching_cube_torus.h"
 
 using merely3d::Window;
 using merely3d::WindowBuilder;
@@ -117,19 +118,39 @@ int main(int argc, char* argv[])
     load_scene( window.camera());
 
     merely3d::StaticMesh model(load_example_model());
-    vector<unsigned int> output_indices;
-    vector<float> output_vertices;
 
+    vector<unsigned int> output_indices;
+    vector<float> output_vertices_and_normals;
+    vector<float> output_vertices;
     {
         // marching_cube cost many memeory, so run this in the scope, when it leave the scope, the marching_cube instance
         // delete itself and release mememory.
+        //////////////////////////////////////////////////////////////////////////////
         marching_cube sphere_cube(unit_voxel_length);
+        sphere_cube.start_marching_cube();  // use together! now we need start functio to start computing
+        //////////////////////////////////////////////////////////////////////////////
         sphere_cube.output_marching_indices(output_indices);
+        sphere_cube.output_marching_vertices_and_normals(output_vertices_and_normals);
         sphere_cube.output_marching_vertices(output_vertices);
     }
+    merely3d::StaticMesh sphere_model(output_vertices_and_normals,output_indices);
+    merely3d::StaticMesh sphere_model_without_normal = merely3d::StaticMesh::with_angle_weighted_normals(output_vertices,output_indices);
 
-    merely3d::StaticMesh sphere_model = merely3d::StaticMesh::with_angle_weighted_normals(output_vertices, output_indices);
-    // You might want to make this configurable through your GUI!
+    vector<unsigned int> output_indices_torus;
+    vector<float> output_vertices_and_normals_torus;
+    vector<float> output_vertices_torus;
+    {
+        marching_cube_torus torus_cube(unit_voxel_length);
+        torus_cube.start_marching_cube();
+        torus_cube.output_marching_indices(output_indices_torus);
+        torus_cube.output_marching_vertices(output_vertices_torus);
+        torus_cube.output_marching_vertices_and_normals(output_vertices_and_normals_torus);
+    }
+    merely3d::StaticMesh torus_model(output_vertices_and_normals_torus,output_indices_torus);
+    merely3d::StaticMesh torus_model_without_normal = merely3d::StaticMesh::with_angle_weighted_normals(output_vertices_torus,output_indices_torus);
+
+
+
 
     while (!window.should_close())
     {
@@ -142,7 +163,7 @@ int main(int argc, char* argv[])
                                .with_material(Material().with_color(floor_color)));
 
             const auto model_color = Color(0.0, 0.6, 0.0);
-
+            const auto model_color2 = Color(0.6,0.0,0.0);
             // Render a few instances of our example model. Note: It looks like the connectivity
             // of our model may be a little messed up, and as a result attempts to render the model
             // as a wireframe may give strange results.
@@ -153,6 +174,22 @@ int main(int argc, char* argv[])
             frame.draw(renderable(sphere_model)
                         .with_position(0.0, 0.0, 3.0)
                        .with_material(Material().with_pattern_grid_size(0).with_color(model_color))
+                        );
+
+            frame.draw(renderable(sphere_model_without_normal)
+                        .with_position(0.0, 0.0, 8.0)
+                        );
+
+
+            frame.draw(renderable(torus_model_without_normal)
+                        .with_position(3.0, 0.0, 8.0)
+                        .with_material(Material().with_pattern_grid_size(0).with_color(model_color2))
+                        );
+
+
+            frame.draw(renderable(torus_model)
+                        .with_position(3.0, 0.0, 3.0)
+                       .with_material(Material().with_pattern_grid_size(0).with_color(model_color2))
                         );
         });
     }

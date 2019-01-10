@@ -3,7 +3,32 @@
 #include <bitset>
 #include <iostream>
 #include <algorithm>
+#include <cstdlib>
 using namespace std;
+
+//-------------------------------- virtual functions-------------------------------------
+// should define according to the data
+void marching_cube::compute_vertex_normal(const Vector3f& vertex, Vector3f& normal)
+{// this is for the sphere, which center is the origin points
+    Vector3f ori={0.0f,0.0f,0.0f};
+    normal = (vertex - ori).normalized();
+
+    // debug
+}
+
+
+// this function now only used to compute the unit sphere.
+void marching_cube::compute_vertices_phi(){
+    size_t len = voxel_vertices.size();
+    for(size_t i=0; i< len; ++i)
+    {
+        float dist = voxel_vertices[i].position.norm();
+        voxel_vertices[i].phi = 1 - dist;
+    }
+    return;
+}
+
+//--------------------------------- virtual functions end-------------------------------
 
 
 marching_cube::marching_cube(float unit_length):unit_voxel_length(unit_length)
@@ -24,8 +49,9 @@ marching_cube::marching_cube(float unit_length):unit_voxel_length(unit_length)
     cout<<"size of mvoxel "<<sizeof(mVoxel)<<endl;
     cout<<"size of mMesh_vertex "<<sizeof(mMesh_vertex)<<endl;
     cout<<"size of mMesh_triangle "<<sizeof(mMesh_triangle)<<endl;
+}
 
-
+void marching_cube::start_marching_cube(){
     this->initialize_vertices();
     this->compute_vertices_phi(); // for each vertices, compute its phi value
     this->mark_vertices();
@@ -41,7 +67,6 @@ marching_cube::marching_cube(float unit_length):unit_voxel_length(unit_length)
 
     //release mvoxel_vertex space
     std::vector<mVoxel_vertex>().swap(voxel_vertices);
-
 }
 
 void marching_cube::output_marching_vertices(std::vector<float>& output_vertices){
@@ -53,10 +78,27 @@ void marching_cube::output_marching_vertices(std::vector<float>& output_vertices
         output_vertices.push_back((*it).position[0]);
         output_vertices.push_back((*it).position[1]);
         output_vertices.push_back((*it).position[2]);
-        // if have normal, then continue push_back
     }
     return;
 }
+
+void marching_cube::output_marching_vertices_and_normals(std::vector<float>& output_vertices_and_normals){
+    // now assign mesh vertex and its normal to output
+    size_t len = mesh_vertex_vector.size();
+    output_vertices_and_normals.reserve(len*6);
+    for(auto it = mesh_vertex_vector.begin(); it!=mesh_vertex_vector.end();++it)
+    {
+        output_vertices_and_normals.push_back((*it).position[0]);
+        output_vertices_and_normals.push_back((*it).position[1]);
+        output_vertices_and_normals.push_back((*it).position[2]);
+
+        output_vertices_and_normals.push_back(it->normal[0]);
+        output_vertices_and_normals.push_back(it->normal[1]);
+        output_vertices_and_normals.push_back(it->normal[2]);
+    }
+    return;
+}
+
 
 void marching_cube::output_marching_indices(std::vector<unsigned int>& output_indices){
     // now assign mesh_triangle_vector to output triangle
@@ -90,9 +132,11 @@ void marching_cube::insect_vertex_to_edges( mVoxel_edge& edge){
         // use linear interpolate
         Vector3f vertex_pos;
         linear_interpolate_vertex_pos(*(edge.vertex1_ptr), *(edge.vertex2_ptr),vertex_pos);
-        //Vector3f vertex_normal; // we also dont compute normal now!
 
-        mMesh_vertex mv(vertex_pos,vertex_id);
+        Vector3f vertex_normal;
+        compute_vertex_normal(vertex_pos,vertex_normal);
+
+        mMesh_vertex mv(vertex_pos,vertex_normal,vertex_id);
         mesh_vertex_vector.push_back(mv);
         edge.meshVertexptr = &(mesh_vertex_vector.back()); // note in vector index is from 0.
         edge.has_mesh_vertex = true;
@@ -134,19 +178,6 @@ void marching_cube::bitcode_to_mesh_vertices(){
     }
 }
 
-
-
-
-// this function now only used to compute the unit sphere.
-void marching_cube::compute_vertices_phi(){
-    size_t len = voxel_vertices.size();
-    for(size_t i=0; i< len; ++i)
-    {
-        float dist = voxel_vertices[i].position.norm();
-        voxel_vertices[i].phi = 1 - dist;
-    }
-    return;
-}
 
 
 void marching_cube::mark_vertices(){

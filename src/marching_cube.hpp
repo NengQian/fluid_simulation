@@ -12,8 +12,9 @@ using namespace std;
 
 struct mMeshvertex{
     Vector3f position;
+    Vector3f normal;
     unsigned int id;
-    mMeshvertex(Vector3f init_pos, unsigned int v_id):position(init_pos),id(v_id){}
+    mMeshvertex(Vector3f& init_pos, Vector3f& init_norm, unsigned int v_id):position(init_pos),normal(init_norm),id(v_id){}
 };
 typedef struct mMeshvertex mMesh_vertex;
 
@@ -62,15 +63,18 @@ public:
     marching_cube(float unit_length);
     virtual ~marching_cube() = default;
 
+    void start_marching_cube();
     void output_marching_vertices(std::vector<float>& output_vertices);
     void output_marching_indices(std::vector<unsigned int>& output_vertices);
+    void output_marching_vertices_and_normals(std::vector<float>& output_vertices_and_normals);
+
 
 protected:
 
     const float unit_voxel_length;   // resolution
-    const float total_z_length = 2.0f;
-    const float total_x_length = 2.0f;
-    const float total_y_length = 2.0f;
+    const float total_z_length = 3.0f;
+    const float total_x_length = 3.0f;
+    const float total_y_length = 3.0f;
     // voxels number along 3 axis;
     size_t voxelx_n;
     size_t voxely_n;
@@ -84,7 +88,8 @@ protected:
                                                          //cuboid we want to reconstruct
 
     // private method, which only used by internal.
-    virtual void compute_vertices_phi();
+    virtual void compute_vertices_phi() ;
+    virtual void compute_vertex_normal(const Vector3f& vertex, Vector3f& normal);
     void initialize_vertices();
     void initialize_voxels();
     void mark_vertices();
@@ -92,7 +97,6 @@ protected:
     void bitcode_to_mesh_vertices();
     void insect_vertex_to_edges( mVoxel_edge& edge);
     void linear_interpolate_vertex_pos(const mVoxel_vertex &vertex1, const mVoxel_vertex &vertex2, Vector3f& result_pos);
-
 
 
     std::vector<mVoxel_vertex> voxel_vertices;
