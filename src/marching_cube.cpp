@@ -16,7 +16,6 @@ void marching_cube::compute_vertex_normal(const Vector3f& vertex, Vector3f& norm
     // debug
 }
 
-
 // this function now only used to compute the unit sphere.
 void marching_cube::compute_vertices_phi(){
     size_t len = voxel_vertices.size();
@@ -167,11 +166,27 @@ void marching_cube::bitcode_to_mesh_vertices(){
                  insect_vertex_to_edges(edge3);
 
                  // form triangle by using these 3 vertex in these 3 edges;
+                 mMesh_vertex* v1 = edge1.meshVertexptr;
+                 mMesh_vertex* v2 = edge2.meshVertexptr;
+                 mMesh_vertex* v3 = edge3.meshVertexptr;
+
                  // about the count-clock wise ??  I think the count-clock wise is according to the normal direction..
                  mMesh_triangle mt;
-                 mt.vertex_ids[0] = edge1.meshVertexptr->id;
-                 mt.vertex_ids[1] = edge2.meshVertexptr->id;
-                 mt.vertex_ids[2] = edge3.meshVertexptr->id;
+                 mt.vertex_ids[0] = v1->id;
+                 mt.vertex_ids[1] = v2->id;
+                 mt.vertex_ids[2] = v3->id;
+
+                 // if normal is on the opposite direction with the cross product of vertices(that is, dot product < 0)
+                 Vector3f e1 = v2->position - v1->position ;
+                 Vector3f e2 = v3->position - v1->position ;
+
+                 if (v1->normal.dot(e1.cross(e2)) < 0.0)
+                 {
+                	 unsigned int tmp = mt.vertex_ids[0];
+                	 mt.vertex_ids[0] = mt.vertex_ids[1];
+                	 mt.vertex_ids[1] = tmp;
+                 }
+
                  mesh_triangle_vector.push_back(mt);
             }
         }

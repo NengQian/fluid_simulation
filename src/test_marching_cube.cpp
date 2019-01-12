@@ -47,22 +47,25 @@ using std::chrono::duration;
 #include <array>
 
 // each three indices represent a triangle face
-// here we have 4 faces
+// here we have 6 faces
 // note the vertices order of one triangle face should be counter-clock wise
-const std::array<unsigned int, 12> pyramid_indices = {
+const std::array<unsigned int, 18> pyramid_indices = {
             1,2,0,
-            2,1,3,
-            3,1,0,
-            3,0,2
+			2,4,0,
+			4,3,0,
+			3,1,0,
+			1,3,2,
+			3,4,2
 };
 
 // four vertices of pyramid.
 // each 3 float represent 1 vertices.
-const std::array<float, 12> pyramid_vertices = {
-        -2,0,0,
-        2,0,0,
-        0,2,0,
-        0,0,2
+const std::array<float, 18> pyramid_vertices = {
+        0,0,0,
+        1,1,-2,
+        -1,1,-2,
+        1,-1,-2,
+		-1,-1,-2
 };
 
 
@@ -162,34 +165,34 @@ int main(int argc, char* argv[])
                                .with_position(0.0f, 0.0f, 0.0f)
                                .with_material(Material().with_color(floor_color)));
 
-            const auto model_color = Color(0.0, 0.6, 0.0);
-            const auto model_color2 = Color(0.6,0.0,0.0);
+            const auto model_color = Color(1., 1., 0.0);
+            const auto model_color2 = Color(0.0,0.6,0.6);
             // Render a few instances of our example model. Note: It looks like the connectivity
             // of our model may be a little messed up, and as a result attempts to render the model
             // as a wireframe may give strange results.
             frame.draw(renderable(model)
-                        .with_position(8.0, 8.0, 3.0)
-                       .with_material(Material().with_pattern_grid_size(0).with_color(model_color))
+                        .with_position(1.5, 0.0, 8.0)
                         );
             frame.draw(renderable(sphere_model)
                         .with_position(0.0, 0.0, 3.0)
-                       .with_material(Material().with_pattern_grid_size(0).with_color(model_color))
+                        .with_material(Material().with_pattern_grid_size(0).with_color(model_color))
                         );
 
             frame.draw(renderable(sphere_model_without_normal)
-                        .with_position(0.0, 0.0, 8.0)
+                        .with_position(0.0, 0.0, 10.0)
+                        .with_material(Material().with_pattern_grid_size(0).with_color(model_color))
                         );
 
 
             frame.draw(renderable(torus_model_without_normal)
-                        .with_position(3.0, 0.0, 8.0)
+                        .with_position(3.0, 0.0, 10.0)
                         .with_material(Material().with_pattern_grid_size(0).with_color(model_color2))
                         );
 
 
             frame.draw(renderable(torus_model)
                         .with_position(3.0, 0.0, 3.0)
-                       .with_material(Material().with_pattern_grid_size(0).with_color(model_color2))
+                        .with_material(Material().with_pattern_grid_size(0).with_color(model_color2))
                         );
         });
     }
