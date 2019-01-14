@@ -69,6 +69,9 @@ int main(int argc, char* argv[])
     std::string input_file;
     CLIapp.add_option("-i, --input_file", input_file, "path to input cereal file");
 
+    double c;
+    CLIapp.add_option("-c", c, "estimated surface density");
+
     try {
         CLIapp.parse(argc, argv);
     } catch(const CLI::ParseError &e) {
@@ -95,7 +98,7 @@ int main(int argc, char* argv[])
     static vector<unsigned int> output_indices;
     static vector<float> output_vertices;
 
-    marching_cube_fluid fluid(unit_voxel_length, input_file);
+    marching_cube_fluid fluid(unit_voxel_length, c, input_file);
     fluid.start_marching_cube();
 
     fluid.output_marching_indices(output_indices);

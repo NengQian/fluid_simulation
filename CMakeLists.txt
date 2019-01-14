@@ -185,14 +185,14 @@ target_link_libraries(test_marching_cube marching_cube_lib)
 #target_include_directories(test_marching_cube PUBLIC ${CMAKE_SOURCE_DIR}/src )
 
 
-add_executable(fluid_renderer src/fluid_renderer.cpp)
-target_link_libraries(fluid_renderer CompactNSearch merely3d  simulator_lib marching_cube_lib)
-target_include_directories(fluid_renderer PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
+add_executable(fluid_rendering_preview src/render_preview.cpp)
+target_link_libraries(fluid_rendering_preview CompactNSearch merely3d  simulator_lib marching_cube_lib)
+target_include_directories(fluid_rendering_preview PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
 
-add_executable(test_renderer src/render_visualizer.cpp)
-target_link_libraries(test_renderer CompactNSearch merely3d  simulator_lib marching_cube_lib)
-target_include_directories(test_renderer PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
+add_executable(save_fluid_mesh src/save_fluid_mesh.cpp)
+target_link_libraries(save_fluid_mesh CompactNSearch merely3d  simulator_lib marching_cube_lib)
+target_include_directories(save_fluid_mesh PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
 
-add_executable(render_visual src/render_visual_main.cpp)
-target_link_libraries(render_visual CompactNSearch merely3d  simulator_lib marching_cube_lib)
-target_include_directories(render_visual PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
+add_executable(display_fluid_mesh src/display_fluid_mesh.cpp)
+target_link_libraries(display_fluid_mesh CompactNSearch merely3d  simulator_lib marching_cube_lib)
+target_include_directories(display_fluid_mesh PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})

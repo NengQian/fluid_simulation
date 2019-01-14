@@ -22,7 +22,7 @@ public:
     bool end = false;
     int count = 0;
 
-	marching_cube_fluid(float unit_length, std::string input_file) : marching_cube(unit_length), pf(1000, 1000, 0.08)
+	marching_cube_fluid(float unit_length, Real c, std::string input_file) : marching_cube(unit_length), c(c), pf(1000, 1000, 0.08)
 	{
 		load_particle_series(input_file);
 		set_grid_size();
@@ -142,8 +142,8 @@ protected:
     std::vector<RealVector3> grid_position;
     std::vector<RealVector3> particle_positions;
 
-    Real c = 0.4;
-    Real search_radius = 0.24;
+    Real c;
+    Real search_radius;
 
     void save_grid_position()
     {
@@ -210,6 +210,9 @@ protected:
     	Visualization simData(fs);
 
     	particles_series.clear();
+
+    	// set neighbor search radius
+    	search_radius = simData.sim_rec.unit_particle_length * 2.4;
 
     	for (int i=0; i<simData.total_frame_num; ++i)
     	{

@@ -78,7 +78,13 @@ int main(int argc, char* argv[])
     CLIapp.option_defaults()->required();
 
     std::string input_file;
-    CLIapp.add_option("-i, --input_file", input_file, "path to input cereal file");
+    CLIapp.add_option("-i, --input_file", input_file, "path to input cerealed simulation file");
+
+    std::string output_file;
+    CLIapp.add_option("-o, --output_file", output_file, "path to output cerealed mesh file");
+
+    double c;
+    CLIapp.add_option("-c", c, "estimated surface density");
 
     try {
         CLIapp.parse(argc, argv);
@@ -91,7 +97,7 @@ int main(int argc, char* argv[])
     static vector<unsigned int> output_indices;
     static vector<float> output_vertices;
 
-    marching_cube_fluid fluid(unit_voxel_length, input_file);
+    marching_cube_fluid fluid(unit_voxel_length, c, input_file);
     fluid.start_marching_cube();
 
     fluid.output_marching_indices(output_indices);
@@ -126,7 +132,7 @@ int main(int argc, char* argv[])
         fluid.count += skip;
     }
 
-    std::ofstream os("out.bin", std::ios::binary);
+    std::ofstream os(output_file, std::ios::binary);
     cereal::BinaryOutputArchive archive( os );
 
     archive( ms );
