@@ -16,7 +16,8 @@
 
 #include "math_types.hpp"
 #include "marching_cube.hpp"
-#include "marching_cube_torus.h"
+#include "marching_cube_torus.hpp"
+#include "marching_cube_sphere.hpp"
 
 using merely3d::Window;
 using merely3d::WindowBuilder;
@@ -129,7 +130,7 @@ int main(int argc, char* argv[])
         // marching_cube cost many memeory, so run this in the scope, when it leave the scope, the marching_cube instance
         // delete itself and release mememory.
         //////////////////////////////////////////////////////////////////////////////
-        marching_cube sphere_cube(unit_voxel_length);
+        marching_cube_sphere sphere_cube(unit_voxel_length);
         sphere_cube.start_marching_cube();  // use together! now we need start functio to start computing
         //////////////////////////////////////////////////////////////////////////////
         sphere_cube.output_marching_indices(output_indices);
@@ -171,27 +172,27 @@ int main(int argc, char* argv[])
             // of our model may be a little messed up, and as a result attempts to render the model
             // as a wireframe may give strange results.
             frame.draw(renderable(model)
-                        .with_position(1.5, 0.0, 8.0)
+                        .with_position(-7.0, 0.0, 4.5)
                         );
             frame.draw(renderable(sphere_model)
-                        .with_position(0.0, 0.0, 3.0)
+                        .with_position(-1.0, 0.0, 3.0)
                         .with_material(Material().with_pattern_grid_size(0).with_color(model_color))
                         );
 
             frame.draw(renderable(sphere_model_without_normal)
-                        .with_position(0.0, 0.0, 10.0)
+                        .with_position(-4, 0.0, 3.0)
                         .with_material(Material().with_pattern_grid_size(0).with_color(model_color))
                         );
 
 
             frame.draw(renderable(torus_model_without_normal)
-                        .with_position(3.0, 0.0, 10.0)
+                        .with_position(3.0, 0.0, 3.0)
                         .with_material(Material().with_pattern_grid_size(0).with_color(model_color2))
                         );
 
 
             frame.draw(renderable(torus_model)
-                        .with_position(3.0, 0.0, 3.0)
+                        .with_position(7.0, 0.0, 3.0)
                         .with_material(Material().with_pattern_grid_size(0).with_color(model_color2))
                         );
         });

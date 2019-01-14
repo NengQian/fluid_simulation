@@ -42,7 +42,6 @@ namespace Simulator
         // You probably want some methods to add bodies to the system
         // void addBody(const RigidBody & body);
 
-    private:
         SimulationRecord sim_rec;
         int sim_count;
         int total_frame_num;

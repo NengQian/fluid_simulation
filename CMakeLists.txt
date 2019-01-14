@@ -30,7 +30,7 @@ add_subdirectory(extern/CompactNSearch)
 set(TINY_OBJ_LOADER_INCLUDE ${CMAKE_SOURCE_DIR}/extern/tinyobjloader/include)
 
 set(CLI11_FILES
-		extern/CLI11/include/CLI11/CLI11.hpp)
+		${PROJECT_SOURCE_DIR}/extern/CLI11/include/CLI11/CLI11.hpp)
 
 set(IMGUI_FILES
         src/imgui/imgui.h
@@ -164,19 +164,35 @@ set(MARCHING_CUBE_LIB_FILES
         src/marching_cube.cpp
         src/marching_cube.hpp
         src/marching_cubes_lut.hpp
-        src/derived_class/marching_cube_torus.h
+        src/derived_class/marching_cube_torus.hpp
+        src/derived_class/marching_cube_sphere.hpp
+        src/derived_class/marching_cube_fluid.hpp
 )
 
-add_library(marching_cube_lib STATIC ${MARCHING_CUBE_LIB_FILES} )
+add_library(marching_cube_lib STATIC ${MARCHING_CUBE_LIB_FILES} ${VISUAL_SOURCE_FILES})
 target_link_libraries(marching_cube_lib merely3d)
 target_include_directories(marching_cube_lib PUBLIC
                             ${CMAKE_SOURCE_DIR}/src
                             ${CLI11_ROOT}
                             ${EIGEN_ROOT}
                             ${CMAKE_SOURCE_DIR}/src/derived_class
+                            ${TINY_OBJ_LOADER_INCLUDE}
+                            ${CEREALS_ROOT}
     )
 
 add_executable(test_marching_cube src/test_marching_cube.cpp)
 target_link_libraries(test_marching_cube marching_cube_lib)
 #target_include_directories(test_marching_cube PUBLIC ${CMAKE_SOURCE_DIR}/src )
 
+
+add_executable(fluid_renderer src/fluid_renderer.cpp)
+target_link_libraries(fluid_renderer CompactNSearch merely3d  simulator_lib marching_cube_lib)
+target_include_directories(fluid_renderer PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
+
+add_executable(test_renderer src/render_visualizer.cpp)
+target_link_libraries(test_renderer CompactNSearch merely3d  simulator_lib marching_cube_lib)
+target_include_directories(test_renderer PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
+
+add_executable(render_visual src/render_visual_main.cpp)
+target_link_libraries(render_visual CompactNSearch merely3d  simulator_lib marching_cube_lib)
+target_include_directories(render_visual PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})

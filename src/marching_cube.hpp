@@ -61,7 +61,7 @@ class marching_cube
 {
 public:
     marching_cube(float unit_length);
-    virtual ~marching_cube() = default;
+    virtual ~marching_cube();
 
     void start_marching_cube();
     void output_marching_vertices(std::vector<float>& output_vertices);
@@ -72,9 +72,9 @@ public:
 protected:
 
     const float unit_voxel_length;   // resolution
-    const float total_z_length = 3.0f;
-    const float total_x_length = 3.0f;
-    const float total_y_length = 3.0f;
+    float total_z_length = 3.0f;
+    float total_x_length = 3.0f;
+    float total_y_length = 3.0f;
     // voxels number along 3 axis;
     size_t voxelx_n;
     size_t voxely_n;
@@ -84,12 +84,12 @@ protected:
     size_t voxel_verticesx_n;
     size_t voxel_verticesy_n;
     size_t voxel_verticesz_n;
-    const Vector3f origin = {0.0f,0.0f,-1.0f};  // this origin is the buttom center of the
+    Vector3f origin = {0.0f,0.0f,-1.0f};  // this origin is the buttom center of the
                                                          //cuboid we want to reconstruct
 
     // private method, which only used by internal.
-    virtual void compute_vertices_phi() ;
-    virtual void compute_vertex_normal(const Vector3f& vertex, Vector3f& normal);
+    virtual void compute_vertex_normal(const Vector3f& vertex, Vector3f& normal) = 0;
+    virtual void compute_vertices_phi() = 0;
     void initialize_vertices();
     void initialize_voxels();
     void mark_vertices();

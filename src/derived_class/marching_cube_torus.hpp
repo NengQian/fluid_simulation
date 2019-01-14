@@ -1,9 +1,12 @@
 #ifndef MARCHING_CUBE_TORUS
 #define MARCHING_CUBE_TORUS
+
 #include "marching_cube.hpp"
 #include <math.h>       /* sqrt */
 #include <iostream>
+
 using namespace std;
+
 class marching_cube_torus: public marching_cube
 {
 public:

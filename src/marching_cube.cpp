@@ -4,10 +4,13 @@
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
+#include <vector>
+
 using namespace std;
 
 //-------------------------------- virtual functions-------------------------------------
 // should define according to the data
+/*
 void marching_cube::compute_vertex_normal(const Vector3f& vertex, Vector3f& normal)
 {// this is for the sphere, which center is the origin points
     Vector3f ori={0.0f,0.0f,0.0f};
@@ -26,7 +29,7 @@ void marching_cube::compute_vertices_phi(){
     }
     return;
 }
-
+*/
 //--------------------------------- virtual functions end-------------------------------
 
 
@@ -50,6 +53,15 @@ marching_cube::marching_cube(float unit_length):unit_voxel_length(unit_length)
     cout<<"size of mMesh_triangle "<<sizeof(mMesh_triangle)<<endl;
 }
 
+marching_cube::~marching_cube()
+{
+	voxel_vertices.shrink_to_fit();
+	voxels.clear();
+
+	mesh_vertex_vector.clear();
+	mesh_triangle_vector.clear();
+}
+
 void marching_cube::start_marching_cube(){
     this->initialize_vertices();
     this->compute_vertices_phi(); // for each vertices, compute its phi value
@@ -65,13 +77,20 @@ void marching_cube::start_marching_cube(){
     cout<<"total memeory for mesh_triangle is "<<sizeof(mMesh_triangle)*mesh_triangle_vector.size()<<endl;
 
     //release mvoxel_vertex space
-    std::vector<mVoxel_vertex>().swap(voxel_vertices);
+    //std::vector<mVoxel_vertex>().swap(voxel_vertices);
 }
 
 void marching_cube::output_marching_vertices(std::vector<float>& output_vertices){
     // now assign mesh_vertex_vector to output vertex
     size_t len = mesh_vertex_vector.size();
-    output_vertices.reserve(len*3);
+
+    // wtf ...
+    //if (output_vertices.empty())
+    //	output_vertices.reserve(len*3);
+
+    if (!output_vertices.empty())
+        output_vertices.clear();
+
     for(auto it = mesh_vertex_vector.begin(); it!=mesh_vertex_vector.end();++it)
     {
         output_vertices.push_back((*it).position[0]);
@@ -84,7 +103,14 @@ void marching_cube::output_marching_vertices(std::vector<float>& output_vertices
 void marching_cube::output_marching_vertices_and_normals(std::vector<float>& output_vertices_and_normals){
     // now assign mesh vertex and its normal to output
     size_t len = mesh_vertex_vector.size();
-    output_vertices_and_normals.reserve(len*6);
+
+
+    //if (output_vertices_and_normals.empty())
+    // 	output_vertices_and_normals.reserve(len*6);
+
+    if (!output_vertices_and_normals.empty())
+    	output_vertices_and_normals.clear();
+
     for(auto it = mesh_vertex_vector.begin(); it!=mesh_vertex_vector.end();++it)
     {
         output_vertices_and_normals.push_back((*it).position[0]);
@@ -102,7 +128,13 @@ void marching_cube::output_marching_vertices_and_normals(std::vector<float>& out
 void marching_cube::output_marching_indices(std::vector<unsigned int>& output_indices){
     // now assign mesh_triangle_vector to output triangle
     size_t len = mesh_triangle_vector.size();
-    output_indices.reserve(len*3);
+
+    //if (output_indices.empty())
+    //	output_indices.reserve(len*3);
+
+    if (!output_indices.empty())
+        output_indices.clear();
+
     for(auto it = mesh_triangle_vector.begin();it!=mesh_triangle_vector.end();++it)
     {
         output_indices.push_back(it->vertex_ids[0]);
@@ -144,8 +176,15 @@ void marching_cube::insect_vertex_to_edges( mVoxel_edge& edge){
 }
 
 void marching_cube::bitcode_to_mesh_vertices(){
-     for(auto it = voxels.begin(); it!=voxels.end();++it)
-     {
+
+	if (!mesh_vertex_vector.empty())
+		mesh_vertex_vector.clear();
+
+	if (!mesh_triangle_vector.empty())
+		mesh_triangle_vector.clear();
+
+    for(auto it = voxels.begin(); it!=voxels.end();++it)
+    {
         const char* cur_voxel_lut = marching_cubes_lut[it->bitcode];
 
         for(size_t j = 0; j < 16; j=j+3) //because in the marching_cubes_lut is 256*16
@@ -223,7 +262,11 @@ void marching_cube::generate_bitcode(){
 }
 
 // here we initialize each voxels, assign vertices to voxel
-void marching_cube::initialize_voxels(){
+void marching_cube::initialize_voxels()
+{
+	if (!voxels.empty())
+		voxels.clear();
+
     for(size_t z = 0; z<voxelz_n;++z)
     {
         for(size_t y = 0; y<voxely_n;++y)
