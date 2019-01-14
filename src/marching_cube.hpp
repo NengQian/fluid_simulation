@@ -94,8 +94,8 @@ protected:
     void initialize_voxels();
     void mark_vertices();
     void generate_bitcode();
-    void bitcode_to_mesh_vertices();
-    void insect_vertex_to_edges( mVoxel_edge& edge);
+    virtual void bitcode_to_mesh_vertices();
+    virtual void insect_vertex_to_edges( mVoxel_edge& edge);
     void linear_interpolate_vertex_pos(const mVoxel_vertex &vertex1, const mVoxel_vertex &vertex2, Vector3f& result_pos);
 
 

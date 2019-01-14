@@ -144,7 +144,7 @@ void marching_cube::output_marching_indices(std::vector<unsigned int>& output_in
     return;
 }
 
-inline void marching_cube::linear_interpolate_vertex_pos(const mVoxel_vertex& vertex1,
+void marching_cube::linear_interpolate_vertex_pos(const mVoxel_vertex& vertex1,
                                                   const mVoxel_vertex& vertex2,
                                                   Vector3f& result_pos){
     result_pos = (-vertex1.phi/(vertex2.phi - vertex1.phi))*(vertex2.position - vertex1.position)+vertex1.position;

@@ -106,13 +106,18 @@ void load_scene(Camera & camera)
 int main(int argc, char* argv[])
 {
 
-    // Check the number of parameters
-   if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " NAME" << std::endl;
-        return 1;
-    }
-    // Print the user's name:
+	CLI::App CLIapp{"display fluid mesh"};
 
+	CLIapp.option_defaults()->required();
+
+	std::string file;
+	CLIapp.add_option("-i, --input_file", file, "path to input serialized mesh file");
+
+	try {
+		CLIapp.parse(argc, argv);
+	} catch(const CLI::ParseError &e) {
+		return CLIapp.exit(e);
+	}
 
     using Simulator::Visualization;
     using Simulator::Real;
@@ -137,7 +142,6 @@ int main(int argc, char* argv[])
     // added before any of your own event handlers.
     window.add_event_handler(std::shared_ptr<EventHandler>(new Simulator::ImGuiEventHandler));
     window.add_event_handler(std::shared_ptr<EventHandler>(new CameraController));
-    std::string file(argv[1]);
 
     mMeshSeries ms;
 

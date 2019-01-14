@@ -9,6 +9,7 @@
 #include "NeighborSearcher.hpp"
 #include "KernelHandler.hpp"
 #include "ParticleFunc.hpp"
+#include "marching_cubes_lut.hpp"
 
 #include <math.h>       /* sqrt */
 #include <iostream>
@@ -45,6 +46,132 @@ public:
 	    current_particles.shrink_to_fit();
 	    grid_position.shrink_to_fit();
 	    particle_positions.shrink_to_fit();
+	}
+
+	virtual void insect_vertex_to_edges( mVoxel_edge& edge) override
+	{
+	    if (edge.has_mesh_vertex)  // if this edge already has a vertex, do nothing but return directly
+	        return;
+	    else{
+	        unsigned int len = mesh_vertex_vector.size();
+	        unsigned int vertex_id = len;
+
+	        // compute its postion, now we just use midpoint
+	        //Vector3f vertex_pos = (edge.vertex1_ptr->position + edge.vertex2_ptr->position)/2.0f;
+
+	        // use linear interpolate
+	        Vector3f vertex_pos;
+	        linear_interpolate_vertex_pos(*(edge.vertex1_ptr), *(edge.vertex2_ptr), vertex_pos);
+
+	        Vector3f vertex_normal(0.0f, 0.0f, 0.0f);
+
+	        mMesh_vertex mv(vertex_pos,vertex_normal,vertex_id);
+	        mesh_vertex_vector.push_back(mv);
+	        edge.meshVertexptr = &(mesh_vertex_vector.back()); // note in vector index is from 0.
+	        edge.has_mesh_vertex = true;
+	    }
+	    return;
+	}
+
+	virtual void bitcode_to_mesh_vertices() override
+	{
+		if (!mesh_vertex_vector.empty())
+			mesh_vertex_vector.clear();
+
+		if (!mesh_triangle_vector.empty())
+			mesh_triangle_vector.clear();
+
+	    for(auto it = voxels.begin(); it!=voxels.end();++it)
+	    {
+	        const char* cur_voxel_lut = marching_cubes_lut[it->bitcode];
+
+	        for(size_t j = 0; j < 16; j=j+3) //because in the marching_cubes_lut is 256*16
+	                                            // j = j+3, because 3 entries build a triangle
+	        {
+	            if(cur_voxel_lut[j]==-1)
+	                break; // if we see the -1, means we already read all triangle in this voxel
+	            else
+	            {
+
+	                 mVoxel_edge& edge1 = it->voxel_edges[cur_voxel_lut[j]];
+	                 mVoxel_edge& edge2 = it->voxel_edges[cur_voxel_lut[j+1]];
+	                 mVoxel_edge& edge3 = it->voxel_edges[cur_voxel_lut[j+2]];
+
+	                // compute postion for insect vertiecs, accroding 3 edges
+	                 insect_vertex_to_edges(edge1);
+	                 insect_vertex_to_edges(edge2);
+	                 insect_vertex_to_edges(edge3);
+
+
+	                 // form triangle by using these 3 vertex in these 3 edges;
+	                 mMesh_vertex* v1 = edge1.meshVertexptr;
+	                 mMesh_vertex* v2 = edge2.meshVertexptr;
+	                 mMesh_vertex* v3 = edge3.meshVertexptr;
+
+	                 // about the count-clock wise ??  I think the count-clock wise is according to the normal direction..
+	                 mMesh_triangle mt;
+	                 mt.vertex_ids[0] = v1->id;
+	                 mt.vertex_ids[1] = v2->id;
+	                 mt.vertex_ids[2] = v3->id;
+
+	                 mesh_triangle_vector.push_back(mt);
+	            }
+	        }
+	    }
+
+	    // prepare data for further neighbor search (and further for normal computation)
+	    std::vector<RealVector3> mesh_vertex_pos;
+	    for(auto it = mesh_vertex_vector.begin(); it != mesh_vertex_vector.end(); ++it)
+	    {
+	    	mesh_vertex_pos.push_back(RealVector3(it->position[0], it->position[1], it->position[2]));
+	    }
+
+    	update_particle_positions();
+	    std::vector<std::vector<size_t>> neighbor_indices = ns.find_neighbors_within_radius(mesh_vertex_pos);
+
+	    compute_vertex_normal(mesh_vertex_pos, neighbor_indices);
+
+	    for(auto it = mesh_triangle_vector.begin(); it != mesh_triangle_vector.end(); ++it)
+	    {
+	    	auto it_vtx = mesh_vertex_vector.begin();
+	        auto it1 = it_vtx;
+	        std::advance(it1, it->vertex_ids[0]);
+
+	        auto it2 = it_vtx;
+	        std::advance(it2, it->vertex_ids[1]);
+
+	        auto it3 = it_vtx;
+	        std::advance(it3, it->vertex_ids[2]);
+
+	    	Vector3f e1 = it2->position - it1->position ;
+	    	Vector3f e2 = it3->position - it1->position ;
+
+	    	if (it1->normal.dot(e1.cross(e2)) < 0.0)
+	    	{
+	    		unsigned int tmp = it->vertex_ids[0];
+	    		it->vertex_ids[0] = it->vertex_ids[1];
+	    		it->vertex_ids[1] = tmp;
+	    	}
+	    }
+	}
+
+	void compute_vertex_normal(std::vector<RealVector3>& mesh_vertex_pos, std::vector<std::vector<size_t>>& neighbor_indices)
+    {
+		size_t i = 0;
+	    for(auto it = mesh_vertex_vector.begin(); it != mesh_vertex_vector.end(); ++it)
+	    {
+	    	for (size_t j=0; j<neighbor_indices[i].size(); ++j)
+	    	{
+	    		size_t idx = neighbor_indices[i][j];
+
+	    		RealVector3 gd = kh.gradient_of_kernel(mesh_vertex_pos[i], particle_positions[idx]);
+	    		Vector3f gf(static_cast<float>(gd[0]), static_cast<float>(gd[1]), static_cast<float>(gd[2]));
+	    		it->normal -= gf;
+	    	}
+	    	it->normal.normalize();
+
+	    	++i;
+	    }
 	}
 
     virtual void compute_vertex_normal(const Vector3f& vertex, Vector3f& normal) override
@@ -144,6 +271,7 @@ protected:
 
     Real c;
     Real search_radius;
+    Real particle_unit;
 
     void save_grid_position()
     {
@@ -213,10 +341,18 @@ protected:
 
     	// set neighbor search radius
     	search_radius = simData.sim_rec.unit_particle_length * 2.4;
+    	particle_unit = simData.sim_rec.unit_particle_length;
 
     	for (int i=0; i<simData.total_frame_num; ++i)
     	{
-    		std::vector<mParticle> ps = simData.sim_rec.states[i].particles;
+    		//std::vector<mParticle> ps = simData.sim_rec.states[i].particles;
+
+			std::vector<mParticle> ps;
+			for (auto& p : simData.sim_rec.states[i].particles)
+			{
+				if (p.density >= 200.0)
+					ps.push_back(p);
+			}
 
     		particles_series.push_back(ps);
     	}
@@ -249,9 +385,9 @@ protected:
     		}
     	}
 
-    	total_x_length = static_cast<int>(max_x - min_x) + 1.0f;
-		total_y_length = static_cast<int>(max_y - min_y) + 1.0f;
-		total_z_length = static_cast<int>(max_z - min_z) + 1.0f;
+    	total_x_length = static_cast<int>(max_x - min_x) + 1.0f + 2.0 * particle_unit;
+		total_y_length = static_cast<int>(max_y - min_y) + 1.0f + 2.0 * particle_unit;
+		total_z_length = static_cast<int>(max_z - min_z) + 1.0f + 2.0 * particle_unit;
 
 		origin = Vector3f(static_cast<float>((max_x + min_x)/2.0), static_cast<float>((max_y + min_y)/2.0), static_cast<float>(min_z));
 
