@@ -26,12 +26,12 @@ public:
 	marching_cube_fluid(float unit_length, Real c, std::string input_file) : marching_cube(unit_length), c(c), pf(1000, 1000, 0.08)
 	{
 		load_particle_series(input_file);
+		load_next_particles();
+
 		set_grid_size();
 
 		ns.set_neighbor_search_radius(search_radius);
 		kh.set_neighbor_search_radius(search_radius);
-
-		load_next_particles();
     }
 
 	~marching_cube_fluid()
@@ -251,6 +251,12 @@ public:
     void update_marching_cube()
     {
     	load_next_particles();
+		set_grid_size();
+
+        initialize_vertices();
+
+        save_grid_position();
+
     	compute_vertices_phi(); // for each vertices, compute its phi value
     	mark_vertices();
     	initialize_voxels();
@@ -350,7 +356,7 @@ protected:
 			std::vector<mParticle> ps;
 			for (auto& p : simData.sim_rec.states[i].particles)
 			{
-				if (p.density >= 200.0)
+				if (p.density >= 185.0)
 					ps.push_back(p);
 			}
 
@@ -364,26 +370,23 @@ protected:
     	min_x = min_y = min_z = 100000000;
     	max_x = max_y = max_z = -100000000;
 
-    	for (auto& ps : particles_series)
-    	{
-    		for (auto& p : ps)
-    		{
-    			if (p.position[0] > max_x)
-    				max_x = p.position[0];
-    			else if (p.position[0] < min_x)
-    				min_x = p.position[0];
+		for (auto& p : current_particles)
+		{
+			if (p.position[0] > max_x)
+				max_x = p.position[0];
+			else if (p.position[0] < min_x)
+				min_x = p.position[0];
 
-    			if (p.position[1] > max_y)
-    				max_y = p.position[1];
-    			else if (p.position[1] < min_y)
-    				min_y = p.position[1];
+			if (p.position[1] > max_y)
+				max_y = p.position[1];
+			else if (p.position[1] < min_y)
+				min_y = p.position[1];
 
-    			if (p.position[2] > max_z)
-    				max_z = p.position[2];
-    			else if (p.position[2] < min_z)
-    				min_z = p.position[2];
-    		}
-    	}
+			if (p.position[2] > max_z)
+				max_z = p.position[2];
+			else if (p.position[2] < min_z)
+				min_z = p.position[2];
+		}
 
     	total_x_length = static_cast<int>(max_x - min_x) + 1.0f + 2.0 * particle_unit;
 		total_y_length = static_cast<int>(max_y - min_y) + 1.0f + 2.0 * particle_unit;
