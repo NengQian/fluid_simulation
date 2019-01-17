@@ -14,6 +14,8 @@
 #include <math.h>       /* sqrt */
 #include <iostream>
 
+#define MAX 2147483647
+#define MIN -2147483648
 
 using namespace std;
 
@@ -27,7 +29,8 @@ public:
 	{
 		load_particle_series(input_file);
 		load_next_particles();
-
+		min_x = min_y = min_z = MAX;
+		max_x = max_y = max_z = MIN;
 		set_grid_size();
 
 		ns.set_neighbor_search_radius(search_radius);
@@ -251,7 +254,10 @@ public:
     void update_marching_cube()
     {
     	load_next_particles();
-		set_grid_size();
+    	if (end)
+    		return;
+
+		update_grid_size();
 
         initialize_vertices();
 
@@ -279,6 +285,8 @@ protected:
     Real search_radius;
     Real particle_unit;
 
+    Real min_x, max_x, min_y, max_y, min_z, max_z;
+
     void save_grid_position()
     {
     	std::cout << "in grid setting" << std::endl;
@@ -294,45 +302,27 @@ protected:
 
     void load_next_particles()
     {
-    	current_particles = particles_series[count];
-
-    	if (count < particles_series.size()-1)
-    		++count;
-    	else
+    	if (count >= particles_series.size())
+    	{
     		end = true;
+        	std::cout << "end" << std::endl;
+        	return;
+    	}
 
+    	current_particles = particles_series[count];
     	std::cout << "count = " << count << std::endl;
     }
 
     void update_particle_positions()
     {
+    	if (!particle_positions.empty())
+    		particle_positions.clear();
+
     	if (particle_positions.empty())
     	{
         	for (int i=0; i<current_particles.size(); ++i)
         	{
         		particle_positions.push_back(current_particles[i].position);
-        	}
-    	}
-    	else {
-        	for (int i=0; i<particle_positions.size(); ++i)
-        	{
-        		/*
-        		std::cout << "before: ";
-        		std::cout << particle_positions[i][0] << ", ";
-        		std::cout << particle_positions[i][1] << ", ";
-        		std::cout << particle_positions[i][2] << std::endl;
-        		*/
-
-        		particle_positions[i][0] = current_particles[i].position[0];
-        		particle_positions[i][1] = current_particles[i].position[1];
-        		particle_positions[i][2] = current_particles[i].position[2];
-
-        		/*
-        		std::cout << "after: ";
-        		std::cout << particle_positions[i][0] << ", ";
-        		std::cout << particle_positions[i][1] << ", ";
-        		std::cout << particle_positions[i][2] << std::endl;
-        		*/
         	}
     	}
 
@@ -364,41 +354,134 @@ protected:
     	}
     }
 
-    void set_grid_size()
+    void update_grid_size()
     {
-    	Real min_x, min_y, min_z, max_x, max_y, max_z;
-    	min_x = min_y = min_z = 100000000;
-    	max_x = max_y = max_z = -100000000;
+    	Real cmin_x, cmin_y, cmin_z, cmax_x, cmax_y, cmax_z;
+    	cmin_x = cmin_y = cmin_z = MAX;
+    	cmax_x = cmax_y = cmax_z = MIN;
 
 		for (auto& p : current_particles)
 		{
-			if (p.position[0] > max_x)
-				max_x = p.position[0];
-			else if (p.position[0] < min_x)
-				min_x = p.position[0];
+			if (p.position[0] > cmax_x)
+				cmax_x = p.position[0];
+			if (p.position[0] < cmin_x)
+				cmin_x = p.position[0];
 
-			if (p.position[1] > max_y)
-				max_y = p.position[1];
-			else if (p.position[1] < min_y)
-				min_y = p.position[1];
+			if (p.position[1] > cmax_y)
+				cmax_y = p.position[1];
+			if (p.position[1] < cmin_y)
+				cmin_y = p.position[1];
 
-			if (p.position[2] > max_z)
-				max_z = p.position[2];
-			else if (p.position[2] < min_z)
-				min_z = p.position[2];
+			if (p.position[2] > cmax_z)
+				cmax_z = p.position[2];
+			if (p.position[2] < cmin_z)
+				cmin_z = p.position[2];
 		}
 
-    	total_x_length = static_cast<int>(max_x - min_x) + 1.0f + 2.0 * particle_unit;
-		total_y_length = static_cast<int>(max_y - min_y) + 1.0f + 2.0 * particle_unit;
-		total_z_length = static_cast<int>(max_z - min_z) + 1.0f + 2.0 * particle_unit;
+		double du = static_cast<double>(unit_voxel_length);
 
-		origin = Vector3f(static_cast<float>((max_x + min_x)/2.0), static_cast<float>((max_y + min_y)/2.0), static_cast<float>(min_z));
+		double max_x_unit = ceil((cmax_x-max_x)/du*0.5+1);
+		double min_x_unit = floor((cmin_x-min_x)/du*0.5-1);
+
+		double max_y_unit = ceil((cmax_y-max_y)/du*0.5+1);
+		double min_y_unit = floor((cmin_y-min_y)/du*0.5-1);
+
+		double max_z_unit = ceil((cmax_z-max_z)/du*0.5+1);
+		double min_z_unit = floor((cmin_z-min_z)/du*0.5-1);
+
+		// update min, max
+		min_x = min_x + min_x_unit * 2.0 * du;
+		min_y = min_y + min_y_unit * 2.0 * du;
+		min_z = min_z + min_z_unit * 2.0 * du;
+
+		max_x = max_x + max_x_unit * 2.0 * du;
+		max_y = max_y + max_y_unit * 2.0 * du;
+		max_z = max_z + max_z_unit * 2.0 * du;
+
+    	total_x_length = static_cast<float>(max_x - min_x);
+    	total_y_length = static_cast<float>(max_y - min_y);
+		total_z_length = static_cast<float>(max_z - min_z);
+
+		origin = Vector3f(static_cast<float>(max_x + min_x)*0.5f, static_cast<float>(max_y + min_y)*0.5f, static_cast<float>(min_z));
+
+		update_voxel();
+
+		std::cout << "in update" << std::endl;
 
 		std::cout << "total_x_length = " << total_x_length << std::endl;
 		std::cout << "total_y_length = " << total_y_length << std::endl;
 		std::cout << "total_z_length = " << total_z_length << std::endl;
 
 		std::cout << "ori = (" << origin[0] << "," << origin[1] << "," << origin[2] << ")" << std::endl;
+    }
+
+    void set_grid_size()
+    {
+		for (auto& p : current_particles)
+		{
+			if (p.position[0] > max_x)
+				max_x = p.position[0];
+			if (p.position[0] < min_x)
+				min_x = p.position[0];
+
+			if (p.position[1] > max_y)
+				max_y = p.position[1];
+			if (p.position[1] < min_y)
+				min_y = p.position[1];
+
+			if (p.position[2] > max_z)
+				max_z = p.position[2];
+			if (p.position[2] < min_z)
+				min_z = p.position[2];
+		}
+
+		double du = static_cast<double>(unit_voxel_length);
+
+		double max_x_unit = ceil(max_x/du*0.5+1) * 2.0 * du;
+		double min_x_unit = floor(min_x/du*0.5-1) * 2.0 * du;
+
+		double max_y_unit = ceil(max_y/du*0.5+1) * 2.0 * du;
+		double min_y_unit = floor(min_y/du*0.5-1) * 2.0 * du;
+
+		double max_z_unit = ceil(max_z/du*0.5+1) * 2.0 * du;
+		double min_z_unit = floor(min_z/du*0.5-1) * 2.0 * du;
+
+		// update min, max
+		min_x = min_x_unit;
+		min_y = min_y_unit;
+		min_z = min_z_unit;
+
+		max_x = max_x_unit;
+		max_y = max_y_unit;
+		max_z = max_z_unit;
+
+    	total_x_length = static_cast<float>(max_x_unit-min_x_unit);
+    	total_y_length = static_cast<float>(max_y_unit-min_y_unit);
+		total_z_length = static_cast<float>(max_z_unit-min_z_unit);
+
+		origin = Vector3f(static_cast<float>(max_x_unit+min_x_unit)*0.5f, static_cast<float>(max_y_unit+min_y_unit)*0.5f, static_cast<float>(min_z_unit));
+
+		update_voxel();
+
+		std::cout << "in set" << std::endl;
+
+		std::cout << "total_x_length = " << total_x_length << std::endl;
+		std::cout << "total_y_length = " << total_y_length << std::endl;
+		std::cout << "total_z_length = " << total_z_length << std::endl;
+
+		std::cout << "ori = (" << origin[0] << "," << origin[1] << "," << origin[2] << ")" << std::endl;
+    }
+
+    void update_voxel()
+    {
+	    voxelx_n = static_cast<size_t>(ceil(total_x_length/unit_voxel_length));
+	    voxely_n = static_cast<size_t>(ceil(total_y_length/unit_voxel_length));
+	    voxelz_n = static_cast<size_t>(ceil(total_z_length/unit_voxel_length));
+
+	    voxel_verticesx_n = voxelx_n+1;
+	    voxel_verticesy_n = voxely_n+1;
+	    voxel_verticesz_n = voxelz_n+1;
+	    //voxel_vertices.reserve(voxel_verticesx_n*voxel_verticesy_n*voxel_verticesz_n);
     }
 };
 

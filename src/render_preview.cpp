@@ -102,9 +102,9 @@ int main(int argc, char* argv[])
     fluid.start_marching_cube();
 
     fluid.output_marching_indices(output_indices);
-    fluid.output_marching_vertices(output_vertices);
+    fluid.output_marching_vertices_and_normals(output_vertices);
 
-    merely3d::StaticMesh fluid_model_without_normal = merely3d::StaticMesh::with_angle_weighted_normals(output_vertices,output_indices);
+    merely3d::StaticMesh fluid_model_without_normal(output_vertices,output_indices);
 
     // main loop
     clock_t runtime = 0;
@@ -148,9 +148,9 @@ int main(int argc, char* argv[])
         fluid.update_marching_cube();
 
         fluid.output_marching_indices(output_indices);
-        fluid.output_marching_vertices(output_vertices);
+        fluid.output_marching_vertices_and_normals(output_vertices);
 
-        fluid_model_without_normal = merely3d::StaticMesh::with_angle_weighted_normals(output_vertices,output_indices);
+        merely3d::StaticMesh fluid_model_without_normal(output_vertices,output_indices);
 
     } while (!window.should_close());
 

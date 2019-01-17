@@ -101,14 +101,11 @@ int main(int argc, char* argv[])
     fluid.start_marching_cube();
 
     fluid.output_marching_indices(output_indices);
-    fluid.output_marching_vertices(output_vertices);
-
-    merely3d::StaticMesh fluid_model_without_normal = merely3d::StaticMesh::with_angle_weighted_normals(output_vertices,output_indices);
-
+    fluid.output_marching_vertices_and_normals(output_vertices);
 
     mMeshData md;
-    md.vertices_and_normals = fluid_model_without_normal._data->vertices_and_normals;
-    md.faces = fluid_model_without_normal._data->faces;
+    md.vertices_and_normals = output_vertices;
+    md.faces = output_indices;
 
     ms.meshSeries.push_back(md);
 
@@ -117,15 +114,15 @@ int main(int argc, char* argv[])
     while (!fluid.end)
     {
         fluid.update_marching_cube();
+        if (fluid.end)
+        	break;
 
         fluid.output_marching_indices(output_indices);
-        fluid.output_marching_vertices(output_vertices);
-
-        fluid_model_without_normal = merely3d::StaticMesh::with_angle_weighted_normals(output_vertices,output_indices);
+        fluid.output_marching_vertices_and_normals(output_vertices);
 
         mMeshData md2;
-        md2.vertices_and_normals = fluid_model_without_normal._data->vertices_and_normals;
-        md2.faces = fluid_model_without_normal._data->faces;
+        md2.vertices_and_normals = output_vertices;
+        md2.faces = output_indices;
 
         ms.meshSeries.push_back(md2);
 
