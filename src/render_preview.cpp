@@ -95,8 +95,8 @@ int main(int argc, char* argv[])
 
     load_scene( window.camera() );
 
-    static vector<unsigned int> output_indices;
-    static vector<float> output_vertices;
+    std::vector<unsigned int> output_indices;
+    std::vector<float> output_vertices;
 
     marching_cube_fluid fluid(unit_voxel_length, c, input_file);
     fluid.start_marching_cube();
@@ -145,12 +145,14 @@ int main(int argc, char* argv[])
                       );
         });
 
+        ++fluid.count;
+
         fluid.update_marching_cube();
 
         fluid.output_marching_indices(output_indices);
         fluid.output_marching_vertices_and_normals(output_vertices);
 
-        merely3d::StaticMesh fluid_model_without_normal(output_vertices,output_indices);
+        fluid_model_without_normal = merely3d::StaticMesh(output_vertices,output_indices);
 
     } while (!window.should_close());
 

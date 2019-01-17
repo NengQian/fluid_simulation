@@ -55,7 +55,7 @@ namespace merely3d
 
         static StaticMesh with_angle_weighted_normals(std::vector<float> vertices, std::vector<unsigned int> faces);
 
-    //private:
+    private:
         // Allocate the mesh data on the heap, so that we have a stable address
         // even if the user chooses to move the StaticMesh instance.
         std::shared_ptr<const detail::StaticMeshData> _data;
