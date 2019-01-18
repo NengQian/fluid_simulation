@@ -131,31 +131,9 @@ target_link_libraries(kernel_test simulator_lib)
 target_include_directories(simulator_test PRIVATE extern/merely3d/extern/catch )
 target_include_directories(kernel_test PRIVATE extern/merely3d/extern/catch )
 
-
-# Below is an example of how you can add your own executable for
-# comparing neighborhoods
-#add_executable(compare_neighborhoods src/compare_neighborhoods.cpp)
-#target_link_libraries(compare_neighborhoods CompactNSearch)
-#target_include_directories(compare_neighborhoods PRIVATE ${EIGEN3_ROOT})
-
-#add_executable(compare_neighborhoods src/compare_neighborhoods.cpp)
-#target_link_libraries(compare_neighborhoods CompactNSearch simulator_lib)
-#target_include_directories(compare_neighborhoods PRIVATE ${EIGEN3_ROOT})
-
-#add_executable(sweep_density src/sweep_density.cpp)
-#target_link_libraries(sweep_density CompactNSearch simulator_lib)
-#target_include_directories(sweep_density PRIVATE ${EIGEN3_ROOT})
-
-
-#add_executable(test_creals src/test_creals.cpp)
-#target_link_libraries(test_creals simulator_lib)
-#target_include_directories(test_creals PRIVATE ${EIGEN3_ROOT} ${CEREALS_ROOT})
-
-add_executable(test_creals src/test_creals.cpp)
-target_link_libraries(test_creals simulator_lib)
-target_include_directories(test_creals PRIVATE ${EIGEN3_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
-
-
+add_executable(save_simulation src/save_simulation.cpp)
+target_link_libraries(save_simulation simulator_lib)
+target_include_directories(save_simulation PRIVATE ${EIGEN3_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
 
 
 set(MARCHING_CUBE_LIB_FILES

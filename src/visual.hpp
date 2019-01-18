@@ -48,21 +48,24 @@ namespace Simulator
         int particles_num;
         Real particle_radius;
         Real real_time_step;
-        Real total_time;
 
+        Real eta;
+        Real rest_density;
+        Real B;
+        Real alpha;
+        int solver_type;
 
         std::string file_name;
 
 
         /*-----these for gui state--------*/
-        double speed_ratio;
+        float speed_ratio;
         int counter; // when speed_ratio smaller than 1.0, we should use this counter to decide which time we simulate the frame.
         int render_step; // this is also for speed_ratio control
         bool playback_flag;
         bool pausing_flag;
         bool render_velocity_flag;
         bool render_density_flag;
-        bool is_render_boundary;
         float boundary_particle_size;
         float particle_size;
         float render_max_velocity;

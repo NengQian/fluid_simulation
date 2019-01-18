@@ -39,12 +39,16 @@ namespace Simulator
         particles_num = simu_state.particles.size();
         particle_radius = sim_rec.unit_particle_length/2.0;
         total_frame_num = sim_rec.states.size();
+        eta = sim_rec.eta;
+        rest_density = sim_rec.rest_density;
+        B = sim_rec.B;
+        alpha = sim_rec.alpha;
         real_time_step = sim_rec.timestep;
-        total_time = real_time_step*total_frame_num;
+        solver_type = sim_rec.solver_type;
 
         speed_ratio = 1.0;
         playback_flag = false;
-        pausing_flag = false;
+        pausing_flag = true;
         render_velocity_flag = false;
         render_density_flag = false;
         render_max_density = 1000.0f;
@@ -54,10 +58,8 @@ namespace Simulator
 
         file_name = fp;
 
-        is_render_boundary = true;
-        boundary_particle_size = particle_radius;
+        boundary_particle_size = 0.2*particle_radius;
         particle_size = particle_radius;
-
     }
 
 
@@ -96,38 +98,12 @@ namespace Simulator
 
     void Visualization::render(merely3d::Frame &frame)
     {
-//        // Below we demonstrate how to render various primitives with merely3d.
-//        frame.draw(renderable(Rectangle(0.5, 0.5))
-//                           .with_position(1.0, 0.0, 0.5)
-//                           .with_orientation(AngleAxisf(0.78, Vector3f(1.0f, 0.0f, 0.0f)))
-//                           .with_material(Material().with_color(Color(0.5, 0.3, 0.3))));
+    	// Draw floor
+		const auto floor_color = Color(0.9, 0.9, 0.9);
 
-//        frame.draw(renderable(Box(1.0, 1.0, 1.0))
-//                           .with_position(4.0, 0.0, 1.1));
-
-//        frame.draw(renderable(Box(0.2, 5.0, 1.0))
-//                           .with_position(0.0, 0.0, 1.0));
-
-//        frame.draw(renderable(Box(0.2, 1.0, 1.0))
-//                           .with_position(0.0, 0.0, 5.0)
-//                           .with_orientation(AngleAxisf(0.5, Vector3f(1.0, 1.0, 1.0)))
-//                           .with_material(Material().with_color(red())));
-
-//        const auto floor_color = Color(0.5f, 0.35f, 0.35f);
-//        frame.draw(renderable(Rectangle(20.0f, 20.0f))
-//                           .with_position(0.0f, 0.0f, 0.0f)
-//                           .with_material(Material().with_color(floor_color)));
-
-//        frame.draw(renderable(Sphere(1.0))
-//                           .with_position(3.0, 3.0, 3.0));
-
-//        // Note that if you use RealVector3 for your position, you might need to cast it into a Vector3f
-//        // since merely3d uses float for positions. Here's an example:
-//        const RealVector3 my_position(1.0, 5.0, 10.0);
-//        frame.draw(renderable(Sphere(3.0))
-//                    .with_position(my_position.cast<float>()));
-
-//        frame.draw_line(Line(Vector3f(0.0, 0.0, 0.0), Vector3f(10.0, -5.0, 10.0)));
+		frame.draw(renderable(Rectangle(20.0f, 20.0f))
+						   .with_position(0.0f, 0.0f, 0.0f)
+						   .with_material(Material().with_color(floor_color)));
 
         // Draw some (big) particles
 
@@ -161,21 +137,19 @@ namespace Simulator
         }
 
         // render boundary particles
-        if (is_render_boundary)
         {
             std::vector<mParticle>& bp = sim_rec.boundary_particles;
             for (size_t i =0;i<bp.size();++i)
             {
                 Simulator::mParticle& mparticle = bp[i];
                 Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
-                frame.draw_particle(Particle(p).with_radius(boundary_particle_size).with_color(Color(0.5f, 0.5f, 0.5f)));
+                frame.draw_particle(Particle(p).with_radius(boundary_particle_size).with_color(Color(0.2f, 0.2f, 0.2f)));
             }
         }
 
 
         if (pausing_flag==false)
         {
-
             if (speed_ratio<1.0)
             {
                 counter++;
@@ -204,50 +178,48 @@ namespace Simulator
 
 
 
-        /// Begin begins a new ImGui window that you can move around as you please
-        if (ImGui::Begin(file_name.c_str(), NULL, ImVec2(300, 200)))
+        /// Control panel GUI
+        if (ImGui::Begin("Control Panel", NULL, ImVec2(400, 300)))
         {
-            // See the code for ImGui::ShowDemoWinxdow() for examples of how to use
+        	ImGui::SetWindowPos("Control Panel", ImVec2(10, 10));
             // various ImGui widgets.
             ImGui::SliderInt("current frame", &sim_count, 0, total_frame_num-1);
-            ImGui::Checkbox("play backward", &playback_flag);
-            ImGui::TextWrapped("current simulation time: %0.2f s", real_time_step*sim_count);
-            ImGui::TextWrapped("remaining simulation time: %0.2f s",total_time - real_time_step*(sim_count+1));
 
-            if(ImGui::Button("back"))
-            {
-                if(sim_count > 0)
-                    sim_count--;
-            }
+            ImGui::SliderFloat("play speed", &speed_ratio, 0.1, 5, "%.1f");
+
+            ImGui::Checkbox("backward", &playback_flag);
             ImGui::SameLine();
-            ImGui::Checkbox("pausing", &pausing_flag); ImGui::SameLine();
-            if(ImGui::Button("forward"))
-            {
-                if(sim_count < total_frame_num-1)
-                    sim_count++;
-            }
+            ImGui::Checkbox("pause", &pausing_flag);
 
-            if(ImGui::InputDouble("play speed ratio",&speed_ratio,0.01,1.0,"%.2f"))
-            {
-                counter = 0;
-            }
+            ImGui::Text("Rendering Options: ");
+            ImGui::SameLine();
+            ImGui::Checkbox("velocity", &render_velocity_flag);
+            ImGui::SameLine();
+            ImGui::Checkbox("density", &render_density_flag);
 
-            ImGui::TextWrapped("simulation time step: %0.3f s",real_time_step);
-            ImGui::TextWrapped("particles number %d",particles_num);
+            ImGui::SliderFloat("max velocity", &render_max_velocity, 0.1f, 10.0f, "%.1f");
+            ImGui::SliderFloat("max density", &render_max_density, 100.0f, 3000.0f, "%.1f");
+            ImGui::SliderFloat("boundary particle size", &boundary_particle_size, 0.0f, 0.1f, "%.2f");
+            ImGui::SliderFloat("particles size", &particle_size, 0.01f, 0.1f, "%.2f");
+        }
+        ImGui::End();
 
-            ImGui::Checkbox("render velocity", &render_velocity_flag);ImGui::SameLine();
-            ImGui::Checkbox("render density", &render_density_flag);
+        // Setting GUI
+        if (ImGui::Begin("Setting", NULL, ImVec2(300, 200)))
+        {
+        	ImGui::SetWindowPos("Setting", ImVec2(10, 260));
 
-            ImGui::Checkbox("render boundary", &is_render_boundary);
+            ImGui::TextWrapped("particle number: %d", particles_num);
+        	ImGui::TextWrapped("timestep: %0.4f s", real_time_step);
+        	ImGui::TextWrapped("eta: %0.1f", eta);
+        	ImGui::TextWrapped("rest density: %0.1f", rest_density);
+        	ImGui::TextWrapped("stiffness: %0.1f", B);
+        	ImGui::TextWrapped("alpha: %0.2f", alpha);
 
-            ImGui::SliderFloat("max render velocity", &render_max_velocity, 0.1f, 10.0f);
-            ImGui::SliderFloat("max render density", &render_max_density, 100.0f, 3000.0f);
-            ImGui::SliderFloat("boundary_pariticle_size", &boundary_particle_size, 0.01f, 1.0f);
-            ImGui::SliderFloat("particles_size", &particle_size, 0.01f, 1.0f);
-
-
-
-
+        	if (solver_type == 0)
+            	ImGui::Text("solver: WCSPH");
+        	else if (solver_type == 1)
+            	ImGui::Text("solver: PBF");
         }
         ImGui::End();
 

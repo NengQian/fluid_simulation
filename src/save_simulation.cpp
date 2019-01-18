@@ -17,10 +17,6 @@
 
 using namespace std;
 
-std::string fold = "./sim_result/";
-
-
-
 int main(int argc, char **argv)
 {
     CLI::App CLIapp{"Cereal_Recorder"};
@@ -68,7 +64,7 @@ int main(int argc, char **argv)
     CLIapp.add_option("-f, --total_simulation_frame_number", total_simulation, "Number of simulations to record");
 
     std::string output_file;
-    CLIapp.add_option("-o, --output_file", output_file, "output filename");
+    CLIapp.add_option("-o, --output_file", output_file, "path to output file");
 
     int solver_type;
     CLIapp.add_option("-c, --solver", solver_type, "Solver Type: 0 for WCSPH | 1 for PBF");
@@ -84,7 +80,7 @@ int main(int argc, char **argv)
     cout << "rest_density = "				<< rest_density << endl;
     cout << "stiffness = "					<< B << endl;
     cout << "elapsed time = " 				<< dt << endl;
-    cout << "record step_size = "				<< step_size << endl;
+    cout << "record step_size = "			<< step_size << endl;
     cout << "alpha = " 						<< alpha << endl;
     cout << "with_viscosity = " 			<< with_viscosity << endl;
     cout << "with_XSPH = " 					<< with_XSPH << endl;
@@ -103,7 +99,7 @@ int main(int argc, char **argv)
 
 
     // a for loop to generate every thing, and then run...
-    Simulation simulation(N, mode, unit_particle_length, dt, eta, B, alpha, rest_density, fold+output_file, false, with_viscosity, with_XSPH, solver_type);
+    Simulation simulation(N, mode, unit_particle_length, dt, eta, B, alpha, rest_density, output_file, false, with_viscosity, with_XSPH, solver_type);
 
     for(int i=0;i<total_simulation;++i)
     {

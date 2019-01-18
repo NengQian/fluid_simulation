@@ -31,8 +31,15 @@ SPHSimulator::SPHSimulator(int N, Real uParticle_len, Real dt, Real eta, Real B,
     Real h = eta*uParticle_len;   // h = eta*uParticle_len , in paper it is h = eta*(m/rou)^(1/3). while m/rou = v = uParticle_len^3;
     set_neighbor_search_radius(2.0*h);  // and also since we are using cubic .. so the radius is 2.0 * h...
 
+    // init cereal data
     sim_rec.timestep = dt;
     sim_rec.unit_particle_length = uParticle_len;
+    sim_rec.eta = eta;
+    sim_rec.B = B;
+    sim_rec.rest_density = rest_density;
+    sim_rec.alpha = alpha;
+    sim_rec.solver_type = solver_type;
+    sim_rec.states.clear();
     sim_rec.boundary_particles.clear();
     cuboids.clear();
     //update_sim_record_state();

@@ -45,8 +45,8 @@ using std::chrono::duration;
 void load_scene(Simulator::Visualization & sim, Camera & camera)
 {
     // Set up the camera the way you want it
-    camera.look_in(Vector3f(1.0, 0.0, -1), Vector3f(0.0, 0.0, 1.0));
-    camera.set_position(Vector3f(-10.0, 0.0, 10.0));
+    camera.look_in(Vector3f(1.0, 0.0, -0.1), Vector3f(0.0, 0.0, 1.0));
+    camera.set_position(Vector3f(-5.0, 0.0, 3.0));
 
     // Add bodies to your simulation
 }
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 
     auto window = WindowBuilder()
             .dimensions(1024, 768)
-            .title("Simulation")
+            .title("Fluid Simulation")
             .multisampling(8)
             .build();
 

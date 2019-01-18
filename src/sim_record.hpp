@@ -26,15 +26,27 @@ namespace Simulator
     typedef struct SimulationState SimulationState;
 
     struct SimulationRecord {
-        Real timestep ;
+        Real timestep;
         Real unit_particle_length;
+        Real eta;
+        Real rest_density;
+        Real B;
+        Real alpha;
+        int solver_type;
+
         std :: vector < SimulationState > states ;
         std:: vector<mParticle> boundary_particles;
 
         SimulationRecord()
         {
-            timestep=0;
-            unit_particle_length=0;
+            timestep = 0;
+            unit_particle_length = 0;
+            eta = 0;
+            rest_density = 0;
+            B = 0;
+            alpha = 0;
+            solver_type = -1;
+
             states.clear();
             boundary_particles.clear();
         }
@@ -42,7 +54,7 @@ namespace Simulator
         template <class Archive>
         void serialize( Archive & ar )
         {
-            ar(timestep,unit_particle_length, boundary_particles,states);
+            ar(timestep, unit_particle_length, eta, rest_density, B, alpha, solver_type, boundary_particles, states);
         }
     };
 
