@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
     merely3d::App app;
 
     auto window = WindowBuilder()
-            .dimensions(1024, 768)
+            .dimensions(1366, 768)
             .title("Fluid Simulation")
             .multisampling(8)
             .build();

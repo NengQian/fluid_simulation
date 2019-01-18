@@ -112,8 +112,8 @@ add_library(sim_visual_lib STATIC ${VISUAL_SOURCE_FILES} )
 target_link_libraries(sim_visual_lib merely3d CompactNSearch)
 target_include_directories(sim_visual_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE} ${CEREALS_ROOT} ${CLI11_ROOT})
 
-add_executable(sim_visul src/visual_main.cpp)
-target_link_libraries(sim_visul sim_visual_lib)
+add_executable(visualizer src/visualizer.cpp)
+target_link_libraries(visualizer sim_visual_lib)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 

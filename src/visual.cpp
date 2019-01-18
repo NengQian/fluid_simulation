@@ -200,7 +200,7 @@ namespace Simulator
             ImGui::SliderFloat("max velocity", &render_max_velocity, 0.1f, 10.0f, "%.1f");
             ImGui::SliderFloat("max density", &render_max_density, 100.0f, 3000.0f, "%.1f");
             ImGui::SliderFloat("boundary particle size", &boundary_particle_size, 0.0f, 0.1f, "%.2f");
-            ImGui::SliderFloat("particles size", &particle_size, 0.01f, 0.1f, "%.2f");
+            ImGui::SliderFloat("particle size", &particle_size, 0.01f, 0.1f, "%.2f");
         }
         ImGui::End();
 
