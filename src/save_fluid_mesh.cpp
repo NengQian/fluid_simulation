@@ -17,6 +17,7 @@
 #include "math_types.hpp"
 #include "marching_cube_fluid.hpp"
 #include "marching_cube.hpp"
+#include "mesh_record.hpp"
 
 #include <cereal/types/vector.hpp>
 #include <cereal/archives/json.hpp>
@@ -34,36 +35,6 @@ using std::chrono::duration;
 
 #include <array>
 
-struct mMeshData
-{
-    std::vector<float> vertices_and_normals;
-    std::vector<unsigned int> faces;
-
-    template <class Archive>
-    void serialize( Archive & ar )
-    {
-    	ar( vertices_and_normals );
-    	ar( faces );
-    }
-
-};
-
-typedef struct mMeshData mMeshData;
-
-struct mMeshSeries
-{
-	std::vector<mMeshData> meshSeries;
-
-	template <class Archive>
-    void serialize( Archive & ar )
-    {
-    	ar( meshSeries );
-    }
-
-};
-
-typedef struct mMeshSeries mMeshSeries;
-
 int main(int argc, char* argv[])
 {
     CLI::App CLIapp{"serialize fluid mesh using marching cube"};
@@ -72,8 +43,7 @@ int main(int argc, char* argv[])
     float unit_voxel_length = 0.1;
     CLIapp.add_option("-u, --unit_length", unit_voxel_length, "resolution parameter");
 
-    int skip = 5;
-    CLIapp.add_option("-z, --step_size", skip, "record once every <skip> frames");
+    const int skip = 1;
 
     CLIapp.option_defaults()->required();
 

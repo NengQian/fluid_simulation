@@ -70,6 +70,7 @@ set(SOURCE_FILES
         src/ParticleGenerator.hpp
         src/ParticleGenerator.cpp
         src/sim_record.hpp
+        src/mesh_record.hpp
 )
 
 
@@ -94,6 +95,7 @@ set(VISUAL_SOURCE_FILES
         src/visual.cpp
         src/sim_record.hpp
         src/Particle.hpp
+        src/mesh_record.hpp
 )
 
 # Compile source files into a static lib, so that we don't have to compile source files

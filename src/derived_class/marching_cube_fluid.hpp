@@ -336,7 +336,7 @@ protected:
     	particles_series.clear();
 
     	// set neighbor search radius
-    	search_radius = simData.sim_rec.unit_particle_length * 2.4;
+    	search_radius = simData.sim_rec.unit_particle_length * simData.eta * 2;
     	particle_unit = simData.sim_rec.unit_particle_length;
 
     	for (int i=0; i<simData.total_frame_num; ++i)

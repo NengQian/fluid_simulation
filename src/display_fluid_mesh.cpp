@@ -17,6 +17,7 @@
 #include "math_types.hpp"
 #include "marching_cube_fluid.hpp"
 #include "marching_cube.hpp"
+#include "mesh_record.hpp"
 
 #include <cereal/types/vector.hpp>
 #include <cereal/archives/json.hpp>
@@ -52,36 +53,6 @@ using std::chrono::duration;
 
 #include <array>
 
-struct mMeshData
-{
-    std::vector<float> vertices_and_normals;
-    std::vector<unsigned int> faces;
-
-    template <class Archive>
-    void serialize( Archive & ar )
-    {
-    	ar( vertices_and_normals );
-    	ar( faces );
-    }
-
-};
-
-typedef struct mMeshData mMeshData;
-
-struct mMeshSeries
-{
-	std::vector<mMeshData> meshSeries;
-
-	template <class Archive>
-    void serialize( Archive & ar )
-    {
-    	ar( meshSeries );
-    }
-
-};
-
-typedef struct mMeshSeries mMeshSeries;
-
 void load_scene(Camera & camera)
 {
     // Set up the camera the way you want it
@@ -90,17 +61,6 @@ void load_scene(Camera & camera)
 
     // Add bodies to your simulation
 }
-
-/// Simple helper class to manage time.
-///
-/// Whenever time passes in the real world, time is "produced".
-/// In order to advance the simulation time, there must be
-/// enough available time for consumption.
-///
-/// This approach allows you to decouple the physics time step
-/// from your rendering updates. See
-/// https://gafferongames.com/post/fix_your_timestep/
-/// for more information.
 
 
 int main(int argc, char* argv[])

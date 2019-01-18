@@ -1,6 +1,7 @@
 #include <memory>
 #include <iostream>
 #include <algorithm>
+#include <chrono>
 
 #include <merely3d/app.hpp>
 #include <merely3d/window.hpp>
@@ -11,7 +12,7 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_event_handler.h>
 
-#include <chrono>
+#include <CLI11.hpp>
 
 #include "math_types.hpp"
 #include "visual.hpp"
@@ -65,17 +66,24 @@ void load_scene(Simulator::Visualization & sim, Camera & camera)
 
 int main(int argc, char* argv[])
 {
+	CLI::App CLIapp{"fluid visualizer"};
 
-    // Check the number of parameters
-   if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " NAME" << std::endl;
-        return 1;
-    }
-    // Print the user's name:
+	std::string meshfile;
+	CLIapp.add_option("-m, --mesh", meshfile, "path to serialized mesh data")->check(CLI::ExistingFile);
 
+	CLIapp.option_defaults()->required();
 
-    using Simulator::Visualization;
-    using Simulator::Real;
+	std::string simfile;
+	CLIapp.add_option("-s, --sim", simfile, "path to serialized simulation data")->check(CLI::ExistingFile);
+
+	try
+	{
+		CLIapp.parse(argc, argv);
+	}
+	catch (const CLI::ParseError &e)
+	{
+		return CLIapp.exit(e);
+	}
 
     // Constructing the app first is essential: it makes sure that
     // GLFW is set up properly. Note that as an alternative, you can call
@@ -97,8 +105,12 @@ int main(int argc, char* argv[])
     // added before any of your own event handlers.
     window.add_event_handler(std::shared_ptr<EventHandler>(new Simulator::ImGuiEventHandler));
     window.add_event_handler(std::shared_ptr<EventHandler>(new CameraController));
-    std::string file(argv[1]);
-    Visualization visualization(file);
+    Visualization visualization;
+    if (meshfile.empty())
+    	visualization = Visualization(simfile);
+    else
+    	visualization = Visualization(simfile, meshfile);
+
 
     // Here we currently only load a single scene at startup,
     // but you probably want to be able to dynamically reload different

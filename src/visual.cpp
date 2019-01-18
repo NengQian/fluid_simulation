@@ -26,15 +26,15 @@ using namespace Eigen;
 namespace Simulator
 {
 
-    Visualization::Visualization()
-    {
+	Visualization::Visualization()
+	{
 
-    }
+	}
 
-    Visualization::Visualization(std::string fp)
+    Visualization::Visualization(std::string simfile)
     {
         sim_count = 0;
-        input_sim_record_bin(fp);
+        input_sim_record_bin(simfile);
         SimulationState simu_state = sim_rec.states[0];
         particles_num = simu_state.particles.size();
         particle_radius = sim_rec.unit_particle_length/2.0;
@@ -56,10 +56,49 @@ namespace Simulator
         counter = 0;
         render_step = 1;
 
-        file_name = fp;
+        boundary_particle_size = 0.2*particle_radius;
+        particle_size = particle_radius;
+
+        render_mesh_flag = false;
+        no_mesh = true;
+
+        render_particle_flag = true;
+    }
+
+    Visualization::Visualization(std::string simfile, std::string meshfile)
+    {
+        sim_count = 0;
+        input_sim_record_bin(simfile);
+        SimulationState simu_state = sim_rec.states[0];
+        particles_num = simu_state.particles.size();
+        particle_radius = sim_rec.unit_particle_length/2.0;
+        total_frame_num = sim_rec.states.size();
+        eta = sim_rec.eta;
+        rest_density = sim_rec.rest_density;
+        B = sim_rec.B;
+        alpha = sim_rec.alpha;
+        real_time_step = sim_rec.timestep;
+        solver_type = sim_rec.solver_type;
+
+        speed_ratio = 1.0;
+        playback_flag = false;
+        pausing_flag = true;
+        render_velocity_flag = false;
+        render_density_flag = false;
+        render_max_density = 1000.0f;
+        render_max_velocity = 0.25f;
+        counter = 0;
+        render_step = 1;
 
         boundary_particle_size = 0.2*particle_radius;
         particle_size = particle_radius;
+
+
+        render_mesh_flag = true;
+        no_mesh = false;
+        input_mesh_record_bin(meshfile);
+
+        render_particle_flag = true;
     }
 
 
@@ -78,6 +117,12 @@ namespace Simulator
         input(sim_rec);  //not good... maybe directly ar the vector
     }
 
+    void Visualization::input_mesh_record_bin(std::string fp)
+    {
+        std::ifstream file(fp);
+        cereal::BinaryInputArchive input(file); // stream to cout
+        input(mesh_rec);  //not good... maybe directly ar the vector
+    }
 
     float Visualization::velocity_to_float(const Eigen::Vector3f& velocity)
     {
@@ -99,42 +144,45 @@ namespace Simulator
     void Visualization::render(merely3d::Frame &frame)
     {
     	// Draw floor
-		const auto floor_color = Color(0.9, 0.9, 0.9);
+		const auto floor_color = Color(0.5, 0.5, 0.5);
 
 		frame.draw(renderable(Rectangle(20.0f, 20.0f))
-						   .with_position(0.0f, 0.0f, 0.0f)
+						   .with_position(0.0f, 0.0f, -3.0f)
 						   .with_material(Material().with_color(floor_color)));
 
         // Draw some (big) particles
 
-        std::vector<mParticle>& particles = sim_rec.states[sim_count].particles;
-        for (size_t i = 0; i < particles.size(); ++i)
-        {
-            Simulator::mParticle& mparticle = particles[i];
-            Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
+		if (render_particle_flag)
+		{
+			std::vector<mParticle>& particles = sim_rec.states[sim_count].particles;
+			for (size_t i = 0; i < particles.size(); ++i)
+			{
+				Simulator::mParticle& mparticle = particles[i];
+				Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
 
-            if(render_density_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
-            {
-            	frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(0.0f, 0.0f, 1.0f)));
-            }
-            else if(render_velocity_flag)
-            {
-                Eigen::Vector3f v(static_cast<float>(mparticle.velocity[0]), static_cast<float>(mparticle.velocity[1]), static_cast<float>(mparticle.velocity[2]));
-                float r = velocity_to_float(v);
-                float b = 1.0f - r;
-                frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));
-            }
-            else
-            {
-                //render density
-                float d = static_cast<float>(mparticle.density);
+				if(render_density_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
+				{
+					frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(0.0f, 0.0f, 1.0f)));
+				}
+				else if(render_velocity_flag)
+				{
+					Eigen::Vector3f v(static_cast<float>(mparticle.velocity[0]), static_cast<float>(mparticle.velocity[1]), static_cast<float>(mparticle.velocity[2]));
+					float r = velocity_to_float(v);
+					float b = 1.0f - r;
+					frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));
+				}
+				else
+				{
+					//render density
+					float d = static_cast<float>(mparticle.density);
 
-                float f = std::min(d, render_max_density) / render_max_density;
-                float r = f * f * f * f;
-                float b = 1.0f - r;
-                frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));
-            }
-        }
+					float f = std::min(d, render_max_density) / render_max_density;
+					float r = f * f * f * f;
+					float b = 1.0f - r;
+					frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));
+				}
+			}
+		}
 
         // render boundary particles
         {
@@ -147,6 +195,21 @@ namespace Simulator
             }
         }
 
+        if (!no_mesh) // show mesh
+        {
+        	if (render_mesh_flag)
+        	{
+    			const auto model_color = Color(1., 1., 1.);
+
+            	auto md = mesh_rec.meshSeries[sim_count];
+
+            	merely3d::StaticMesh mesh(md.vertices_and_normals, md.faces);
+    			frame.draw(renderable(mesh)
+    					   .with_position(0.0, 0.0, 0.0)
+    					   .with_material(Material().with_pattern_grid_size(0).with_color(model_color))
+    					  );
+        	}
+        }
 
         if (pausing_flag==false)
         {
@@ -179,9 +242,8 @@ namespace Simulator
 
 
         /// Control panel GUI
-        if (ImGui::Begin("Control Panel", NULL, ImVec2(400, 300)))
+        if (ImGui::Begin("Control Panel"))
         {
-        	ImGui::SetWindowPos("Control Panel", ImVec2(10, 10));
             // various ImGui widgets.
             ImGui::SliderInt("current frame", &sim_count, 0, total_frame_num-1);
 
@@ -190,8 +252,16 @@ namespace Simulator
             ImGui::Checkbox("backward", &playback_flag);
             ImGui::SameLine();
             ImGui::Checkbox("pause", &pausing_flag);
+        }
+        ImGui::End();
 
-            ImGui::Text("Rendering Options: ");
+        /// Control panel GUI
+        if (ImGui::Begin("Rendering Options"))
+        {
+            ImGui::SameLine();
+            ImGui::Checkbox("particle", &render_particle_flag);
+            ImGui::SameLine();
+            ImGui::Checkbox("mesh", &render_mesh_flag);
             ImGui::SameLine();
             ImGui::Checkbox("velocity", &render_velocity_flag);
             ImGui::SameLine();
@@ -205,10 +275,8 @@ namespace Simulator
         ImGui::End();
 
         // Setting GUI
-        if (ImGui::Begin("Setting", NULL, ImVec2(300, 200)))
+        if (ImGui::Begin("Setting Info"))
         {
-        	ImGui::SetWindowPos("Setting", ImVec2(10, 260));
-
             ImGui::TextWrapped("particle number: %d", particles_num);
         	ImGui::TextWrapped("timestep: %0.4f s", real_time_step);
         	ImGui::TextWrapped("eta: %0.1f", eta);
