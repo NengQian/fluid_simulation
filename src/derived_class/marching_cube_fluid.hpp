@@ -39,7 +39,7 @@ public:
 		kh.set_neighbor_search_radius(search_radius);
     }
 
-	~marching_cube_fluid()
+	~marching_cube_fluid() noexcept
 	{
 		voxel_vertices.shrink_to_fit();
 		voxels.clear();
@@ -241,10 +241,11 @@ public:
 
     void start_marching_cube()
     {
+		pick_up_particles();
         initialize_vertices();
 
         save_grid_position();
-
+		
         compute_vertices_phi(); // for each vertices, compute its phi value
         mark_vertices();
         initialize_voxels();
@@ -260,7 +261,7 @@ public:
     		return;
 
 		update_grid_size();
-
+		pick_up_particles();
         initialize_vertices();
 
         save_grid_position();
@@ -279,6 +280,8 @@ protected:
 	ParticleFunc pf;
 
     std::vector<std::vector<mParticle>> particles_series;
+	std::vector<std::vector<mParticle>> discarded_particles_series;
+
     std::vector<mParticle> current_particles;
     std::vector<RealVector3> grid_position;
     std::vector<RealVector3> particle_positions;
@@ -287,6 +290,23 @@ protected:
     Real particle_unit;
 
     Real min_x, max_x, min_y, max_y, min_z, max_z;
+
+	void pick_up_particles()
+	{
+		auto dps = discarded_particles_series[count];
+
+		if (!dps.empty())
+		{
+			for (auto& dp : dps)
+			{
+				if (static_cast<float>(dp.position[0])-origin[0] < total_x_length*0.5f && static_cast<float>(dp.position[1])-origin[1] < total_y_length*0.5f && static_cast<float>(dp.position[2])-origin[2] < total_z_length)
+				{
+					// pick it up again
+					current_particles.push_back(dp);
+				}
+			}
+		}
+	}
 
     void save_grid_position()
     {
@@ -335,6 +355,7 @@ protected:
     	Visualization simData(fs);
 
     	particles_series.clear();
+		discarded_particles_series.clear();
 
     	// set neighbor search radius
     	search_radius = simData.sim_rec.unit_particle_length * simData.eta * 2;
@@ -345,13 +366,19 @@ protected:
     		//std::vector<mParticle> ps = simData.sim_rec.states[i].particles;
 
 			std::vector<mParticle> ps;
+			std::vector<mParticle> dps;
 			for (auto& p : simData.sim_rec.states[i].particles)
 			{
 				if (p.density >= 185.0)
 					ps.push_back(p);
+				else {
+					dps.push_back(p);
+				}
 			}
 
     		particles_series.push_back(ps);
+			discarded_particles_series.push_back(dps);
+			std::cout << "vector size: " << discarded_particles_series.size() << std::endl;
     	}
     }
 

@@ -201,14 +201,14 @@ namespace Simulator
 
 				if(render_density_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
 				{
-					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(0.0f, 0.0f, 1.0f)));
+					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(0.0f, 0.5f, 1.0f)));
 				}
 				else if(render_velocity_flag)
 				{
 					Eigen::Vector3f v(static_cast<float>(mparticle.velocity[0]), static_cast<float>(mparticle.velocity[1]), static_cast<float>(mparticle.velocity[2]));
 					float r = velocity_to_float(v);
 					float b = 1.0f - r;
-					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(r, 0.0f, b)));
+					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(r, 0.5f-r*0.5, b)));
 				}
 				else
 				{
@@ -218,7 +218,7 @@ namespace Simulator
 					float f = std::min(d, render_max_density) / render_max_density;
 					float r = f * f * f * f;
 					float b = 1.0f - r;
-					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(r, 0.0f, b)));
+					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(r, 0.5f-r*0.5, b)));
 				}
 			}
 		} else if (render_discarded_particle_flag) {
@@ -373,7 +373,7 @@ namespace Simulator
             ImGui::SameLine();
             ImGui::Checkbox("bounding box", &render_bounding_box_flag);
             ImGui::SameLine();
-            ImGui::Checkbox("discarded particle", &render_discarded_particle_flag);
+            ImGui::Checkbox("isolated particle", &render_discarded_particle_flag);
 
             ImGui::SliderFloat("max velocity", &render_max_velocity, 0.1f, 10.0f, "%.1f");
             ImGui::SliderFloat("max density", &render_max_density, 100.0f, 3000.0f, "%.1f");
