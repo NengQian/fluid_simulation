@@ -382,7 +382,7 @@ protected:
 		double du = static_cast<double>(unit_voxel_length);
 
 		double max_x_unit = ceil((cmax_x-max_x)/du*0.5) + 1;
-		double min_x_unit = floor((cmin_x-min_x)/du*0.5) -1;
+		double min_x_unit = floor((cmin_x-min_x)/du*0.5) - 1;
 
 		double max_y_unit = ceil((cmax_y-max_y)/du*0.5) + 1;
 		double min_y_unit = floor((cmin_y-min_y)/du*0.5) - 1;
