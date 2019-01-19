@@ -60,6 +60,14 @@ typedef struct mVoxel mVoxel;
 class marching_cube
 {
 public:
+    const float unit_voxel_length;   // resolution
+    float total_z_length = 3.0f;
+    float total_x_length = 3.0f;
+    float total_y_length = 3.0f;
+
+    Vector3f origin = Vector3f(0.0f,0.0f,-1.0f);  // this origin is the buttom center of the
+                                                         //cuboid we want to reconstruct
+
     marching_cube(float unit_length);
     virtual ~marching_cube();
 
@@ -70,11 +78,6 @@ public:
 
 
 protected:
-
-    const float unit_voxel_length;   // resolution
-    float total_z_length = 3.0f;
-    float total_x_length = 3.0f;
-    float total_y_length = 3.0f;
     // voxels number along 3 axis;
     size_t voxelx_n;
     size_t voxely_n;
@@ -84,8 +87,6 @@ protected:
     size_t voxel_verticesx_n;
     size_t voxel_verticesy_n;
     size_t voxel_verticesz_n;
-    Vector3f origin = {0.0f,0.0f,-1.0f};  // this origin is the buttom center of the
-                                                         //cuboid we want to reconstruct
 
     // private method, which only used by internal.
     virtual void compute_vertex_normal(const Vector3f& vertex, Vector3f& normal) = 0;

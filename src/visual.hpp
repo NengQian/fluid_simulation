@@ -45,8 +45,8 @@ namespace Simulator
         // You probably want some methods to add bodies to the system
         // void addBody(const RigidBody & body);
 
+        // Simulation info
         SimulationRecord sim_rec;
-        mMeshSeries mesh_rec;
 
         int sim_count;
         int total_frame_num;
@@ -60,6 +60,16 @@ namespace Simulator
         Real alpha;
         int solver_type;
 
+        // Rendering info
+        mMeshSeries mesh_rec;
+
+    	float unit_voxel_length;
+        float c;
+        Vector3f bounding_box;
+        Vector3f origin;
+
+        int total_grid;
+
         /*-----these for gui state--------*/
         float speed_ratio;
         int counter; // when speed_ratio smaller than 1.0, we should use this counter to decide which time we simulate the frame.
@@ -71,6 +81,7 @@ namespace Simulator
         bool render_density_flag;
         bool render_mesh_flag;
         bool render_particle_flag;
+        bool render_bounding_box_flag;
 
         bool no_mesh;
 

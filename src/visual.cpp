@@ -56,13 +56,14 @@ namespace Simulator
         counter = 0;
         render_step = 1;
 
-        boundary_particle_size = 0.2*particle_radius;
-        particle_size = particle_radius;
+        boundary_particle_size = 0.2*sim_rec.unit_particle_length;
+        particle_size = sim_rec.unit_particle_length;
 
         render_mesh_flag = false;
         no_mesh = true;
 
         render_particle_flag = true;
+        render_bounding_box_flag = false;
     }
 
     Visualization::Visualization(std::string simfile, std::string meshfile)
@@ -90,15 +91,23 @@ namespace Simulator
         counter = 0;
         render_step = 1;
 
-        boundary_particle_size = 0.2*particle_radius;
-        particle_size = particle_radius;
+        boundary_particle_size = 0.2*sim_rec.unit_particle_length;
+        particle_size = sim_rec.unit_particle_length;
 
 
         render_mesh_flag = true;
         no_mesh = false;
         input_mesh_record_bin(meshfile);
 
+        unit_voxel_length = mesh_rec.unit_voxel_length;
+        c = mesh_rec.c;
+        bounding_box = mesh_rec.meshSeries[0].bounding_box;
+        origin = mesh_rec.meshSeries[0].origin;
+
+        total_grid = bounding_box[0]/unit_voxel_length * bounding_box[1]/unit_voxel_length * bounding_box[2]/unit_voxel_length;
+
         render_particle_flag = true;
+        render_bounding_box_flag = false;
     }
 
 
@@ -143,6 +152,10 @@ namespace Simulator
 
     void Visualization::render(merely3d::Frame &frame)
     {
+    	// set total grid number
+    	bounding_box = mesh_rec.meshSeries[sim_count].bounding_box;
+        total_grid = bounding_box[0]/unit_voxel_length * bounding_box[1]/unit_voxel_length * bounding_box[2]/unit_voxel_length;
+
     	// Draw floor
 		const auto floor_color = Color(0.5, 0.5, 0.5);
 
@@ -162,14 +175,14 @@ namespace Simulator
 
 				if(render_density_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
 				{
-					frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(0.0f, 0.0f, 1.0f)));
+					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(0.0f, 0.0f, 1.0f)));
 				}
 				else if(render_velocity_flag)
 				{
 					Eigen::Vector3f v(static_cast<float>(mparticle.velocity[0]), static_cast<float>(mparticle.velocity[1]), static_cast<float>(mparticle.velocity[2]));
 					float r = velocity_to_float(v);
 					float b = 1.0f - r;
-					frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));
+					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(r, 0.0f, b)));
 				}
 				else
 				{
@@ -179,7 +192,7 @@ namespace Simulator
 					float f = std::min(d, render_max_density) / render_max_density;
 					float r = f * f * f * f;
 					float b = 1.0f - r;
-					frame.draw_particle(Particle(p).with_radius(particle_size).with_color(Color(r, 0.0f, b)));
+					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(r, 0.0f, b)));
 				}
 			}
 		}
@@ -191,7 +204,7 @@ namespace Simulator
             {
                 Simulator::mParticle& mparticle = bp[i];
                 Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
-                frame.draw_particle(Particle(p).with_radius(boundary_particle_size).with_color(Color(0.2f, 0.2f, 0.2f)));
+                frame.draw_particle(Particle(p).with_radius(boundary_particle_size*0.5).with_color(Color(0.2f, 0.2f, 0.2f)));
             }
         }
 
@@ -208,6 +221,45 @@ namespace Simulator
     					   .with_position(0.0, 0.0, 0.0)
     					   .with_material(Material().with_pattern_grid_size(0).with_color(model_color))
     					  );
+        	}
+
+        	if (render_bounding_box_flag)
+        	{
+        		bounding_box = mesh_rec.meshSeries[sim_count].bounding_box;
+        		origin = mesh_rec.meshSeries[sim_count].origin;
+
+    			const auto box_color = Color(0.3, 1.0, 0.6);
+
+            	// bottom
+            	Line l0( origin - Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, 0.0), origin - Vector3f(bounding_box[0]/2.0, -bounding_box[1]/2.0, 0.0), box_color);
+            	Line l1( origin - Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, 0.0), origin - Vector3f(-bounding_box[0]/2.0, bounding_box[1]/2.0, 0.0), box_color);
+            	Line l2( origin + Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, 0.0), origin + Vector3f(bounding_box[0]/2.0, -bounding_box[1]/2.0, 0.0), box_color);
+            	Line l3( origin + Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, 0.0), origin + Vector3f(-bounding_box[0]/2.0, bounding_box[1]/2.0, 0.0), box_color);
+
+            	// top
+            	Line l4( origin - Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, -bounding_box[2]), origin - Vector3f(bounding_box[0]/2.0, -bounding_box[1]/2.0, -bounding_box[2]), box_color);
+            	Line l5( origin - Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, -bounding_box[2]), origin - Vector3f(-bounding_box[0]/2.0, bounding_box[1]/2.0, -bounding_box[2]), box_color);
+            	Line l6( origin + Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, bounding_box[2]), origin + Vector3f(bounding_box[0]/2.0, -bounding_box[1]/2.0, bounding_box[2]), box_color);
+            	Line l7( origin + Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, bounding_box[2]), origin + Vector3f(-bounding_box[0]/2.0, bounding_box[1]/2.0, bounding_box[2]), box_color);
+
+            	// sides
+            	Line l8( origin - Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, 0.0), origin - Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, -bounding_box[2]), box_color);
+            	Line l9( origin - Vector3f(bounding_box[0]/2.0, -bounding_box[1]/2.0, 0.0), origin - Vector3f(bounding_box[0]/2.0, -bounding_box[1]/2.0, -bounding_box[2]), box_color);
+            	Line l10( origin + Vector3f(bounding_box[0]/2.0, -bounding_box[1]/2.0, 0.0), origin + Vector3f(bounding_box[0]/2.0, -bounding_box[1]/2.0, bounding_box[2]), box_color);
+            	Line l11( origin + Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, 0.0), origin + Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, bounding_box[2]), box_color);
+
+            	frame.draw_line(l0);
+            	frame.draw_line(l1);
+            	frame.draw_line(l2);
+            	frame.draw_line(l3);
+            	frame.draw_line(l4);
+            	frame.draw_line(l5);
+            	frame.draw_line(l6);
+            	frame.draw_line(l7);
+            	frame.draw_line(l8);
+            	frame.draw_line(l9);
+            	frame.draw_line(l10);
+            	frame.draw_line(l11);
         	}
         }
 
@@ -258,25 +310,27 @@ namespace Simulator
         /// Control panel GUI
         if (ImGui::Begin("Rendering Options"))
         {
-            ImGui::SameLine();
             ImGui::Checkbox("particle", &render_particle_flag);
-            ImGui::SameLine();
-            ImGui::Checkbox("mesh", &render_mesh_flag);
             ImGui::SameLine();
             ImGui::Checkbox("velocity", &render_velocity_flag);
             ImGui::SameLine();
             ImGui::Checkbox("density", &render_density_flag);
 
+            ImGui::Checkbox("mesh", &render_mesh_flag);
+            ImGui::SameLine();
+            ImGui::Checkbox("bounding box", &render_bounding_box_flag);
+
             ImGui::SliderFloat("max velocity", &render_max_velocity, 0.1f, 10.0f, "%.1f");
             ImGui::SliderFloat("max density", &render_max_density, 100.0f, 3000.0f, "%.1f");
-            ImGui::SliderFloat("boundary particle size", &boundary_particle_size, 0.0f, 0.1f, "%.2f");
-            ImGui::SliderFloat("particle size", &particle_size, 0.01f, 0.1f, "%.2f");
+            ImGui::SliderFloat("boundary particle size", &boundary_particle_size, 0.0f, static_cast<float>(sim_rec.unit_particle_length), "%.2f");
+            ImGui::SliderFloat("particle size", &particle_size, 0.01f, static_cast<float>(sim_rec.unit_particle_length), "%.2f");
         }
         ImGui::End();
 
         // Setting GUI
-        if (ImGui::Begin("Setting Info"))
+        if (ImGui::Begin("Setting"))
         {
+        	ImGui::TextColored(ImVec4(1.0f,0.0f,0.0f,1.0f), "Simulation Setting: ");
             ImGui::TextWrapped("particle number: %d", particles_num);
         	ImGui::TextWrapped("timestep: %0.4f s", real_time_step);
         	ImGui::TextWrapped("eta: %0.1f", eta);
@@ -288,9 +342,16 @@ namespace Simulator
             	ImGui::Text("solver: WCSPH");
         	else if (solver_type == 1)
             	ImGui::Text("solver: PBF");
+
+        	if (!no_mesh)
+        	{
+            	ImGui::TextColored(ImVec4(1.0f,0.0f,0.0f,1.0f), "Rendering Setting: ");
+            	ImGui::TextWrapped("grid size: %0.2f", unit_voxel_length);
+            	ImGui::TextWrapped("c: %0.1f", c);
+                ImGui::TextWrapped("grid number: %d", total_grid);
+        	}
         }
         ImGui::End();
-
     }
 }
 

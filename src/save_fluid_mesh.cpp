@@ -76,8 +76,13 @@ int main(int argc, char* argv[])
     mMeshData md;
     md.vertices_and_normals = output_vertices;
     md.faces = output_indices;
+    md.bounding_box = Vector3f(fluid.total_x_length, fluid.total_y_length, fluid.total_z_length);
+    md.origin = fluid.origin;
 
     ms.meshSeries.push_back(md);
+
+    ms.c = static_cast<float>(c);
+    ms.unit_voxel_length = unit_voxel_length;
 
     fluid.count += skip;
 
@@ -93,6 +98,8 @@ int main(int argc, char* argv[])
         mMeshData md2;
         md2.vertices_and_normals = output_vertices;
         md2.faces = output_indices;
+        md2.bounding_box = Vector3f(fluid.total_x_length, fluid.total_y_length, fluid.total_z_length);
+        md2.origin = fluid.origin;
 
         ms.meshSeries.push_back(md2);
 

@@ -24,6 +24,8 @@ class marching_cube_fluid: public marching_cube
 public:
     bool end = false;
     int count = 0;
+    Real c;
+
 
 	marching_cube_fluid(float unit_length, Real c, std::string input_file) : marching_cube(unit_length), c(c), pf(1000, 1000, 0.08)
 	{
@@ -281,7 +283,6 @@ protected:
     std::vector<RealVector3> grid_position;
     std::vector<RealVector3> particle_positions;
 
-    Real c;
     Real search_radius;
     Real particle_unit;
 
@@ -380,14 +381,14 @@ protected:
 
 		double du = static_cast<double>(unit_voxel_length);
 
-		double max_x_unit = ceil((cmax_x-max_x)/du*0.5+1);
-		double min_x_unit = floor((cmin_x-min_x)/du*0.5-1);
+		double max_x_unit = ceil((cmax_x-max_x)/du*0.5) + 1;
+		double min_x_unit = floor((cmin_x-min_x)/du*0.5) -1;
 
-		double max_y_unit = ceil((cmax_y-max_y)/du*0.5+1);
-		double min_y_unit = floor((cmin_y-min_y)/du*0.5-1);
+		double max_y_unit = ceil((cmax_y-max_y)/du*0.5) + 1;
+		double min_y_unit = floor((cmin_y-min_y)/du*0.5) - 1;
 
-		double max_z_unit = ceil((cmax_z-max_z)/du*0.5+1);
-		double min_z_unit = floor((cmin_z-min_z)/du*0.5-1);
+		double max_z_unit = ceil((cmax_z-max_z)/du*0.5) + 1;
+		double min_z_unit = floor((cmin_z-min_z)/du*0.5) - 1;
 
 		// update min, max
 		min_x = min_x + min_x_unit * 2.0 * du;
@@ -437,14 +438,14 @@ protected:
 
 		double du = static_cast<double>(unit_voxel_length);
 
-		double max_x_unit = ceil(max_x/du*0.5+1) * 2.0 * du;
-		double min_x_unit = floor(min_x/du*0.5-1) * 2.0 * du;
+		double max_x_unit = (ceil(max_x/du*0.5) + 1) * 2.0 * du;
+		double min_x_unit = (floor(min_x/du*0.5) - 1) * 2.0 * du;
 
-		double max_y_unit = ceil(max_y/du*0.5+1) * 2.0 * du;
-		double min_y_unit = floor(min_y/du*0.5-1) * 2.0 * du;
+		double max_y_unit = (ceil(max_y/du*0.5) + 1) * 2.0 * du;
+		double min_y_unit = (floor(min_y/du*0.5) - 1) * 2.0 * du;
 
-		double max_z_unit = ceil(max_z/du*0.5+1) * 2.0 * du;
-		double min_z_unit = floor(min_z/du*0.5-1) * 2.0 * du;
+		double max_z_unit = (ceil(max_z/du*0.5) + 1) * 2.0 * du;
+		double min_z_unit = (floor(min_z/du*0.5) - 1) * 2.0 * du;
 
 		// update min, max
 		min_x = min_x_unit;
