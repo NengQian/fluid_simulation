@@ -1,6 +1,7 @@
 #ifndef SPHSIMULATOR_DAM_BREAKING_H
 #define SPHSIMULATOR_DAM_BREAKING_H
 #include "SPHSimulator_rigid_body.hpp"
+#include <cmath>
 
 class SPHSimulator_dam_breaking : public SPHSimulator_rigid_body
 {
@@ -36,7 +37,7 @@ public:
             test_cuboid.origin = zero;
 
             test_cuboid.x_n = N+6;
-            test_cuboid.y_n = static_cast<int>(1.5*N)+6;
+            test_cuboid.y_n = static_cast<int>(sqrt(N)*N)+6;
             test_cuboid.z_n = 3*N;
             test_cuboid.is_hollow = true;
             particleGenerator.generate_cuboid_box(boundary_particles,zero,test_cuboid,particle_radius,false);
