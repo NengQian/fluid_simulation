@@ -82,6 +82,7 @@ namespace Simulator
         bool render_mesh_flag;
         bool render_particle_flag;
         bool render_bounding_box_flag;
+        bool render_discarded_particle_flag;
 
         bool no_mesh;
 

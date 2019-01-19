@@ -64,6 +64,7 @@ namespace Simulator
 
         render_particle_flag = true;
         render_bounding_box_flag = false;
+        render_discarded_particle_flag = false;
     }
 
     Visualization::Visualization(std::string simfile, std::string meshfile)
@@ -108,6 +109,7 @@ namespace Simulator
 
         render_particle_flag = true;
         render_bounding_box_flag = false;
+        render_discarded_particle_flag = true;
     }
 
 
@@ -157,21 +159,45 @@ namespace Simulator
         total_grid = bb[0]/unit_voxel_length * bb[1]/unit_voxel_length * bb[2]/unit_voxel_length;
 
     	// Draw floor
-		const auto floor_color = Color(0.5, 0.5, 0.5);
+		const auto floor_color = Color(0.9, 0.7, 0.5);
 
-		frame.draw(renderable(Rectangle(20.0f, 20.0f))
-						   .with_position(0.0f, 0.0f, -3.0f)
+		frame.draw(renderable(Rectangle(100.0f, 100.0f))
+						   .with_position(-20.0f, -20.0f, -3.0f)
 						   .with_material(Material().with_color(floor_color)));
+		frame.draw(renderable(Rectangle(100.0f, 100.0f))
+						   .with_position(30.0f, -20.0f, 47.0f)
+						   .with_orientation(AngleAxisf(0.5*M_PI, Vector3f(0.0f, 1.0f, 0.0f)))
+						   .with_material(Material().with_color(floor_color)));
+		frame.draw(renderable(Rectangle(100.0f, 100.0f))
+						   .with_position(-20.0f, 30.0f, 47.0f)
+						   .with_orientation(AngleAxisf(0.5*M_PI, Vector3f(1.0f, 0.0f, 0.0f)))
+						   .with_material(Material().with_color(floor_color)));
+
 
         // Draw some (big) particles
 
 		if (render_particle_flag)
 		{
 			std::vector<mParticle>& particles = sim_rec.states[sim_count].particles;
+
 			for (size_t i = 0; i < particles.size(); ++i)
 			{
 				Simulator::mParticle& mparticle = particles[i];
 				Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
+
+
+				if (render_discarded_particle_flag)
+				{
+	    			const auto dp_color = Color(0., 0., 0.);
+
+					if (mparticle.density < 185.0)
+					{
+						frame.draw(renderable(Sphere(particle_size*0.5))
+								    					   .with_position(p)
+								    					   .with_material(Material().with_pattern_grid_size(particle_size*0.5).with_color(dp_color)));
+						continue;
+					}
+				}
 
 				if(render_density_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
 				{
@@ -193,6 +219,28 @@ namespace Simulator
 					float r = f * f * f * f;
 					float b = 1.0f - r;
 					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(r, 0.0f, b)));
+				}
+			}
+		} else if (render_discarded_particle_flag) {
+			std::vector<mParticle>& particles = sim_rec.states[sim_count].particles;
+
+			for (size_t i = 0; i < particles.size(); ++i)
+			{
+				Simulator::mParticle& mparticle = particles[i];
+				Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
+
+    			const auto dp_color = Color(0., 0., 0.);
+
+				if (render_discarded_particle_flag)
+				{
+					if (mparticle.density < 185.0)
+					{
+		    			frame.draw(renderable(Sphere(particle_size*0.5))
+		    					   .with_position(p)
+		    					   .with_material(Material().with_pattern_grid_size(particle_size*0.5).with_color(dp_color))
+		    					  );
+		    			continue;
+					}
 				}
 			}
 		}
@@ -228,7 +276,7 @@ namespace Simulator
         		bounding_box = mesh_rec.meshSeries[sim_count].bounding_box;
         		origin = mesh_rec.meshSeries[sim_count].origin;
 
-    			const auto box_color = Color(0.3, 1.0, 0.6);
+    			const auto box_color = Color(1.0, 1.0, 0.0);
 
             	// bottom
             	Line l0( origin - Vector3f(bounding_box[0]/2.0, bounding_box[1]/2.0, 0.0), origin - Vector3f(bounding_box[0]/2.0, -bounding_box[1]/2.0, 0.0), box_color);
@@ -260,6 +308,11 @@ namespace Simulator
             	frame.draw_line(l9);
             	frame.draw_line(l10);
             	frame.draw_line(l11);
+        	}
+
+        	if (render_discarded_particle_flag)
+        	{
+
         	}
         }
 
@@ -319,6 +372,8 @@ namespace Simulator
             ImGui::Checkbox("mesh", &render_mesh_flag);
             ImGui::SameLine();
             ImGui::Checkbox("bounding box", &render_bounding_box_flag);
+            ImGui::SameLine();
+            ImGui::Checkbox("discarded particle", &render_discarded_particle_flag);
 
             ImGui::SliderFloat("max velocity", &render_max_velocity, 0.1f, 10.0f, "%.1f");
             ImGui::SliderFloat("max density", &render_max_density, 100.0f, 3000.0f, "%.1f");
