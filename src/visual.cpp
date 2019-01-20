@@ -182,6 +182,7 @@ namespace Simulator
 		if (render_particle_flag)
 		{
 			std::vector<mParticle>& particles = sim_rec.states[sim_count].particles;
+            std::vector<bool> sets = sim_rec.sets;
 
 			for (size_t i = 0; i < particles.size(); ++i)
 			{
@@ -204,7 +205,15 @@ namespace Simulator
 
 				if(render_density_flag == render_velocity_flag) //if we set both rendering, we see it as no rendering
 				{
-					frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(0.0f, 0.5f, 1.0f)));
+                    if (!sets.empty())
+                    {
+                        if (sets[i])
+					        frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(0.0f, 0.5f, 1.0f)));
+                        else 
+                            frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(1.0f, 0.5f, 0.0f)));
+                    } else {
+					    frame.draw_particle(Particle(p).with_radius(particle_size*0.5).with_color(Color(0.0f, 0.5f, 1.0f)));
+                    }
 				}
 				else if(render_velocity_flag)
 				{

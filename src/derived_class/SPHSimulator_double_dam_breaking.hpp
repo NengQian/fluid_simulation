@@ -30,6 +30,9 @@ public:
             if (!boundary_positions.empty())
                 boundary_positions.clear();
 
+            if (!sim_rec.sets.empty())
+                sim_rec.sets.clear();
+
             RealVector3 zero(0.0, 0.0, 0.0);
 
             //particleGenerator.generate_rigid_box(boundary_particles, 3*N, particle_radius);
@@ -55,12 +58,18 @@ public:
             water_cuboid.is_hollow = false;
 
             particleGenerator.generate_cuboid_box(particles,zero,water_cuboid,particle_radius,true);
-            
+            int ps = particles.size();
+            std::vector<bool> set1(ps, true);
+
             origin = RealVector3(0.0, -particle_radius*(test_cuboid.y_n-N-6), 3*particle_radius);
             water_cuboid.origin = origin;
 
             particleGenerator.generate_cuboid_box(particles,zero,water_cuboid,particle_radius,false);
+            std::vector<bool> set2(ps, false);
 
+            sim_rec.sets = set1;
+            sim_rec.sets.insert(sim_rec.sets.end(), set2.begin(), set2.end());
+                   
             set_positions();
             set_boundary_positions();
 

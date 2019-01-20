@@ -34,8 +34,9 @@ namespace Simulator
         Real alpha;
         int solver_type;
 
-        std :: vector < SimulationState > states ;
-        std:: vector<mParticle> boundary_particles;
+        std::vector<SimulationState> states ;
+        std::vector<mParticle> boundary_particles;
+        std::vector<bool> sets; 
 
         SimulationRecord()
         {
@@ -54,7 +55,7 @@ namespace Simulator
         template <class Archive>
         void serialize( Archive & ar )
         {
-            ar(timestep, unit_particle_length, eta, rest_density, B, alpha, solver_type, boundary_particles, states);
+            ar(timestep, unit_particle_length, eta, rest_density, B, alpha, solver_type, boundary_particles, states, sets);
         }
     };
 
