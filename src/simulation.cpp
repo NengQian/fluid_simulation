@@ -53,6 +53,9 @@ namespace Simulator
     		case 4:
                 p_sphSimulator = new SPHSimulator_2cubes(N,uParticle_len, dt, eta, B, alpha, rest_density, solver_type);
     			break;
+            case 5:
+                p_sphSimulator = new SPHSimulator_dam_breaking_thin(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type);
+                break;
     		default:
     			std::cout << "Unknown model." << std::endl;
     			break;

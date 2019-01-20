@@ -10,11 +10,9 @@ use the following command to enable O3 optimization
  
 
 
-# To Do List:
-1. Try the CLT11 to build a command-line interface. (we can use CTL11 to control, like use which particles generate function and also some other parameter)     DONE
-2. Finish assignment 3.          
-3. Read the paper about the rendering.
-4. 
+# ToDo List:
+1. Explostion Simulation <-- minimize distance between particles
+2. Dynamic boundary
 
 
 Google Doc URL:

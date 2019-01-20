@@ -80,6 +80,7 @@ set(DERIVED_CLASS_FILES
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_free_fall_motion.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_rigid_body.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_dam_breaking.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_dam_breaking_thin.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_drop_center.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_pbf.hpp
    

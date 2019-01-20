@@ -155,8 +155,11 @@ namespace Simulator
     void Visualization::render(merely3d::Frame &frame)
     {
     	// set total grid number
-    	Vector3f bb = mesh_rec.meshSeries[sim_count].bounding_box;
-        total_grid = bb[0]/unit_voxel_length * bb[1]/unit_voxel_length * bb[2]/unit_voxel_length;
+        if (!no_mesh)
+        {
+    	    Vector3f bb = mesh_rec.meshSeries[sim_count].bounding_box;
+            total_grid = bb[0]/unit_voxel_length * bb[1]/unit_voxel_length * bb[2]/unit_voxel_length;
+        }
 
     	// Draw floor
 		const auto floor_color = Color(0.9, 0.7, 0.5);
