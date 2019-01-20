@@ -15,6 +15,7 @@
 #include "SPHSimulator_double_dam_breaking.hpp"
 #include "SPHSimulator_dam_breaking_thin.hpp"
 #include "SPHSimulator_drop_center.hpp"
+#include "SPHSimulator_drop_on_water.hpp"
 
 #include <string>
 
