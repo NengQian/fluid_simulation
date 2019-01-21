@@ -51,7 +51,7 @@ public:
             water_cuboid.origin = origin;
             water_cuboid.x_n = N;
             water_cuboid.y_n = N;
-            water_cuboid.z_n = 3*N;
+            water_cuboid.z_n = 5*N;
             water_cuboid.is_hollow = false;
 
             particleGenerator.generate_cuboid_box(particles,zero,water_cuboid,particle_radius,true);
