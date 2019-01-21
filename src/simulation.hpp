@@ -16,6 +16,7 @@
 #include "SPHSimulator_dam_breaking_thin.hpp"
 #include "SPHSimulator_drop_center.hpp"
 #include "SPHSimulator_drop_on_water.hpp"
+#include "SPHSimulator_fluid_pillar.hpp"
 
 #include <string>
 
