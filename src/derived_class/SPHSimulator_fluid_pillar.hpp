@@ -45,13 +45,13 @@ public:
             RealVector3 origin = RealVector3(0.0, 0.0, particle_radius);
             //particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
 
-            origin = RealVector3(0.0, 0.0, 10*N*particle_radius);
+            origin = RealVector3(0.0, 0.0, 3*particle_radius);
             
             mCuboid water_cuboid;
             water_cuboid.origin = origin;
             water_cuboid.x_n = N;
             water_cuboid.y_n = N;
-            water_cuboid.z_n = 5*N;
+            water_cuboid.z_n = 3*N;
             water_cuboid.is_hollow = false;
 
             particleGenerator.generate_cuboid_box(particles,zero,water_cuboid,particle_radius,true);
