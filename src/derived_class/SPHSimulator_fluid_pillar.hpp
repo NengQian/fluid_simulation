@@ -36,8 +36,8 @@ public:
             mCuboid test_cuboid;
             test_cuboid.origin = zero;
 
-            test_cuboid.x_n = N+6;
-            test_cuboid.y_n = N+6;
+            test_cuboid.x_n = N+4;
+            test_cuboid.y_n = N+4;
             test_cuboid.z_n = 10*N;
             test_cuboid.is_hollow = true;
             particleGenerator.generate_cuboid_box(boundary_particles,zero,test_cuboid,particle_radius,false);
