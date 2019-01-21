@@ -13,7 +13,6 @@
 #include <cereal/archives/xml.hpp>
 
 using Simulator::Real;
-using std::chrono::duration;
 
 int main(int argc, char* argv[])
 {
