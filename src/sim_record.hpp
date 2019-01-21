@@ -59,6 +59,6 @@ namespace Simulator
         }
     };
 
-    typedef struct SimulationRecord SiumlationRecord;
+    typedef struct SimulationRecord SimulationRecord;
 }
 

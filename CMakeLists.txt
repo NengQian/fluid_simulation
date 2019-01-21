@@ -121,6 +121,9 @@ target_include_directories(sim_visual_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_
 add_executable(visualizer src/visualizer.cpp)
 target_link_libraries(visualizer sim_visual_lib)
 
+add_executable(output_density src/output_density.cpp)
+target_link_libraries(output_density sim_visual_lib)
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 
 # # Add source files for unit tests here.
