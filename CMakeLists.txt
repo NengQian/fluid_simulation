@@ -100,6 +100,7 @@ set(VISUAL_SOURCE_FILES
         src/sim_record.hpp
         src/Particle.hpp
         src/mesh_record.hpp
+        src/visualizer_flag.hpp
 )
 
 # Compile source files into a static lib, so that we don't have to compile source files
