@@ -184,3 +184,8 @@ target_include_directories(save_fluid_mesh PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} 
 add_executable(display_fluid_mesh src/display_fluid_mesh.cpp)
 target_link_libraries(display_fluid_mesh CompactNSearch merely3d  simulator_lib marching_cube_lib)
 target_include_directories(display_fluid_mesh PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
+
+add_executable(output_bounding_box src/output_bounding_box_info.cpp)
+target_link_libraries(output_bounding_box CompactNSearch merely3d  simulator_lib marching_cube_lib)
+target_include_directories(output_bounding_box PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
+

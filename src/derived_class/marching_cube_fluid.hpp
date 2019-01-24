@@ -25,7 +25,7 @@ public:
     bool end = false;
     int count = 0;
     Real c;
-
+	int total_lost = 0;
 
 	marching_cube_fluid(float unit_length, Real c, std::string input_file) : marching_cube(unit_length), c(c), pf(1000, 1000, 0.08)
 	{
@@ -274,25 +274,10 @@ public:
     	bitcode_to_mesh_vertices();
     }
 
-protected:
-	NeighborSearcher ns;
-	KernelHandler kh;
-	ParticleFunc pf;
-
-    std::vector<std::vector<mParticle>> particles_series;
-	std::vector<std::vector<mParticle>> discarded_particles_series;
-
-    std::vector<mParticle> current_particles;
-    std::vector<RealVector3> grid_position;
-    std::vector<RealVector3> particle_positions;
-
-    Real search_radius;
-    Real particle_unit;
-
-    Real min_x, max_x, min_y, max_y, min_z, max_z;
-
 	void pick_up_particles()
 	{
+		total_lost = 0;
+
 		auto dps = discarded_particles_series[count];
 
 		if (!dps.empty())
@@ -303,83 +288,24 @@ protected:
 				{
 					// pick it up again
 					current_particles.push_back(dp);
+				} else {
+					++total_lost;
 				}
 			}
 		}
 	}
 
-    void save_grid_position()
-    {
-    	std::cout << "in grid setting" << std::endl;
-
-    	if (!grid_position.empty())
-    		grid_position.clear();
-
-    	for (unsigned int i=0; i<voxel_vertices.size(); ++i)
-    	{
-    		grid_position.push_back(RealVector3(static_cast<Real>(voxel_vertices[i].position[0]), static_cast<Real>(voxel_vertices[i].position[1]), static_cast<Real>(voxel_vertices[i].position[2])));
-    	}
-    }
-
-    void load_next_particles()
+	void load_next_particles()
     {
     	if (count >= particles_series.size())
     	{
     		end = true;
-        	std::cout << "end" << std::endl;
+        	//std::cout << "end" << std::endl;
         	return;
     	}
 
     	current_particles = particles_series[count];
-    	std::cout << "count = " << count << std::endl;
-    }
-
-    void update_particle_positions()
-    {
-    	if (!particle_positions.empty())
-    		particle_positions.clear();
-
-    	if (particle_positions.empty())
-    	{
-        	for (int i=0; i<current_particles.size(); ++i)
-        	{
-        		particle_positions.push_back(current_particles[i].position);
-        	}
-    	}
-
-    	ns.set_particles_ptr(particle_positions);
-    }
-
-    void load_particle_series(std::string fs)
-    {
-    	Visualization simData(fs);
-
-    	particles_series.clear();
-		discarded_particles_series.clear();
-
-    	// set neighbor search radius
-    	search_radius = simData.sim_rec.unit_particle_length * simData.eta * 2;
-    	particle_unit = simData.sim_rec.unit_particle_length;
-
-    	for (int i=0; i<simData.total_frame_num; ++i)
-    	{
-    		//std::vector<mParticle> ps = simData.sim_rec.states[i].particles;
-
-			std::vector<mParticle> ps;
-			std::vector<mParticle> dps;
-			for (auto& p : simData.sim_rec.states[i].particles)
-			{
-				if (p.density >= 185.0)
-					ps.push_back(p);
-				else {
-					dps.push_back(p);
-				}
-			}
-
-    		particles_series.push_back(ps);
-			discarded_particles_series.push_back(dps);
-			std::cout << "vector size: " << discarded_particles_series.size() << std::endl;
-    	}
+    	//std::cout << "count = " << count << std::endl;
     }
 
     void update_grid_size()
@@ -434,6 +360,7 @@ protected:
 
 		update_voxel();
 
+		/*
 		std::cout << "in update" << std::endl;
 
 		std::cout << "total_x_length = " << total_x_length << std::endl;
@@ -441,6 +368,7 @@ protected:
 		std::cout << "total_z_length = " << total_z_length << std::endl;
 
 		std::cout << "ori = (" << origin[0] << "," << origin[1] << "," << origin[2] << ")" << std::endl;
+		*/
     }
 
     void set_grid_size()
@@ -490,7 +418,7 @@ protected:
 		origin = Vector3f(static_cast<float>(max_x_unit+min_x_unit)*0.5f, static_cast<float>(max_y_unit+min_y_unit)*0.5f, static_cast<float>(min_z_unit));
 
 		update_voxel();
-
+		/*
 		std::cout << "in set" << std::endl;
 
 		std::cout << "total_x_length = " << total_x_length << std::endl;
@@ -498,6 +426,85 @@ protected:
 		std::cout << "total_z_length = " << total_z_length << std::endl;
 
 		std::cout << "ori = (" << origin[0] << "," << origin[1] << "," << origin[2] << ")" << std::endl;
+		*/
+    }
+
+protected:
+	NeighborSearcher ns;
+	KernelHandler kh;
+	ParticleFunc pf;
+
+    std::vector<std::vector<mParticle>> particles_series;
+	std::vector<std::vector<mParticle>> discarded_particles_series;
+
+    std::vector<mParticle> current_particles;
+    std::vector<RealVector3> grid_position;
+    std::vector<RealVector3> particle_positions;
+
+    Real search_radius;
+    Real particle_unit;
+
+    Real min_x, max_x, min_y, max_y, min_z, max_z;
+
+    void save_grid_position()
+    {
+    	//std::cout << "in grid setting" << std::endl;
+
+    	if (!grid_position.empty())
+    		grid_position.clear();
+
+    	for (unsigned int i=0; i<voxel_vertices.size(); ++i)
+    	{
+    		grid_position.push_back(RealVector3(static_cast<Real>(voxel_vertices[i].position[0]), static_cast<Real>(voxel_vertices[i].position[1]), static_cast<Real>(voxel_vertices[i].position[2])));
+    	}
+    }
+
+    void update_particle_positions()
+    {
+    	if (!particle_positions.empty())
+    		particle_positions.clear();
+
+    	if (particle_positions.empty())
+    	{
+        	for (int i=0; i<current_particles.size(); ++i)
+        	{
+        		particle_positions.push_back(current_particles[i].position);
+        	}
+    	}
+
+    	ns.set_particles_ptr(particle_positions);
+    }
+
+    void load_particle_series(std::string fs)
+    {
+    	Visualization simData(fs);
+
+    	particles_series.clear();
+		discarded_particles_series.clear();
+
+    	// set neighbor search radius
+    	search_radius = simData.sim_rec.unit_particle_length * simData.eta * 2;
+    	particle_unit = simData.sim_rec.unit_particle_length;
+
+    	for (int i=0; i<simData.total_frame_num; ++i)
+    	{
+    		//std::vector<mParticle> ps = simData.sim_rec.states[i].particles;
+
+			std::vector<mParticle> ps;
+			std::vector<mParticle> dps;
+			for (auto& p : simData.sim_rec.states[i].particles)
+			{
+				if (p.density >= 185.0)
+					ps.push_back(p);
+				else {
+					dps.push_back(p);
+				}
+			}
+
+    		particles_series.push_back(ps);
+			discarded_particles_series.push_back(dps);
+			//std::cout << "vector size: " << discarded_particles_series.size() << std::endl;
+    	}
     }
 
     void update_voxel()
