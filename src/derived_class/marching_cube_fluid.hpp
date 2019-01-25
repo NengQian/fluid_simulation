@@ -295,6 +295,41 @@ public:
 		}
 	}
 
+	void count_exclusive_particles_in_fixed_box()
+	{
+		total_lost = 0;
+
+		auto dps = discarded_particles_series[count];
+
+		if (!dps.empty())
+		{
+			for (auto& dp : dps)
+			{
+				if (static_cast<float>(dp.position[0])-origin[0] < total_x_length*0.5f && static_cast<float>(dp.position[1])-origin[1] < total_y_length*0.5f && static_cast<float>(dp.position[2])-origin[2] < total_z_length)
+				{
+					;
+				} else {
+					++total_lost;
+				}
+			}
+		}
+
+		auto ps = particles_series[count];
+
+		if (!ps.empty())
+		{
+			for (auto& p : ps)
+			{
+				if (static_cast<float>(p.position[0])-origin[0] < total_x_length*0.5f && static_cast<float>(p.position[1])-origin[1] < total_y_length*0.5f && static_cast<float>(p.position[2])-origin[2] < total_z_length)
+				{
+					;
+				} else {
+					++total_lost;
+				}
+			}
+		}		
+	}
+
 	void load_next_particles()
     {
     	if (count >= particles_series.size())
@@ -429,6 +464,18 @@ public:
 		*/
     }
 
+    void update_voxel()
+    {
+	    voxelx_n = static_cast<size_t>(ceil(total_x_length/unit_voxel_length));
+	    voxely_n = static_cast<size_t>(ceil(total_y_length/unit_voxel_length));
+	    voxelz_n = static_cast<size_t>(ceil(total_z_length/unit_voxel_length));
+
+	    voxel_verticesx_n = voxelx_n+1;
+	    voxel_verticesy_n = voxely_n+1;
+	    voxel_verticesz_n = voxelz_n+1;
+	    //voxel_vertices.reserve(voxel_verticesx_n*voxel_verticesy_n*voxel_verticesz_n);
+    }
+
 protected:
 	NeighborSearcher ns;
 	KernelHandler kh;
@@ -505,18 +552,6 @@ protected:
 			discarded_particles_series.push_back(dps);
 			//std::cout << "vector size: " << discarded_particles_series.size() << std::endl;
     	}
-    }
-
-    void update_voxel()
-    {
-	    voxelx_n = static_cast<size_t>(ceil(total_x_length/unit_voxel_length));
-	    voxely_n = static_cast<size_t>(ceil(total_y_length/unit_voxel_length));
-	    voxelz_n = static_cast<size_t>(ceil(total_z_length/unit_voxel_length));
-
-	    voxel_verticesx_n = voxelx_n+1;
-	    voxel_verticesy_n = voxely_n+1;
-	    voxel_verticesz_n = voxelz_n+1;
-	    //voxel_vertices.reserve(voxel_verticesx_n*voxel_verticesy_n*voxel_verticesz_n);
     }
 };
 
