@@ -140,6 +140,12 @@ int main(int argc, char* argv[])
     merely3d::StaticMesh sphere_model(output_vertices_and_normals,output_indices);
     merely3d::StaticMesh sphere_model_without_normal = merely3d::StaticMesh::with_angle_weighted_normals(output_vertices,output_indices);
 
+    ///////////////////////////////////output the length of vertices and indices////////////////////////////////
+    cout<<"sphere in "<<unit_voxel_length<<" resolution, indices's lenghth = "<<output_indices.size()
+       <<"vertice length"<< output_vertices.size()<<endl;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     vector<unsigned int> output_indices_torus;
     vector<float> output_vertices_and_normals_torus;
     vector<float> output_vertices_torus;
