@@ -35,6 +35,7 @@ using merely3d::red;
 using merely3d::Line;
 using merely3d::Sphere;
 using merely3d::Camera;
+using merely3d::Particle;
 
 using Eigen::Vector2f;
 using Eigen::Vector3f;
@@ -91,6 +92,64 @@ void load_scene(Camera & camera)
 }
 
 
+//void draw_grid(marching_cube_sphere& mcs,Frame & frame){
+//    for(auto it = mcs.voxel_vertices.begin();it!=mcs.voxel_vertices.end();++it)
+//    {
+//        const auto model_color = Color(0.0, 0.0, 1.0);
+
+//        frame.draw(renderable(Sphere(0.05)).with_position(it->position)
+//     .with_material(Material().with_pattern_grid_size(0.025).with_color(model_color)));
+//    }
+
+//    for(auto it = mcs.edges_vector_x.begin();it!=mcs.edges_vector_x.end();++it)
+//    {
+//        const auto model_color = Color(1.0, 0.0, 0.0);
+//        frame.draw_line(Line(it->vertex1_ptr->position,it->vertex2_ptr->position, model_color));
+//    }
+
+//    for(auto it = mcs.edges_vector_y.begin();it!=mcs.edges_vector_y.end();++it)
+//    {
+//        const auto model_color = Color(0.0, 1.0, 0.0);
+//        frame.draw_line(Line(it->vertex1_ptr->position,it->vertex2_ptr->position,model_color));
+//    }
+//    for(auto it = mcs.edges_vector_z.begin();it!=mcs.edges_vector_z.end();++it)
+//    {
+//        const auto model_color = Color(0.0, 0.0, 1.0);
+//        frame.draw_line(Line(it->vertex1_ptr->position,it->vertex2_ptr->position,model_color));
+//    }
+
+//    for(auto it = mcs.voxels.begin();it!=mcs.voxels.end();++it)
+//    {
+//        for(int i = 0; i<8;++i)
+//        {
+//            mVoxelvertex& vtx = *(it->vertex_ptrs[i]);
+//            //const auto model_color =red;
+//            const auto model_color = Color(1., 0.0, 0.0);
+//            const auto green = Color(0.0, 1.0, 0.0);
+
+//            if(vtx.is_inside)
+//                frame.draw(renderable(Sphere(0.05)).with_position(vtx.position)
+//             .with_material(Material().with_pattern_grid_size(0.025).with_color(model_color)));
+//            else
+//                frame.draw(renderable(Sphere(0.025)).with_position(vtx.position)
+//             .with_material(Material().with_pattern_grid_size(0.025).with_color(green)));
+
+//        }
+//        for(int i = 0; i<12;++i)
+//        {
+//            mVoxel_edge& veg = *(it->voxel_edges_ptrs[i]);
+//            //const auto model_color =red;
+//            const auto model_color = Color(1., 0.0, 0.0);
+//            const auto green = Color(0.0, 1.0, 0.0);
+//            //if(veg.has_mesh_vertex)
+//            {
+//                frame.draw_line(Line(veg.vertex1_ptr->position,veg.vertex2_ptr->position));
+//            }
+
+//        }
+//    }
+//}
+
 int main(int argc, char* argv[])
 {
     CLI::App CLIapp{"test marching cube"};
@@ -140,6 +199,12 @@ int main(int argc, char* argv[])
     merely3d::StaticMesh sphere_model(output_vertices_and_normals,output_indices);
     merely3d::StaticMesh sphere_model_without_normal = merely3d::StaticMesh::with_angle_weighted_normals(output_vertices,output_indices);
 
+    ///////////////////////////////////output the length of vertices and indices////////////////////////////////
+    cout<<"sphere in "<<unit_voxel_length<<" resolution, indices's lenghth = "<<output_indices.size()
+       <<"vertice length"<< output_vertices.size()<<endl;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     vector<unsigned int> output_indices_torus;
     vector<float> output_vertices_and_normals_torus;
     vector<float> output_vertices_torus;
@@ -171,6 +236,7 @@ int main(int argc, char* argv[])
             // Render a few instances of our example model. Note: It looks like the connectivity
             // of our model may be a little messed up, and as a result attempts to render the model
             // as a wireframe may give strange results.
+
             frame.draw(renderable(model)
                         .with_position(-7.0, 0.0, 4.5)
                         );
@@ -183,7 +249,7 @@ int main(int argc, char* argv[])
                         .with_position(-4, 0.0, 3.0)
                         .with_material(Material().with_pattern_grid_size(0).with_color(model_color))
                         );
-
+            //draw_grid(sphere_cube,frame);
 
             frame.draw(renderable(torus_model_without_normal)
                         .with_position(3.0, 0.0, 3.0)
