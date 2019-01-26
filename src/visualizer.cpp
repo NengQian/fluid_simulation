@@ -43,11 +43,11 @@ using Simulator::Real;
 
 using std::chrono::duration;
 
-void load_scene(Simulator::Visualization & sim, Camera & camera)
+void load_scene(Camera & camera)
 {
     // Set up the camera the way you want it
     camera.look_in(Vector3f(1.0, 0.0, -0.1), Vector3f(0.0, 0.0, 1.0));
-    camera.set_position(Vector3f(-5.0, 0.0, 3.0));
+    camera.set_position(Vector3f(-10.0, 0.0, 3.0));
 
     // Add bodies to your simulation
 }
@@ -68,13 +68,18 @@ int main(int argc, char* argv[])
 {
 	CLI::App CLIapp{"fluid visualizer"};
 
-	std::string meshfile;
-	CLIapp.add_option("-m, --mesh", meshfile, "path to serialized mesh data")->check(CLI::ExistingFile);
+    
+
+	std::vector<std::string> meshfiles;
+	CLIapp.add_option("-m, --mesh", meshfiles, "path to serialized mesh data");
 
 	CLIapp.option_defaults()->required();
 
-	std::string simfile;
-	CLIapp.add_option("-s, --sim", simfile, "path to serialized simulation data")->check(CLI::ExistingFile);
+	std::vector<std::string> simfiles;
+	CLIapp.add_option("-s, --sim", simfiles, "path to serialized simulation data");
+
+    std::vector<float> shift_x;
+	CLIapp.add_option("-x", shift_x, "shifts of different visualizations along x");
 
 	try
 	{
@@ -84,6 +89,19 @@ int main(int argc, char* argv[])
 	{
 		return CLIapp.exit(e);
 	}
+
+    //
+    if (shift_x.size() != simfiles.size())
+    {
+        std::cerr << "Please enter the same number of shifts and simulation files" << std::endl;
+        return -1;
+    }
+
+    if (!meshfiles.empty() && meshfiles.size() != simfiles.size())
+    {
+        std::cerr << "Please enter the same number of simulation and mesh files" << std::endl;
+        return -1;
+    }
 
     // Constructing the app first is essential: it makes sure that
     // GLFW is set up properly. Note that as an alternative, you can call
@@ -105,17 +123,25 @@ int main(int argc, char* argv[])
     // added before any of your own event handlers.
     window.add_event_handler(std::shared_ptr<EventHandler>(new Simulator::ImGuiEventHandler));
     window.add_event_handler(std::shared_ptr<EventHandler>(new CameraController));
-    Visualization visualization;
-    if (meshfile.empty())
-    	visualization = Visualization(simfile);
-    else
-    	visualization = Visualization(simfile, meshfile);
-
+    std::vector<Visualization> visualizations;
+    
+    if (meshfiles.empty())
+    {
+        for (int i=0; i<simfiles.size(); ++i)
+        {
+            visualizations.push_back( Visualization(simfiles[i], shift_x[i]) );
+        }
+    }  else{
+        for (int i=0; i<simfiles.size(); ++i)
+        {
+            visualizations.push_back( Visualization(simfiles[i], meshfiles[i], shift_x[i]) );
+        }
+    }
 
     // Here we currently only load a single scene at startup,
     // but you probably want to be able to dynamically reload different
     // scenes through your GUI.
-    load_scene(visualization, window.camera());
+    load_scene(window.camera());
 
     // You might want to make this configurable through your GUI!
 
@@ -123,8 +149,9 @@ int main(int argc, char* argv[])
     {
         window.render_frame([&] (Frame & frame)
         {
-            // Render the current state of your simulation.
-            visualization.render(frame);
+            visualizations[0].render_control_panel();
+            for (auto& vs : visualizations)
+                vs.render(frame);
         });
     }
 

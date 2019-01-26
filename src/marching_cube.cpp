@@ -371,8 +371,9 @@ void marching_cube::initialize_vertices(){
 	if (!voxel_vertices.empty())
 	{
 		voxel_vertices.clear();
-		voxel_vertices.shrink_to_fit();
 	}
+
+    voxel_vertices.reserve(voxel_verticesz_n * voxel_verticesy_n * voxel_verticesx_n);    
 
     float step_size = unit_voxel_length;
     float x_half_extent = step_size*voxelx_n/2.0;

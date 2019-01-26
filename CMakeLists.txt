@@ -83,6 +83,8 @@ set(DERIVED_CLASS_FILES
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_double_dam_breaking.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_dam_breaking_thin.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_drop_center.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_drop_on_water.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_fluid_pillar.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_pbf.hpp
    
 # when we have new simulation scenero, we do derive it from sphsimulator class, and add file here.
@@ -98,6 +100,7 @@ set(VISUAL_SOURCE_FILES
         src/sim_record.hpp
         src/Particle.hpp
         src/mesh_record.hpp
+        src/visualizer_flag.hpp
 )
 
 # Compile source files into a static lib, so that we don't have to compile source files
@@ -118,6 +121,9 @@ target_include_directories(sim_visual_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_
 
 add_executable(visualizer src/visualizer.cpp)
 target_link_libraries(visualizer sim_visual_lib)
+
+add_executable(output_density src/output_density.cpp)
+target_link_libraries(output_density sim_visual_lib)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 
@@ -178,3 +184,8 @@ target_include_directories(save_fluid_mesh PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} 
 add_executable(display_fluid_mesh src/display_fluid_mesh.cpp)
 target_link_libraries(display_fluid_mesh CompactNSearch merely3d  simulator_lib marching_cube_lib)
 target_include_directories(display_fluid_mesh PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
+
+add_executable(output_bounding_box src/output_bounding_box_info.cpp)
+target_link_libraries(output_bounding_box CompactNSearch merely3d  simulator_lib marching_cube_lib)
+target_include_directories(output_bounding_box PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
+

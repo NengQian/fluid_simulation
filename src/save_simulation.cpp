@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     CLIapp.add_option("-n, --N", N, "Number of particles per edge");
 
     int mode;
-    CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for dam breaking | 2 for dropping the water from the center of boundary | 3 for free fall | 4 for 2-cube collision | 5 for thin dam break | 6 for double dam break");
+    CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for dam breaking | 2 for dropping the water from the center of boundary | 3 for free fall | 4 for 2-cube collision | 5 for thin dam break | 6 for double dam break | 7 for water drop on water  8 for fluid pillar");
 
     int total_simulation;
     CLIapp.add_option("-f, --total_simulation_frame_number", total_simulation, "Number of simulations to record");

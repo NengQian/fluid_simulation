@@ -65,6 +65,11 @@ public:
     float total_x_length = 3.0f;
     float total_y_length = 3.0f;
 
+    // voxels number along 3 axis;
+    size_t voxelx_n;
+    size_t voxely_n;
+    size_t voxelz_n;
+
     Vector3f origin = Vector3f(0.0f,0.0f,-1.0f);  // this origin is the buttom center of the
                                                          //cuboid we want to reconstruct
 
@@ -78,10 +83,7 @@ public:
 
 
 protected:
-    // voxels number along 3 axis;
-    size_t voxelx_n;
-    size_t voxely_n;
-    size_t voxelz_n;
+
 
     // vertices number along 3 axise;
     size_t voxel_verticesx_n;

@@ -59,6 +59,12 @@ namespace Simulator
             case 6:
                 p_sphSimulator = new SPHSimulator_double_dam_breaking(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type);
                 break;
+            case 7:
+                p_sphSimulator = new SPHSimulator_drop_on_water(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type);
+                break;
+            case 8:
+                p_sphSimulator = new SPHSimulator_fluid_pillar(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type);
+                break;
     		default:
     			std::cout << "Unknown model." << std::endl;
     			break;

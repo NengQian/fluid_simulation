@@ -26,9 +26,12 @@ namespace Simulator
     {
     public:
     	Visualization();
-        Visualization(std::string simfile);
-        Visualization(std::string simfile, std::string meshfile);
+        Visualization(std::string simfile, float shift_x=0.0f);
+        Visualization(std::string simfile, std::string meshfile, float shift_x=0.0f);
 
+        void player_init();
+        void simulation_init(std::string simfile);
+        void mesh_init(std::string meshfile);
 
         /// Render the current state of the simulation onto the given frame.
         //void render(merely3d::Frame & frame);
@@ -41,6 +44,7 @@ namespace Simulator
         void input_mesh_record_bin(std::string fp);
 
         void render(merely3d::Frame &frame);
+        void render_control_panel();
 
         // You probably want some methods to add bodies to the system
         // void addBody(const RigidBody & body);
@@ -48,7 +52,7 @@ namespace Simulator
         // Simulation info
         SimulationRecord sim_rec;
 
-        int sim_count;
+        //int sim_count;
         int total_frame_num;
         int particles_num;
         Real particle_radius;
@@ -71,10 +75,11 @@ namespace Simulator
         int total_grid;
 
         /*-----these for gui state--------*/
-        float speed_ratio;
+        //float speed_ratio;
         int counter; // when speed_ratio smaller than 1.0, we should use this counter to decide which time we simulate the frame.
         int render_step; // this is also for speed_ratio control
 
+        /*
         bool playback_flag;
         bool pausing_flag;
         bool render_velocity_flag;
@@ -83,15 +88,18 @@ namespace Simulator
         bool render_particle_flag;
         bool render_bounding_box_flag;
         bool render_discarded_particle_flag;
+        */
 
         bool no_mesh;
 
+        /*
         float boundary_particle_size;
         float particle_size;
         float render_max_velocity;
         float render_max_density;
+        */
 
-
+        Vector3f shift{0.0f, 0.0f, 0.0f};
 
         float acc_to_float(const Eigen::Vector3f& a);
         float velocity_to_float(const Eigen::Vector3f& v);
