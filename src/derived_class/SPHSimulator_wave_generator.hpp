@@ -62,8 +62,8 @@ public:
             moving_cuboid.is_closed = true;
             particleGenerator.generate_cuboid_box(boundary_particles,zero,moving_cuboid,particle_radius,false);
 
-            mid_point = particle_radius*(6*N-2);
-            amp = particle_radius*2*N;
+            mid_point = particle_radius*(5*N-2);
+            amp = particle_radius*3*N;
 
             RealVector3 origin = RealVector3(0.0, 0.0, particle_radius);
             //particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
