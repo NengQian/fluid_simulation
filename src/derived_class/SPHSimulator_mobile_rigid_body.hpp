@@ -23,6 +23,9 @@ public:
 		set_boundary_attribute();
 		SPHSimulator_rigid_body::update_simulation();
 		particleFunc.update_boundary_position(boundary_particles, moving_start_idx, mid_point, amp, count);
+		
+		set_boundary_positions();
+		neighborSearcher.set_boundary_particles_ptr(boundary_positions);
 		++count;
     }
 
