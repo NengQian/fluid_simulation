@@ -37,6 +37,7 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
     double y_half_extent = step_size*cuboid.y_n/2.0;
     double z_half_extent = step_size*cuboid.z_n/2.0;
     bool hollow = cuboid.is_hollow;
+    bool closed = cuboid.is_closed;
     //int idx_i = 0;
 
     for (int k=0; k<cuboid.z_n; ++k)
@@ -49,10 +50,19 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
                 {
                     int max_x_n = cuboid.x_n-1;
                     int max_y_n = cuboid.y_n-1;
-                    if ((k == 0) || (j == 0 || j == max_y_n) || (i == 0 || i == max_x_n))
-                        ;
-                    else
-                        continue;
+                    int max_z_n = cuboid.z_n-1;
+                    if (closed)
+                    {
+                        if ((k == 0 || k == max_z_n) || (j == 0 || j == max_y_n) || (i == 0 || i == max_x_n))
+                            ;
+                        else
+                            continue;
+                    } else {
+                        if ((k == 0) || (j == 0 || j == max_y_n) || (i == 0 || i == max_x_n))
+                            ;
+                        else
+                            continue;                        
+                    }
                 }
 
                 mParticle p;

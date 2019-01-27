@@ -39,6 +39,7 @@ namespace Simulator
         int y_n;
         int z_n;
         bool is_hollow;
+        bool is_closed;
     };
 }
 
