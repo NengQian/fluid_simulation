@@ -81,7 +81,7 @@ void ParticleFunc::update_boundary_position( std::vector<mParticle>& boundary_pa
 	if (dt * iter <= 1.0) return;
 	for (int i=start_idx; i<boundary_particles.size(); ++i)
 	{
-		boundary_particles[i].position[1] = mid + amp * (cos(M_PI*(dt*iter-1.0)));
+		boundary_particles[i].position[1] = mid + amp * (cos(0.5*M_PI*(dt*iter-1.0)));
 	}
 }
 

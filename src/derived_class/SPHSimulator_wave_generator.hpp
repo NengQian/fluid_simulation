@@ -35,7 +35,7 @@ public:
             test_cuboid.origin = zero;
 
             test_cuboid.x_n = 2*N;
-            test_cuboid.y_n = 6*N;
+            test_cuboid.y_n = 8*N;
             test_cuboid.z_n = 2*N;
 
             if (N == 1)
@@ -62,8 +62,8 @@ public:
             moving_cuboid.is_closed = true;
             particleGenerator.generate_cuboid_box(boundary_particles,zero,moving_cuboid,particle_radius,false);
 
-            mid_point = particle_radius*(5*N-2);
-            amp = particle_radius*N;
+            mid_point = particle_radius*(6*N-2);
+            amp = particle_radius*2*N;
 
             RealVector3 origin = RealVector3(0.0, 0.0, particle_radius);
             //particleGenerator.generate_cube(particles, N, origin, zero, zero, particle_radius*N, false, false);
@@ -73,8 +73,8 @@ public:
             mCuboid water_cuboid;
             water_cuboid.origin = origin;
             water_cuboid.x_n = 2*N-6;
-            water_cuboid.y_n = 6*N-6;
-            water_cuboid.z_n = N-5;
+            water_cuboid.y_n = 8*N-6;
+            water_cuboid.z_n = N-2;
             water_cuboid.is_hollow = false;
 
             particleGenerator.generate_cuboid_box(particles,zero,water_cuboid,particle_radius,true);
