@@ -18,7 +18,7 @@ public:
 	void update_position( std::vector<mParticle>& particles, Real dt ); // without XSPH
 	void update_position( std::vector<mParticle>& particles, Real dt, std::vector<std::vector<size_t>>& neighbors_set, Real radius); // with XSPH
 
-	void update_boundary_position( std::vector<mParticle>& boundary_particles, int start_idx, Real mid, Real amp, int iter ); // without XSPH
+	void update_boundary_position( std::vector<mParticle>& boundary_particles, int start_idx, Real mid, Real amp, Real dt, int iter ); // without XSPH
 
 	void update_velocity( std::vector<mParticle>& particles, Real dt, Eigen::Ref<const RealVector3> a); // semi-implicit euler
 	void update_velocity( std::vector<mParticle>& particles, Real dt, std::vector<RealVector3>& as);
