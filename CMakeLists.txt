@@ -90,6 +90,8 @@ set(DERIVED_CLASS_FILES
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_wave_generator.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_moving_dam_break.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_watermill.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_bullet.hpp
+
    
 # when we have new simulation scenero, we do derive it from sphsimulator class, and add file here.
 )

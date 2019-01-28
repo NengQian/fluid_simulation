@@ -32,6 +32,9 @@ public:
 		} else if (mode == 11)
 		{
 			particleFunc.update_boundary_position_watermill(boundary_particles, moving_start_idx, rotation_center, dt, count);
+		} else if (mode == 12)
+		{
+			particleFunc.update_boundary_position_bullet(boundary_particles, moving_start_idx, dt);
 		}
 		set_boundary_positions();
 		neighborSearcher.set_boundary_particles_ptr(boundary_positions);

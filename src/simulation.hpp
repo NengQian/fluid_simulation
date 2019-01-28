@@ -20,6 +20,7 @@
 #include "SPHSimulator_wave_generator.hpp"
 #include "SPHSimulator_moving_dam_break.hpp"
 #include "SPHSimulator_watermill.hpp"
+#include "SPHSimulator_bullet.hpp"
 
 
 #include <string>

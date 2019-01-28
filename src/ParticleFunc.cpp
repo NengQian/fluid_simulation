@@ -107,6 +107,15 @@ void ParticleFunc::update_boundary_position_watermill( std::vector<mParticle>& b
 	}	
 }
 
+void ParticleFunc::update_boundary_position_bullet( std::vector<mParticle>& boundary_particles, int start_idx, Real dt )
+{
+	for (int i=start_idx; i<boundary_particles.size(); ++i)
+	{
+		boundary_particles[i].position += boundary_particles[i].velocity * dt;
+	}		
+}
+
+
 void ParticleFunc::update_velocity( std::vector<mParticle>& particles, Real dt, Eigen::Ref<const RealVector3> a )
 {
 	for (auto& p : particles)
