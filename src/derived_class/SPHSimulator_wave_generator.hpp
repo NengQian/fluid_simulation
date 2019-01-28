@@ -5,8 +5,8 @@
 class SPHSimulator_wave_generator : public SPHSimulator_mobile_rigid_body
 {
 public:
-	SPHSimulator_wave_generator(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH, int solver_type)
-	 : SPHSimulator_mobile_rigid_body(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type)
+	SPHSimulator_wave_generator(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH, int solver_type, int mode)
+	 : SPHSimulator_mobile_rigid_body(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type, mode)
 	{
         generate_particles();
         set_boundary_attribute();
