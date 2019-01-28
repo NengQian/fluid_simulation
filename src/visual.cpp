@@ -332,7 +332,16 @@ namespace Simulator
         // Setting GUI
         if (ImGui::Begin("Setting"))
         {
-        	ImGui::TextColored(ImVec4(1.0f,0.0f,0.0f,1.0f), "Simulation Setting: ");
+            std::string childname;
+            if (solver_type == 0)
+                childname = "WCSPH, ";
+            else if (solver_type == 1)
+                childname = "PBF, ";
+
+            childname += "dt = " + std::to_string(real_time_step);
+            ImGui::BeginChild(childname.c_str(), ImVec2(0, 200), true);
+        	
+            ImGui::TextColored(ImVec4(1.0f,0.0f,0.0f,1.0f), childname.c_str());
             ImGui::TextWrapped("particle number: %d", particles_num);
         	ImGui::TextWrapped("timestep: %0.4f s", real_time_step);
         	ImGui::TextWrapped("eta: %0.1f", eta);
@@ -347,11 +356,12 @@ namespace Simulator
 
         	if (!no_mesh)
         	{
-            	ImGui::TextColored(ImVec4(1.0f,0.0f,0.0f,1.0f), "Rendering Setting: ");
+            	//ImGui::TextColored(ImVec4(1.0f,0.0f,0.0f,1.0f), "Rendering Setting: ");
             	ImGui::TextWrapped("grid size: %0.2f", unit_voxel_length);
             	ImGui::TextWrapped("c: %0.1f", c);
                 ImGui::TextWrapped("grid number: %d", total_grid);
         	}
+            ImGui::EndChild();
         }
         ImGui::End();
     }
