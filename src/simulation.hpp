@@ -17,8 +17,6 @@
 #include "SPHSimulator_drop_center.hpp"
 #include "SPHSimulator_drop_on_water.hpp"
 #include "SPHSimulator_fluid_pillar.hpp"
-#include "SPHSimulator_wave_generator.hpp"
-
 
 #include <string>
 

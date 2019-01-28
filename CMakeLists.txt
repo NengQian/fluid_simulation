@@ -86,8 +86,6 @@ set(DERIVED_CLASS_FILES
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_drop_on_water.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_fluid_pillar.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_pbf.hpp
-    ${DERIVED_CLASS_FOLDER}/SPHSimulator_mobile_rigid_body.hpp
-    ${DERIVED_CLASS_FOLDER}/SPHSimulator_wave_generator.hpp
    
 # when we have new simulation scenero, we do derive it from sphsimulator class, and add file here.
 )

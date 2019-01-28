@@ -61,7 +61,7 @@ public:
     //void update_rigid_body_simulation();
 
     /*-----use cereal output particles to json file-----*/
-    virtual void update_sim_record_state();
+    void update_sim_record_state();
     void output_sim_record_bin(std::string fp);
     void print_all_particles();
    /*------cereal task over----------------------------*/

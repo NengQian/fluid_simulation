@@ -9,7 +9,7 @@ namespace Simulator
 {
     struct SimulationState {
         std :: vector < mParticle > particles ;
-        std :: vector < mParticle > moving_boundary_particles ;
+
 
         SimulationState()
         {
@@ -20,7 +20,6 @@ namespace Simulator
         void serialize( Archive & ar )
         {
             ar(particles);
-            ar(moving_boundary_particles);
         }
     };
 
