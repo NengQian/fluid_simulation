@@ -8,6 +8,9 @@
 
 #include <random>
 #include <cmath>
+#include <iostream>
+#include <cstdlib>
+
 
 using merely3d::renderable;
 using merely3d::Rectangle;
@@ -21,7 +24,7 @@ using merely3d::Particle;
 
 using Eigen::AngleAxisf;
 using Eigen::Vector3f;
-
+using namespace std;
 
 void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
                          Eigen::Ref<RealVector3> v0,
@@ -152,3 +155,50 @@ void ParticleGenerator::generate_rigid_box(std::vector<mParticle>& particles, si
 
     generate_cube(particles, N, o, v_init, N*radius, true, true);
 }
+
+
+    void ParticleGenerator::generate_sphere(std::vector<mParticle>& particles,
+                         Eigen::Ref<RealVector3> v0,
+                         mSphere sp,   // each cuboid contains number of particles per x,y,z. and also origin;
+                         Real radius,
+                         bool do_clear){
+        if (do_clear)
+            if (!particles.empty())
+                particles.clear();
+        Real step_size = 2*radius;
+//        double x_half_extent = step_size*sp.radius_n;
+//        double y_half_extent = step_size*sp.radius_n;
+//        double z_half_extent = step_size*sp.radius_n;
+
+        for (int z=-sp.radius_n; z<sp.radius_n; ++z)
+        {
+            for (int y=-sp.radius_n; y<sp.radius_n; ++y)
+            {
+                for (int x=-sp.radius_n; x<sp.radius_n; ++x)
+                {
+                    // we assume a x,y,z construct a voxel whose edge lengths are all 1;
+                    double x_double = static_cast<double>(x)+0.5;  //take the center of this voxel!!
+                    double y_double = static_cast<double>(y)+0.5;
+                    double z_double = static_cast<double>(z)+0.5;
+                    double dist_sqr = x_double*x_double + y_double*y_double + z_double*z_double;
+                    double sphere_r_sqr = static_cast<double>(sp.radius_n*sp.radius_n);
+                    cout<<"dist_sqr - sphere_r"<< dist_sqr-sphere_r_sqr<<endl;
+                    if(abs(sqrt(dist_sqr) - sqrt(sphere_r_sqr))<=0.75+0.000001) // sqrt(3)/2 , the biggest error in this voxel
+                    {
+                        mParticle p;
+                        Real px = sp.Center[0]+x*step_size+0.5*step_size;
+                        Real py = sp.Center[1]+y*step_size+0.5*step_size;
+                        Real pz = sp.Center[2]+z*step_size+0.5*step_size;
+                        p.position = RealVector3(px,py,pz);
+                        p.mass = step_size * step_size * step_size * 1000.0;
+                        p.velocity[0] = v0[0];
+                        p.velocity[1] = v0[1];
+                        p.velocity[2] = v0[2];
+                        p.density = 0.0;
+                        particles.push_back(p);
+                    }
+                }
+            }
+        }
+        return;
+    }

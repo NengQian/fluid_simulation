@@ -4,6 +4,11 @@
 #include <iostream>
 #include <fstream>
 
+#include <signal.h>
+#include <unistd.h>
+#include <cstring>
+#include <atomic>
+
 #include "simulation.hpp"
 #include <CLI11.hpp>
 #include <string>
@@ -17,6 +22,14 @@
 #include "SPHSimulator_drop_center.hpp"
 
 using namespace std;
+
+////////////////////////////////////////////////////
+std::atomic<bool> quit(false);    // signal flag
+void got_signal(int)
+{
+    quit.store(true);
+}
+/////////////////////////////////////////////////////
 
 int main(int argc, char **argv)
 {
@@ -96,9 +109,14 @@ int main(int argc, char **argv)
     	cout << "solver = PBF" << endl;
     cout << endl;
 
-    //generate_sim_rec(N, mode, total_simulation, step_size, output_file, static_cast<Real>(dt), static_cast<Real>(eta), static_cast<Real>(B), static_cast<Real>(alpha), static_cast<Real>(rest_density), with_viscosity, with_XSPH);
-
-
+    ////////////////////////////////////////////////////////////////
+    // code allow we use ctrl-c to quit the simulation while it still store data.
+    struct sigaction sa;
+    memset( &sa, 0, sizeof(sa) );
+    sa.sa_handler = got_signal;
+    sigfillset(&sa.sa_mask);
+    sigaction(SIGINT,&sa,NULL);
+    //////////////////////////////////////////////////////////////////////////
     // a for loop to generate every thing, and then run...
     Simulation simulation(N, mode, unit_particle_length, dt, eta, B, alpha, rest_density, output_file, false, with_viscosity, with_XSPH, solver_type);
 
@@ -106,8 +124,12 @@ int main(int argc, char **argv)
     {
         simulation.p_sphSimulator->update_simulation();
 
-        if (i % step_size == 0)
+        if (i % step_size == 0){
             simulation.p_sphSimulator->update_sim_record_state();
+            ////////////////////////////////////////////////////////////
+            if( quit.load() ) break;    // exit normally after SIGINT
+            ////////////////////////////////////////////////////////////
+        }
 
         std::cout<<"iteration "<< i <<std::endl;
     }

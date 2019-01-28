@@ -24,6 +24,11 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/xml.hpp>
 
+#include <signal.h>
+#include <unistd.h>
+#include <cstring>
+#include <atomic>
+
 using Eigen::Vector2f;
 using Eigen::Vector3f;
 using Eigen::Quaternionf;
@@ -32,8 +37,18 @@ using Eigen::AngleAxisf;
 using Simulator::Real;
 
 using std::chrono::duration;
-
+using std::cout;
+using std::endl;
 #include <array>
+
+
+////////////////////////////////////////////////////
+std::atomic<bool> quit(false);    // signal flag
+void got_signal(int)
+{
+    quit.store(true);
+}
+/////////////////////////////////////////////////////
 
 int main(int argc, char* argv[])
 {
@@ -86,6 +101,15 @@ int main(int argc, char* argv[])
 
     fluid.count += skip;
 
+    ////////////////////////////////////////////////////////////////
+    // code allow we use ctrl-c to quit the simulation while it still store data.
+    struct sigaction sa;
+    memset( &sa, 0, sizeof(sa) );
+    sa.sa_handler = got_signal;
+    sigfillset(&sa.sa_mask);
+    sigaction(SIGINT,&sa,NULL);
+    //////////////////////////////////////////////////////////////////////////
+
     while (!fluid.end)
     {
         fluid.update_marching_cube();
@@ -104,12 +128,16 @@ int main(int argc, char* argv[])
         ms.meshSeries.push_back(md2);
 
         fluid.count += skip;
+        cout<<"ite "<<fluid.count<<endl;
+        ////////////////////////////////////////////////////////////
+        if( quit.load() ) break;    // exit normally after SIGINT
+        ////////////////////////////////////////////////////////////
     }
 
     std::ofstream os(output_file, std::ios::binary);
     cereal::BinaryOutputArchive archive( os );
 
     archive( ms );
-
+    cout<<"cerealing mesh data!"<<endl;
     return 0;
 }

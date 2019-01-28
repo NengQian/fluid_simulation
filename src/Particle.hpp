@@ -40,6 +40,13 @@ namespace Simulator
         int z_n;
         bool is_hollow;
     };
+
+    class mSphere{
+    public:
+        RealVector3 Center;
+        int radius_n;
+        bool is_hollow;
+    };
 }
 
 
