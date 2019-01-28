@@ -20,6 +20,7 @@ public:
 
 	void update_boundary_position_shm( std::vector<mParticle>& boundary_particles, int start_idx, Real mid, Real amp, Real dt, int iter ); // without XSPH
 	void update_boundary_position_moving_dam_break( std::vector<mParticle>& boundary_particles, int start_idx, Real dt, int iter ); // without XSPH
+	void update_boundary_position_watermill( std::vector<mParticle>& boundary_particles, int start_idx, RealVector3& rotation_center, Real dt, int iter ); // without XSPH
 
 	void update_velocity( std::vector<mParticle>& particles, Real dt, Eigen::Ref<const RealVector3> a); // semi-implicit euler
 	void update_velocity( std::vector<mParticle>& particles, Real dt, std::vector<RealVector3>& as);

@@ -23,10 +23,15 @@ public:
 		set_boundary_attribute();
 		SPHSimulator_rigid_body::update_simulation();
 		if (mode == 9) //wave generator
+		{	
 			particleFunc.update_boundary_position_shm(boundary_particles, moving_start_idx, mid_point, amp, dt, count);
+		}
 		else if (mode == 10) //moving dam break
 		{
 			particleFunc.update_boundary_position_moving_dam_break(boundary_particles, moving_start_idx, dt, count);
+		} else if (mode == 11)
+		{
+			particleFunc.update_boundary_position_watermill(boundary_particles, moving_start_idx, rotation_center, dt, count);
 		}
 		set_boundary_positions();
 		neighborSearcher.set_boundary_particles_ptr(boundary_positions);
@@ -46,6 +51,7 @@ protected:
 	int moving_start_idx;
 	double mid_point;
 	double amp;
+	RealVector3 rotation_center;
 
 	int mode;
 };

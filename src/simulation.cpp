@@ -71,6 +71,9 @@ namespace Simulator
             case 10:
                 p_sphSimulator = new SPHSimulator_moving_dam_break(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type, mode);
                 break;           
+            case 11:
+                p_sphSimulator = new SPHSimulator_watermill(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type, mode);
+                break;       
     		default:
     			std::cout << "Unknown model." << std::endl;
     			break;

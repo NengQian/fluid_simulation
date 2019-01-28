@@ -28,7 +28,11 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
                          mCuboid cuboid,   // each cuboid contains x,y,z number of particles, and origin;
                          Real radius,
                          bool do_clear, 
-                         bool side_open)
+                         bool side_open,
+                         bool rotate,
+                         Real angle,
+                         Real rotation_center_y,
+                         Real rotation_center_z)
 {
     if (do_clear)
         if (!particles.empty())
@@ -79,6 +83,14 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
                 Real x = (i+0.5)*step_size-x_half_extent + cuboid.origin[0];
                 Real y = (j+0.5)*step_size-y_half_extent + cuboid.origin[1];
                 Real z = (k+0.5)*step_size + cuboid.origin[2];
+
+                if (rotate)
+                {
+                    Real rel_y = y-rotation_center_y;
+                    Real rel_z = z-rotation_center_z;
+                    y = cos(angle) * rel_y - sin(angle) * rel_z + rotation_center_y;
+                    z = sin(angle) * rel_y + cos(angle) * rel_z + rotation_center_z;
+                }
 
                 p.position = RealVector3(x,y,z);
                 p.mass = step_size * step_size * step_size * 1000.0;

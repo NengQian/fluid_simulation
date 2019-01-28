@@ -95,6 +95,18 @@ void ParticleFunc::update_boundary_position_moving_dam_break( std::vector<mParti
 	}
 }
 
+void ParticleFunc::update_boundary_position_watermill( std::vector<mParticle>& boundary_particles, int start_idx, RealVector3& rotation_center, Real dt, int iter ) // without XSPH
+{
+	if (iter * dt < 2) return; 
+	Real angle_v = dt;
+	for (int i=start_idx; i<boundary_particles.size(); ++i)
+	{
+		RealVector3 relative_pos = boundary_particles[i].position - rotation_center;
+		boundary_particles[i].position[1] = cos(angle_v) * relative_pos[1] - sin(angle_v) * relative_pos[2] + rotation_center[1];
+		boundary_particles[i].position[2] = sin(angle_v) * relative_pos[1] + cos(angle_v) * relative_pos[2] + rotation_center[2];
+	}	
+}
+
 void ParticleFunc::update_velocity( std::vector<mParticle>& particles, Real dt, Eigen::Ref<const RealVector3> a )
 {
 	for (auto& p : particles)

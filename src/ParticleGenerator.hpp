@@ -34,7 +34,11 @@ public:
                              mCuboid cuboid,   // each cuboid contains number of particles per x,y,z. and also origin;
                              Real radius,
                              bool do_clear=false, 
-                             bool side_open=false);
+                             bool side_open=false,
+                             bool rotate=false,
+                             Real angle=0,
+                             Real rotation_center_y=0,
+                             Real rotation_center_z=0);
 
 private:
 };
