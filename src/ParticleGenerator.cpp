@@ -27,7 +27,8 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
                          Eigen::Ref<RealVector3> v0,
                          mCuboid cuboid,   // each cuboid contains x,y,z number of particles, and origin;
                          Real radius,
-                         bool do_clear)
+                         bool do_clear, 
+                         bool side_open)
 {
     if (do_clear)
         if (!particles.empty())
@@ -58,10 +59,18 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
                         else
                             continue;
                     } else {
-                        if ((k == 0) || (j == 0 || j == max_y_n) || (i == 0 || i == max_x_n))
-                            ;
-                        else
-                            continue;                        
+                        if (side_open)
+                        {
+                            if ((k == 0) || (j == max_y_n) || (i == 0 || i == max_x_n))
+                                ;
+                            else
+                                continue;                                
+                        } else {
+                            if ((k == 0) || (j == 0 || j == max_y_n) || (i == 0 || i == max_x_n))
+                                ;
+                            else
+                                continue;  
+                        }                      
                     }
                 }
 

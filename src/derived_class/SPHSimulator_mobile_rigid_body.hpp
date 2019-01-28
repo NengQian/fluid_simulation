@@ -12,18 +12,22 @@
 class SPHSimulator_mobile_rigid_body : public SPHSimulator_rigid_body
 {
 public:
-    SPHSimulator_mobile_rigid_body(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH, int solver_type)
-	 : SPHSimulator_rigid_body(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type)
+    SPHSimulator_mobile_rigid_body(int N,  Real uParticle_len, Real dt, Real eta, Real B, Real alpha, Real rest_density, int with_viscosity, int with_XSPH, int solver_type, int mode)
+	 : SPHSimulator_rigid_body(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type), mode(mode)
 	{
-        
+
     }
 
     virtual void update_simulation() override
     {
 		set_boundary_attribute();
 		SPHSimulator_rigid_body::update_simulation();
-		particleFunc.update_boundary_position(boundary_particles, moving_start_idx, mid_point, amp, dt, count);
-		
+		if (mode == 9) //wave generator
+			particleFunc.update_boundary_position_shm(boundary_particles, moving_start_idx, mid_point, amp, dt, count);
+		else if (mode == 10) //moving dam break
+		{
+			particleFunc.update_boundary_position_moving_dam_break(boundary_particles, moving_start_idx, dt, count);
+		}
 		set_boundary_positions();
 		neighborSearcher.set_boundary_particles_ptr(boundary_positions);
 		++count;
@@ -42,6 +46,8 @@ protected:
 	int moving_start_idx;
 	double mid_point;
 	double amp;
+
+	int mode;
 };
 
 #endif // SPHSIMULATOR_MOBILE_RIGID_BODY_H

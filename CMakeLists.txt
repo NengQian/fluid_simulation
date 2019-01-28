@@ -88,6 +88,7 @@ set(DERIVED_CLASS_FILES
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_pbf.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_mobile_rigid_body.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_wave_generator.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_moving_dam_break.hpp
    
 # when we have new simulation scenero, we do derive it from sphsimulator class, and add file here.
 )

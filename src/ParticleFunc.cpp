@@ -76,12 +76,22 @@ void ParticleFunc::update_density(std::vector<std::vector<size_t>>& neighbors_of
 	}
 }
 
-void ParticleFunc::update_boundary_position( std::vector<mParticle>& boundary_particles, int start_idx, Real mid, Real amp, Real dt, int iter ) // without XSPH
+void ParticleFunc::update_boundary_position_shm( std::vector<mParticle>& boundary_particles, int start_idx, Real mid, Real amp, Real dt, int iter ) // without XSPH
 {
-	if (dt * iter <= 0.1) return;
+	if (dt * iter <= 0.01) return;
 	for (int i=start_idx; i<boundary_particles.size(); ++i)
 	{
 		boundary_particles[i].position[1] = mid + amp * (cos(0.25*M_PI*(dt*iter-0.1)));
+	}
+}
+
+void ParticleFunc::update_boundary_position_moving_dam_break( std::vector<mParticle>& boundary_particles, int start_idx, Real dt, int iter ) // without XSPH
+{
+	if (dt * iter <= 1.) return;
+	if (boundary_particles[start_idx].position[2] > boundary_particles[boundary_particles.size()-1].position[2] - boundary_particles[start_idx].position[2]) return;
+	for (int i=start_idx; i<boundary_particles.size(); ++i)
+	{
+		boundary_particles[i].position[2] += dt;
 	}
 }
 

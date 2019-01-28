@@ -33,7 +33,8 @@ public:
                              Eigen::Ref<RealVector3> v0,
                              mCuboid cuboid,   // each cuboid contains number of particles per x,y,z. and also origin;
                              Real radius,
-                             bool do_clear=false);
+                             bool do_clear=false, 
+                             bool side_open=false);
 
 private:
 };

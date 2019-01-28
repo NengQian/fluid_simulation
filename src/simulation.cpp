@@ -66,8 +66,11 @@ namespace Simulator
                 p_sphSimulator = new SPHSimulator_fluid_pillar(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type);
                 break;
             case 9:
-                p_sphSimulator = new SPHSimulator_wave_generator(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type);
-                break;            
+                p_sphSimulator = new SPHSimulator_wave_generator(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type, mode);
+                break;    
+            case 10:
+                p_sphSimulator = new SPHSimulator_moving_dam_break(N, uParticle_len, dt, eta, B, alpha, rest_density, with_viscosity, with_XSPH, solver_type, mode);
+                break;           
     		default:
     			std::cout << "Unknown model." << std::endl;
     			break;
