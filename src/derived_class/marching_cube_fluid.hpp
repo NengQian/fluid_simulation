@@ -323,6 +323,7 @@ protected:
         size_t i = 0;
         for(auto it = mesh_vertex_vector.begin(); it != mesh_vertex_vector.end(); ++it)
         {
+            it->normal = Vector3f(0.0f, 0.0f, 0.0f);
             for (size_t j=0; j<neighbor_indices[i].size(); ++j)
             {
                 size_t idx = neighbor_indices[i][j];
