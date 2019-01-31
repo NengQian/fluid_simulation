@@ -35,8 +35,6 @@ void marching_cube::compute_vertices_phi(){
 
 marching_cube::marching_cube(float unit_length):unit_voxel_length(unit_length)
 {
-    // make it always be even number and a little bit bigger than defined, why??
-
     voxelx_n = static_cast<size_t>(total_x_length/unit_voxel_length);
     voxely_n = static_cast<size_t>(total_y_length/unit_voxel_length);
     voxelz_n = static_cast<size_t>(total_z_length/unit_voxel_length);
@@ -45,6 +43,9 @@ marching_cube::marching_cube(float unit_length):unit_voxel_length(unit_length)
     voxel_verticesy_n = voxely_n+1;
     voxel_verticesz_n = voxelz_n+1;
     voxel_vertices.reserve(voxel_verticesx_n*voxel_verticesy_n*voxel_verticesz_n);
+    edges_vector_x.reserve(voxelx_n*(voxely_n+1)*(voxelz_n+1));
+    edges_vector_y.reserve((voxelx_n+1)*voxely_n*(voxelz_n+1));
+    edges_vector_z.reserve((voxelx_n+1)*(voxely_n+1)*voxelz_n);
 
 
     cout<<"size of mvoxel_vertex "<<sizeof(mVoxel_vertex)<<endl;
@@ -66,12 +67,17 @@ void marching_cube::start_marching_cube(){
     this->initialize_vertices();
     this->compute_vertices_phi(); // for each vertices, compute its phi value
     this->mark_vertices();
+    this->initialize_edges();
     this->initialize_voxels();
     this->generate_bitcode();
     //
     this->bitcode_to_mesh_vertices();
 
     cout<<"total memeory for mvoxel_vertex is "<<sizeof(mVoxel_vertex)*voxel_vertices.size()<<endl;
+    cout<<"total memeory for mvoxel_edge is "<<sizeof(mVoxel_edge)*(  edges_vector_x.size()
+                                                                    + edges_vector_y.size()
+                                                                    + edges_vector_z.size()) << endl;
+
     cout<<"total memeory for mvoxel is "<<sizeof(mVoxel)*voxels.size()<<endl;
     cout<<"total memeory for mesh_vertex is "<<sizeof(mMesh_vertex)*mesh_vertex_vector.size()<<endl;
     cout<<"total memeory for mesh_triangle is "<<sizeof(mMesh_triangle)*mesh_triangle_vector.size()<<endl;
@@ -82,7 +88,6 @@ void marching_cube::start_marching_cube(){
 
 void marching_cube::output_marching_vertices(std::vector<float>& output_vertices){
     // now assign mesh_vertex_vector to output vertex
-    size_t len = mesh_vertex_vector.size();
 
     // wtf ...
     //if (output_vertices.empty())
@@ -102,7 +107,6 @@ void marching_cube::output_marching_vertices(std::vector<float>& output_vertices
 
 void marching_cube::output_marching_vertices_and_normals(std::vector<float>& output_vertices_and_normals){
     // now assign mesh vertex and its normal to output
-    size_t len = mesh_vertex_vector.size();
 
 
     //if (output_vertices_and_normals.empty())
@@ -127,7 +131,6 @@ void marching_cube::output_marching_vertices_and_normals(std::vector<float>& out
 
 void marching_cube::output_marching_indices(std::vector<unsigned int>& output_indices){
     // now assign mesh_triangle_vector to output triangle
-    size_t len = mesh_triangle_vector.size();
 
     //if (output_indices.empty())
     //	output_indices.reserve(len*3);
@@ -194,20 +197,21 @@ void marching_cube::bitcode_to_mesh_vertices(){
                 break; // if we see the -1, means we already read all triangle in this voxel
             else
             {
+                 //mVoxel& vv = *it;
+                mVoxel_edge& edge1 = *(it->voxel_edges_ptrs[cur_voxel_lut[j]]);
+                mVoxel_edge& edge2 = *(it->voxel_edges_ptrs[cur_voxel_lut[j+1]]);
+                mVoxel_edge& edge3 = *(it->voxel_edges_ptrs[cur_voxel_lut[j+2]]);
 
-                 mVoxel_edge& edge1 = it->voxel_edges[cur_voxel_lut[j]];
-                 mVoxel_edge& edge2 = it->voxel_edges[cur_voxel_lut[j+1]];
-                 mVoxel_edge& edge3 = it->voxel_edges[cur_voxel_lut[j+2]];
+               // compute postion for insect vertiecs, accroding 3 edges
+                insect_vertex_to_edges(edge1);
+                insect_vertex_to_edges(edge2);
+                insect_vertex_to_edges(edge3);
 
-                // compute postion for insect vertiecs, accroding 3 edges
-                 insect_vertex_to_edges(edge1);
-                 insect_vertex_to_edges(edge2);
-                 insect_vertex_to_edges(edge3);
 
-                 // form triangle by using these 3 vertex in these 3 edges;
-                 mMesh_vertex* v1 = edge1.meshVertexptr;
-                 mMesh_vertex* v2 = edge2.meshVertexptr;
-                 mMesh_vertex* v3 = edge3.meshVertexptr;
+                // form triangle by using these 3 vertex in these 3 edges;
+                mMesh_vertex* v1 = edge1.meshVertexptr;
+                mMesh_vertex* v2 = edge2.meshVertexptr;
+                mMesh_vertex* v3 = edge3.meshVertexptr;
 
                  // about the count-clock wise ??  I think the count-clock wise is according to the normal direction..
                  mMesh_triangle mt;
@@ -322,42 +326,23 @@ void marching_cube::initialize_voxels()
 
                 if(is_useful_voxel)
                 {//only store useful voxel
-                    v.voxel_edges[0].vertex1_ptr = v.vertex_ptrs[0];
-                    v.voxel_edges[0].vertex2_ptr = v.vertex_ptrs[1];
+                    size_t voxel_index_x = x+y*voxelx_n+z*voxelx_n*voxel_verticesy_n;
+                    v.voxel_edges_ptrs[0] = &edges_vector_x[voxel_index_x];
+                    v.voxel_edges_ptrs[2] = &edges_vector_x[voxel_index_x + voxelx_n];
+                    v.voxel_edges_ptrs[4] = &edges_vector_x[voxel_index_x + voxelx_n*(voxely_n+1)];
+                    v.voxel_edges_ptrs[6] = &edges_vector_x[voxel_index_x + voxelx_n*(voxely_n+1) + voxelx_n];
 
-                    v.voxel_edges[1].vertex1_ptr = v.vertex_ptrs[1];
-                    v.voxel_edges[1].vertex2_ptr = v.vertex_ptrs[2];
+                    size_t voxel_index_y = x+y*voxel_verticesx_n+z*voxely_n*voxel_verticesx_n;
+                    v.voxel_edges_ptrs[3] = &edges_vector_y[voxel_index_y];
+                    v.voxel_edges_ptrs[1] = &edges_vector_y[voxel_index_y+1];
+                    v.voxel_edges_ptrs[5] = &edges_vector_y[voxel_index_y+1 + (voxelx_n+1)*voxely_n ];
+                    v.voxel_edges_ptrs[7] = &edges_vector_y[voxel_index_y+ (voxelx_n+1)*voxely_n ];
 
-                    v.voxel_edges[2].vertex1_ptr = v.vertex_ptrs[2];
-                    v.voxel_edges[2].vertex2_ptr = v.vertex_ptrs[3];
-
-                    v.voxel_edges[3].vertex1_ptr = v.vertex_ptrs[3];
-                    v.voxel_edges[3].vertex2_ptr = v.vertex_ptrs[0];
-
-                    v.voxel_edges[4].vertex1_ptr = v.vertex_ptrs[4];
-                    v.voxel_edges[4].vertex2_ptr = v.vertex_ptrs[5];
-
-                    v.voxel_edges[5].vertex1_ptr = v.vertex_ptrs[5];
-                    v.voxel_edges[5].vertex2_ptr = v.vertex_ptrs[6];
-
-                    v.voxel_edges[6].vertex1_ptr = v.vertex_ptrs[6];
-                    v.voxel_edges[6].vertex2_ptr = v.vertex_ptrs[7];
-
-                    v.voxel_edges[7].vertex1_ptr = v.vertex_ptrs[7];
-                    v.voxel_edges[7].vertex2_ptr = v.vertex_ptrs[4];
-
-                    v.voxel_edges[8].vertex1_ptr = v.vertex_ptrs[0];
-                    v.voxel_edges[8].vertex2_ptr = v.vertex_ptrs[4];
-
-                    v.voxel_edges[9].vertex1_ptr = v.vertex_ptrs[5];
-                    v.voxel_edges[9].vertex2_ptr = v.vertex_ptrs[1];
-
-                    v.voxel_edges[10].vertex1_ptr = v.vertex_ptrs[6];
-                    v.voxel_edges[10].vertex2_ptr = v.vertex_ptrs[2];
-
-                    v.voxel_edges[11].vertex1_ptr = v.vertex_ptrs[3];
-                    v.voxel_edges[11].vertex2_ptr = v.vertex_ptrs[7];
-
+                    size_t voxel_index_z = x+y*voxel_verticesx_n+z*voxel_verticesy_n*voxel_verticesx_n;
+                    v.voxel_edges_ptrs[8] = &edges_vector_z[voxel_index_z];
+                    v.voxel_edges_ptrs[9] = &edges_vector_z[voxel_index_z+1];
+                    v.voxel_edges_ptrs[10] = &edges_vector_z[voxel_index_z+1+voxelx_n+1];
+                    v.voxel_edges_ptrs[11] = &edges_vector_z[voxel_index_z+voxelx_n+1];
                     voxels.push_back(v);
                 }
             }
@@ -399,5 +384,82 @@ void marching_cube::initialize_vertices(){
         }
     }
     return;
+}
+
+
+void marching_cube::initialize_edges(){
+    if(voxel_vertices.empty())
+    {
+        cout<<"Oppps! voxel_vertices is empty, you should at first initialize_vertices"<<endl;
+        return;
+    }
+    // first initialize all edge along x axis
+    if(!edges_vector_x.empty())
+    {
+        edges_vector_x.clear();
+        edges_vector_x.reserve(voxelx_n*(voxely_n+1)*(voxelz_n+1));
+    }
+
+    for (size_t k=0; k<voxelz_n+1; ++k) // note, for edges paralel with x axis, its number at y and z is the same as vertice
+    {
+        for (size_t j=0; j<voxely_n+1; ++j)
+        {
+            for (size_t i=0; i<voxelx_n; ++i)
+            {
+                mVoxel_edge edge;
+                edge.has_mesh_vertex = false;
+                size_t vertex_index = i + j*voxel_verticesx_n + k*voxel_verticesx_n*voxel_verticesy_n;
+                edge.vertex1_ptr = &voxel_vertices[vertex_index];
+                edge.vertex2_ptr = &voxel_vertices[vertex_index+1];
+                edges_vector_x.push_back(edge);
+            }
+        }
+    }
+
+    // initialized all edge along y axis
+    if(!edges_vector_y.empty())
+    {
+        edges_vector_y.clear();
+        edges_vector_y.reserve((voxelx_n+1)*voxely_n*(voxelz_n+1));
+    }
+    for (size_t k=0; k<voxelz_n+1; ++k)
+    {
+        for (size_t j=0; j<voxely_n; ++j)
+        {
+            for (size_t i=0; i<voxelx_n+1; ++i)
+            {
+                mVoxel_edge edge;
+                edge.has_mesh_vertex = false;
+                size_t vertex_index = i + j*voxel_verticesx_n + k*voxel_verticesx_n*voxel_verticesy_n;
+                edge.vertex1_ptr = &voxel_vertices[vertex_index];
+                edge.vertex2_ptr = &voxel_vertices[vertex_index+1*voxel_verticesx_n];
+                edges_vector_y.push_back(edge);
+            }
+        }
+    }
+
+    // initialized all edge along z axis
+    if(!edges_vector_z.empty())
+    {
+        edges_vector_z.clear();
+        edges_vector_z.reserve((voxelx_n+1)*(voxely_n+1)*voxelz_n);
+    }
+    for (size_t k=0; k<voxelz_n; ++k)
+    {
+        for (size_t j=0; j<voxely_n+1; ++j)
+        {
+            for (size_t i=0; i<voxelx_n+1; ++i)
+            {
+                mVoxel_edge edge;
+                edge.has_mesh_vertex = false;
+                size_t vertex_index = i + j*voxel_verticesx_n + k*voxel_verticesx_n*voxel_verticesy_n;
+                edge.vertex1_ptr = &voxel_vertices[vertex_index];
+                edge.vertex2_ptr = &voxel_vertices[vertex_index+voxel_verticesx_n*voxel_verticesy_n];
+                edges_vector_z.push_back(edge);
+            }
+        }
+    }
+
+
 }
 

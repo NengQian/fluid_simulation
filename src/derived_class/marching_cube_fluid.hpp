@@ -80,49 +80,50 @@ public:
 
 	virtual void bitcode_to_mesh_vertices() override
 	{
-		if (!mesh_vertex_vector.empty())
-			mesh_vertex_vector.clear();
+//		if (!mesh_vertex_vector.empty())
+//			mesh_vertex_vector.clear();
 
-		if (!mesh_triangle_vector.empty())
-			mesh_triangle_vector.clear();
+//		if (!mesh_triangle_vector.empty())
+//			mesh_triangle_vector.clear();
 
-	    for(auto it = voxels.begin(); it!=voxels.end();++it)
-	    {
-	        const char* cur_voxel_lut = marching_cubes_lut[it->bitcode];
+//	    for(auto it = voxels.begin(); it!=voxels.end();++it)
+//	    {
+//	        const char* cur_voxel_lut = marching_cubes_lut[it->bitcode];
 
-	        for(size_t j = 0; j < 16; j=j+3) //because in the marching_cubes_lut is 256*16
-	                                            // j = j+3, because 3 entries build a triangle
-	        {
-	            if(cur_voxel_lut[j]==-1)
-	                break; // if we see the -1, means we already read all triangle in this voxel
-	            else
-	            {
+//	        for(size_t j = 0; j < 16; j=j+3) //because in the marching_cubes_lut is 256*16
+//	                                            // j = j+3, because 3 entries build a triangle
+//	        {
+//	            if(cur_voxel_lut[j]==-1)
+//	                break; // if we see the -1, means we already read all triangle in this voxel
+//	            else
+//	            {
 
-	                 mVoxel_edge& edge1 = it->voxel_edges[cur_voxel_lut[j]];
-	                 mVoxel_edge& edge2 = it->voxel_edges[cur_voxel_lut[j+1]];
-	                 mVoxel_edge& edge3 = it->voxel_edges[cur_voxel_lut[j+2]];
+//                     mVoxel_edge& edge1 = *(it->voxel_edges_ptrs[cur_voxel_lut[j]]);
+//                     mVoxel_edge& edge2 = *(it->voxel_edges_ptrs[cur_voxel_lut[j+1]]);
+//                     mVoxel_edge& edge3 = *(it->voxel_edges_ptrs[cur_voxel_lut[j+2]]);
 
-	                // compute postion for insect vertiecs, accroding 3 edges
-	                 insect_vertex_to_edges(edge1);
-	                 insect_vertex_to_edges(edge2);
-	                 insect_vertex_to_edges(edge3);
+//	                // compute postion for insect vertiecs, accroding 3 edges
+//	                 insect_vertex_to_edges(edge1);
+//	                 insect_vertex_to_edges(edge2);
+//	                 insect_vertex_to_edges(edge3);
 
 
-	                 // form triangle by using these 3 vertex in these 3 edges;
-	                 mMesh_vertex* v1 = edge1.meshVertexptr;
-	                 mMesh_vertex* v2 = edge2.meshVertexptr;
-	                 mMesh_vertex* v3 = edge3.meshVertexptr;
+//	                 // form triangle by using these 3 vertex in these 3 edges;
+//	                 mMesh_vertex* v1 = edge1.meshVertexptr;
+//	                 mMesh_vertex* v2 = edge2.meshVertexptr;
+//	                 mMesh_vertex* v3 = edge3.meshVertexptr;
 
-	                 // about the count-clock wise ??  I think the count-clock wise is according to the normal direction..
-	                 mMesh_triangle mt;
-	                 mt.vertex_ids[0] = v1->id;
-	                 mt.vertex_ids[1] = v2->id;
-	                 mt.vertex_ids[2] = v3->id;
+//	                 // about the count-clock wise ??  I think the count-clock wise is according to the normal direction..
+//	                 mMesh_triangle mt;
+//	                 mt.vertex_ids[0] = v1->id;
+//	                 mt.vertex_ids[1] = v2->id;
+//	                 mt.vertex_ids[2] = v3->id;
 
-	                 mesh_triangle_vector.push_back(mt);
-	            }
-	        }
-	    }
+//	                 mesh_triangle_vector.push_back(mt);
+//	            }
+//	        }
+//	    }
+        marching_cube::bitcode_to_mesh_vertices();
 
 	    // prepare data for further neighbor search (and further for normal computation)
 	    std::vector<RealVector3> mesh_vertex_pos;

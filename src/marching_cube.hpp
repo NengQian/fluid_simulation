@@ -46,7 +46,7 @@ typedef struct mVoxelEdge mVoxel_edge;
 
 struct mVoxel{
     std::array<mVoxel_vertex *,8> vertex_ptrs;  // each voxel has 8 vertices
-    std::array<mVoxel_edge, 12> voxel_edges;
+    std::array<mVoxel_edge *, 12> voxel_edges_ptrs;
     unsigned int bitcode;
 };
 typedef struct mVoxel mVoxel;
@@ -82,19 +82,23 @@ public:
     void output_marching_vertices_and_normals(std::vector<float>& output_vertices_and_normals);
 
 
+
 protected:
 
 
-    // vertices number along 3 axise;
+    // vertices number along 3 axis;
     size_t voxel_verticesx_n;
     size_t voxel_verticesy_n;
     size_t voxel_verticesz_n;
+
+
 
     // private method, which only used by internal.
     virtual void compute_vertex_normal(const Vector3f& vertex, Vector3f& normal) = 0;
     virtual void compute_vertices_phi() = 0;
     void initialize_vertices();
     void initialize_voxels();
+    void initialize_edges();
     void mark_vertices();
     void generate_bitcode();
     virtual void bitcode_to_mesh_vertices();
@@ -104,6 +108,11 @@ protected:
 
     std::vector<mVoxel_vertex> voxel_vertices;
     std::list<mVoxel> voxels;
+    std::vector<mVoxel_edge> edges_vector_x;
+    std::vector<mVoxel_edge> edges_vector_y;
+    std::vector<mVoxel_edge> edges_vector_z;
+
+
 
     // store internel triangle face and mesh vertex
     std::list<mMesh_vertex> mesh_vertex_vector;
