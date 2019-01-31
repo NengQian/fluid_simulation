@@ -402,7 +402,7 @@ protected:
 
     virtual void compute_vertex_normal(const Vector3f& vertex, Vector3f& normal) override
     {
-
+        // since we cannot directly use this to compute know, so we just override and make it empty,
     }
 
     virtual void compute_vertices_phi() override
