@@ -53,77 +53,10 @@ public:
 	    particle_positions.shrink_to_fit();
 	}
 
-	virtual void insect_vertex_to_edges( mVoxel_edge& edge) override
-	{
-	    if (edge.has_mesh_vertex)  // if this edge already has a vertex, do nothing but return directly
-	        return;
-	    else{
-	        unsigned int len = mesh_vertex_vector.size();
-	        unsigned int vertex_id = len;
-
-	        // compute its postion, now we just use midpoint
-	        //Vector3f vertex_pos = (edge.vertex1_ptr->position + edge.vertex2_ptr->position)/2.0f;
-
-	        // use linear interpolate
-	        Vector3f vertex_pos;
-	        linear_interpolate_vertex_pos(*(edge.vertex1_ptr), *(edge.vertex2_ptr), vertex_pos);
-
-	        Vector3f vertex_normal(0.0f, 0.0f, 0.0f);
-
-	        mMesh_vertex mv(vertex_pos,vertex_normal,vertex_id);
-	        mesh_vertex_vector.push_back(mv);
-	        edge.meshVertexptr = &(mesh_vertex_vector.back()); // note in vector index is from 0.
-	        edge.has_mesh_vertex = true;
-	    }
-	    return;
-	}
 
 	virtual void bitcode_to_mesh_vertices() override
 	{
-//		if (!mesh_vertex_vector.empty())
-//			mesh_vertex_vector.clear();
-
-//		if (!mesh_triangle_vector.empty())
-//			mesh_triangle_vector.clear();
-
-//	    for(auto it = voxels.begin(); it!=voxels.end();++it)
-//	    {
-//	        const char* cur_voxel_lut = marching_cubes_lut[it->bitcode];
-
-//	        for(size_t j = 0; j < 16; j=j+3) //because in the marching_cubes_lut is 256*16
-//	                                            // j = j+3, because 3 entries build a triangle
-//	        {
-//	            if(cur_voxel_lut[j]==-1)
-//	                break; // if we see the -1, means we already read all triangle in this voxel
-//	            else
-//	            {
-
-//                     mVoxel_edge& edge1 = *(it->voxel_edges_ptrs[cur_voxel_lut[j]]);
-//                     mVoxel_edge& edge2 = *(it->voxel_edges_ptrs[cur_voxel_lut[j+1]]);
-//                     mVoxel_edge& edge3 = *(it->voxel_edges_ptrs[cur_voxel_lut[j+2]]);
-
-//	                // compute postion for insect vertiecs, accroding 3 edges
-//	                 insect_vertex_to_edges(edge1);
-//	                 insect_vertex_to_edges(edge2);
-//	                 insect_vertex_to_edges(edge3);
-
-
-//	                 // form triangle by using these 3 vertex in these 3 edges;
-//	                 mMesh_vertex* v1 = edge1.meshVertexptr;
-//	                 mMesh_vertex* v2 = edge2.meshVertexptr;
-//	                 mMesh_vertex* v3 = edge3.meshVertexptr;
-
-//	                 // about the count-clock wise ??  I think the count-clock wise is according to the normal direction..
-//	                 mMesh_triangle mt;
-//	                 mt.vertex_ids[0] = v1->id;
-//	                 mt.vertex_ids[1] = v2->id;
-//	                 mt.vertex_ids[2] = v3->id;
-
-//	                 mesh_triangle_vector.push_back(mt);
-//	            }
-//	        }
-//	    }
-        marching_cube::bitcode_to_mesh_vertices();
+       marching_cube::bitcode_to_mesh_vertices();
 
 	    // prepare data for further neighbor search (and further for normal computation)
 	    std::vector<RealVector3> mesh_vertex_pos;
@@ -195,35 +128,17 @@ public:
 
 		pf.update_density(tmp_n, current_particles, search_radius);
 
-		/*
-		for (size_t i=0; i<neighbor_indices.size(); ++i)
-		{
-			std::cout << "neighbor of " << i << std::endl;
-			for (size_t j=0; j<neighbor_indices[i].size(); ++j)
-				std::cout << j << " << ";
-
-			std::cout << std::endl;
-		}
-		*/
-
-		//std::cout << "22222" << std::endl;
-
-
         size_t len = voxel_vertices.size();
         for (size_t i=0; i<len; ++i)
         {
-        	//std::cout << "i = " << i << std::endl;
         	RealVector3 grid_vertex = grid_position[i];
 
     		voxel_vertices[i].phi = -c;
 
-    		//std::cout << "33333" << std::endl;
 
         	for (size_t j=0; j<neighbor_indices[i].size(); ++j)
         	{
-            	//std::cout << "j = " << j << std::endl;
 
-        		//std::cout << "44444" << std::endl;
 
         		int idx = neighbor_indices[i][j];
 
@@ -231,7 +146,6 @@ public:
 
         		voxel_vertices[i].phi += p.mass / p.density * kh.compute_kernel(grid_vertex, p.position);
 
-        		//std::cout << "55555" << std::endl;
 
         	}
 
@@ -244,11 +158,11 @@ public:
     {
 		pick_up_particles();
         initialize_vertices();
-
         save_grid_position();
 		
         compute_vertices_phi(); // for each vertices, compute its phi value
         mark_vertices();
+        initialize_edges();
         initialize_voxels();
         generate_bitcode();
 
@@ -269,6 +183,7 @@ public:
 
     	compute_vertices_phi(); // for each vertices, compute its phi value
     	mark_vertices();
+        initialize_edges();
     	initialize_voxels();
     	generate_bitcode();
         //
@@ -336,12 +251,10 @@ public:
     	if (count >= particles_series.size())
     	{
     		end = true;
-        	//std::cout << "end" << std::endl;
         	return;
     	}
 
     	current_particles = particles_series[count];
-    	//std::cout << "count = " << count << std::endl;
     }
 
     void update_grid_size()
@@ -396,15 +309,6 @@ public:
 
 		update_voxel();
 
-		/*
-		std::cout << "in update" << std::endl;
-
-		std::cout << "total_x_length = " << total_x_length << std::endl;
-		std::cout << "total_y_length = " << total_y_length << std::endl;
-		std::cout << "total_z_length = " << total_z_length << std::endl;
-
-		std::cout << "ori = (" << origin[0] << "," << origin[1] << "," << origin[2] << ")" << std::endl;
-		*/
     }
 
     void set_grid_size()
@@ -454,15 +358,6 @@ public:
 		origin = Vector3f(static_cast<float>(max_x_unit+min_x_unit)*0.5f, static_cast<float>(max_y_unit+min_y_unit)*0.5f, static_cast<float>(min_z_unit));
 
 		update_voxel();
-		/*
-		std::cout << "in set" << std::endl;
-
-		std::cout << "total_x_length = " << total_x_length << std::endl;
-		std::cout << "total_y_length = " << total_y_length << std::endl;
-		std::cout << "total_z_length = " << total_z_length << std::endl;
-
-		std::cout << "ori = (" << origin[0] << "," << origin[1] << "," << origin[2] << ")" << std::endl;
-		*/
     }
 
     void update_voxel()
@@ -474,7 +369,6 @@ public:
 	    voxel_verticesx_n = voxelx_n+1;
 	    voxel_verticesy_n = voxely_n+1;
 	    voxel_verticesz_n = voxelz_n+1;
-	    //voxel_vertices.reserve(voxel_verticesx_n*voxel_verticesy_n*voxel_verticesz_n);
     }
 
 protected:
@@ -496,7 +390,6 @@ protected:
 
     void save_grid_position()
     {
-    	//std::cout << "in grid setting" << std::endl;
 
     	if (!grid_position.empty())
     		grid_position.clear();
@@ -536,7 +429,6 @@ protected:
 
     	for (int i=0; i<simData.total_frame_num; ++i)
     	{
-    		//std::vector<mParticle> ps = simData.sim_rec.states[i].particles;
 
 			std::vector<mParticle> ps;
 			std::vector<mParticle> dps;
@@ -551,7 +443,6 @@ protected:
 
     		particles_series.push_back(ps);
 			discarded_particles_series.push_back(dps);
-			//std::cout << "vector size: " << discarded_particles_series.size() << std::endl;
     	}
     }
 };
