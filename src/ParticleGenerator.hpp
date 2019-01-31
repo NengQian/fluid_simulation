@@ -34,6 +34,11 @@ public:
                              mCuboid cuboid,   // each cuboid contains number of particles per x,y,z. and also origin;
                              Real radius,
                              bool do_clear=false);
+    void generate_sphere(std::vector<mParticle>& particles,
+                         Eigen::Ref<RealVector3> v0,
+                         mSphere sp,   // each cuboid contains number of particles per x,y,z. and also origin;
+                         Real radius,
+                         bool do_clear=false);
 
 private:
 };
