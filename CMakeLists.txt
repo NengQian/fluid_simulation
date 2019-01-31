@@ -30,7 +30,7 @@ add_subdirectory(extern/CompactNSearch)
 set(TINY_OBJ_LOADER_INCLUDE ${CMAKE_SOURCE_DIR}/extern/tinyobjloader/include)
 
 set(CLI11_FILES
-		${PROJECT_SOURCE_DIR}/extern/CLI11/include/CLI11/CLI11.hpp)
+	${PROJECT_SOURCE_DIR}/extern/CLI11/include/CLI11/CLI11.hpp)
 
 set(IMGUI_FILES
         src/imgui/imgui.h
@@ -85,14 +85,13 @@ set(DERIVED_CLASS_FILES
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_drop_center.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_drop_on_water.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_fluid_pillar.hpp
-    ${DERIVED_CLASS_FOLDER}/SPHSimulator_pbf.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_mid_column.hpp
    
 # when we have new simulation scenero, we do derive it from sphsimulator class, and add file here.
 )
 
 set(VISUAL_SOURCE_FILES
-		${CLI11_FILES}
+	${CLI11_FILES}
         ${IMGUI_FILES}
         ${UTIL_FILES}
         src/math_types.hpp
@@ -109,12 +108,6 @@ set(VISUAL_SOURCE_FILES
 add_library(simulator_lib STATIC ${SOURCE_FILES} ${DERIVED_CLASS_FILES})
 target_link_libraries(simulator_lib merely3d CompactNSearch)
 target_include_directories(simulator_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_OBJ_LOADER_INCLUDE} ${CEREALS_ROOT} ${CLI11_ROOT} ${DERIVED_CLASS_FOLDER})
-
-# simulator is our visualization node.
-add_executable(simulator src/main.cpp)
-target_link_libraries(simulator simulator_lib )
-target_include_directories(simulator PRIVATE ${CEREALS_ROOT} ${CLI11_ROOT})
-
 
 add_library(sim_visual_lib STATIC ${VISUAL_SOURCE_FILES} )
 target_link_libraries(sim_visual_lib merely3d CompactNSearch)
@@ -173,18 +166,9 @@ add_executable(test_marching_cube src/test_marching_cube.cpp)
 target_link_libraries(test_marching_cube marching_cube_lib)
 #target_include_directories(test_marching_cube PUBLIC ${CMAKE_SOURCE_DIR}/src )
 
-
-add_executable(fluid_rendering_preview src/render_preview.cpp)
-target_link_libraries(fluid_rendering_preview CompactNSearch merely3d  simulator_lib marching_cube_lib)
-target_include_directories(fluid_rendering_preview PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
-
 add_executable(save_fluid_mesh src/save_fluid_mesh.cpp)
 target_link_libraries(save_fluid_mesh CompactNSearch merely3d  simulator_lib marching_cube_lib)
 target_include_directories(save_fluid_mesh PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
-
-add_executable(display_fluid_mesh src/display_fluid_mesh.cpp)
-target_link_libraries(display_fluid_mesh CompactNSearch merely3d  simulator_lib marching_cube_lib)
-target_include_directories(display_fluid_mesh PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
 
 add_executable(output_bounding_box src/output_bounding_box_info.cpp)
 target_link_libraries(output_bounding_box CompactNSearch merely3d  simulator_lib marching_cube_lib)

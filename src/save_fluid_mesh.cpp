@@ -60,6 +60,9 @@ int main(int argc, char* argv[])
 
     const int skip = 1;
 
+    double c = 0.6;
+    CLIapp.add_option("-c", c, "estimated surface density");
+
     CLIapp.option_defaults()->required();
 
     std::string input_file;
@@ -67,9 +70,6 @@ int main(int argc, char* argv[])
 
     std::string output_file;
     CLIapp.add_option("-o, --output_file", output_file, "path to output cerealed mesh file");
-
-    double c;
-    CLIapp.add_option("-c", c, "estimated surface density");
 
     try {
         CLIapp.parse(argc, argv);
