@@ -152,3 +152,55 @@ TEST_CASE( "M6 Kernels is integrated", "[M6 Kernel Integration]" ) {
 	}
 }
 
+TEST_CASE( "Gradient of M4 Kernels are computed", "[M4 Kernel Gradient]" ) {
+
+	KernelHandler kh(2.0);
+	int N = 100;
+
+	for (int i=0; i<N; ++i)
+	{
+		double x = static_cast<double>(2.0*i/N+1.0/N);
+		SECTION( "when q is " + std::to_string(x) ) {
+			RealVector3 s(x, 0.0, 0.0);
+			RealVector3 d(0.0, 0.0, 0.0);
+
+	    	REQUIRE( std::abs(kh.test_gradient(s, d, 4)) <= error );
+		}
+	}
+}
+
+TEST_CASE( "Gradient of M5 Kernels are computed", "[M5 Kernel Gradient]" ) {
+
+	KernelHandler kh(2.5);
+
+	int N = 100;
+
+	for (int i=0; i<N; ++i)
+	{
+		double x = static_cast<double>(2.5*i/N+2.5/2.0/N);
+		SECTION( "when q is " + std::to_string(x) ) {
+			RealVector3 s(x, 0.0, 0.0);
+			RealVector3 d(0.0, 0.0, 0.0);
+
+	    	REQUIRE( std::abs(kh.test_gradient(s, d, 5)) <= error );
+		}
+	}
+}
+
+TEST_CASE( "Gradient of M6 Kernels are computed", "[M6 Kernel Gradient]" ) {
+
+	KernelHandler kh(3.0);
+
+	int N = 100;
+
+	for (int i=0; i<N; ++i)
+	{
+		double x = static_cast<double>(3.0*i/N+3.0/2.0/N);
+		SECTION( "when q is " + std::to_string(x) ) {
+			RealVector3 s(x, 0.0, 0.0);
+			RealVector3 d(0.0, 0.0, 0.0);
+
+	    	REQUIRE( std::abs(kh.test_gradient(s, d, 6)) <= error );
+		}
+	}
+}
