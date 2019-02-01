@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
         ms.meshSeries.push_back(md2);
 
         fluid.count += skip;
-        cout<<"ite "<<fluid.count<<endl;
+        cout<<"iteration "<<fluid.count<<endl;
         ////////////////////////////////////////////////////////////
         if( quit.load() ) break;    // exit normally after SIGINT
         ////////////////////////////////////////////////////////////

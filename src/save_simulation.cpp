@@ -42,34 +42,31 @@ int main(int argc, char **argv)
     float dt = 0.01f;
     CLIapp.add_option("-t, --dt", dt, "Elapsed time");
 
-
     int step_size = 10;
     CLIapp.add_option("-z, --step_size", step_size, "record once every <step_size> frames");
 
     float alpha = 0.08f;
     CLIapp.add_option("-a, --alpha", alpha, "parameter of viscosity");
 
+    bool wo_viscosity;
+    CLIapp.add_flag("--no_vis", wo_viscosity, "disable viscosity");
 
-    int with_viscosity = 1;
-    CLIapp.add_option("-v, --with_viscosity", with_viscosity, "add viscosity");
-
-    int with_XSPH = 1;
-    CLIapp.add_option("-x, --with_XSPH", with_XSPH, "use XSPH to update position");
+    bool wo_XSPH;
+    CLIapp.add_flag("--no_xsph", wo_XSPH, "disable XSPH");
 
     float unit_particle_length = 0.1f;
     CLIapp.add_option("-u, --unit_particle_length", unit_particle_length, " the intervel length between two particles per axis.");
 
-
     CLIapp.option_defaults()->required();
 
     int N;
-    CLIapp.add_option("-n, --N", N, "Number of particles per edge");
+    CLIapp.add_option("-n, --N", N, "parameter regarding the number of fluid particles, usually 10 is enough");
 
     int mode;
-    CLIapp.add_option("-m, --mode", mode, "Simulation mode: 1 for dam breaking | 2 for dropping the water from the center of boundary | 3 for free fall | 4 for 2-cube collision | 5 for thin dam break | 6 for double dam break | 7 for water drop on water | 8 for fluid pillar | 9 for drop water on the spherical boundary | 10 for waver generator | 11 for moving dam break | 12 for watermill | 13 for bullet shooting");
+    CLIapp.add_option("-m, --mode", mode, "Parameter of scenes: 1 for dam break | 2 for dropping the water from the center of hollow boundary | 3 for free fall | 4 for 2-cube collision | 5 for thin dam break | 6 for double dam break | 7 for water drop into water sink | 8 for fluid pillar | 9 for drop water on the spherical boundary | 10 for waver generator | 11 for moving dam break | 12 for watermill | 13 for bullet shooting");
 
     int total_simulation;
-    CLIapp.add_option("-f, --total_simulation_frame_number", total_simulation, "Number of simulations to record");
+    CLIapp.add_option("-f, --total_simulation_frame_number", total_simulation, "Number of simulations to run");
 
     std::string output_file;
     CLIapp.add_option("-o, --output_file", output_file, "path to output file");
@@ -84,16 +81,24 @@ int main(int argc, char **argv)
     }
     //CLI11_PARSE(CLIapp, argc, argv);
 
+    int with_viscosity = 1;
+    if (wo_viscosity)
+        with_viscosity = 0;
+
+    int with_XSPH = 1;
+    if (wo_XSPH)
+        with_XSPH = 0;
+
     cout << "eta = "         				<< eta << endl;
     cout << "rest_density = "				<< rest_density << endl;
     cout << "stiffness = "					<< B << endl;
     cout << "elapsed time = " 				<< dt << endl;
     cout << "record step_size = "			<< step_size << endl;
     cout << "alpha = " 						<< alpha << endl;
-    cout << "with_viscosity = " 			<< with_viscosity << endl;
-    cout << "with_XSPH = " 					<< with_XSPH << endl;
-    cout << "particles number per edge = " 	<< N << endl;
-    cout << "mode = " 						<< mode << endl;
+    cout << "with_viscosity = " 			<< std::boolalpha << !wo_viscosity << endl;
+    cout << "with_XSPH = " 					<< std::boolalpha << !wo_XSPH << endl;
+    cout << "parameter of particles number = " 	<< N << endl;
+    cout << "scene to simulate = " 						<< mode << endl;
     cout << "total number of simulation frames = " << total_simulation << endl;
     cout << "unit_particle_length = " 		<< unit_particle_length << endl;
     cout << "output_file = " 				<< output_file << endl;

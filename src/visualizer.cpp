@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 	CLIapp.add_option("-s, --sim", simfiles, "path to serialized simulation data");
 
     std::vector<float> shift_x;
-	CLIapp.add_option("-x", shift_x, "shifts of different visualizations along x");
+	CLIapp.add_option("-x", shift_x, "shifts of different sets of data along x (if you have only one set of simualtion (and mesh) data, then x=0 is enough)");
 
 	try
 	{

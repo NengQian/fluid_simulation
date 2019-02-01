@@ -1,20 +1,31 @@
-This is Fluid Simulation code repo
-# QUICK START
-Run the simulator from main.cpp. 
-When click the terminate box in the gui of our simulation, the simulation will stop and then store all data to disk.
 
-# CMake
-use the following command to enable O3 optimization 
+# 2018 SS Fluid Simulation Lab Repo
+
+## Description
+
+This is the repo for the fluid simulation lab in 2018 SS, made by Chu-I Chao and Neng Qian. It has been tested on Linux(Ubuntu) and Mac OS.
+
+## Building
+
+    mkdir build
+    cd build
+    cmake ..
+    (make clean)
+    make
+
+(Optional) use the following command to enable O3 optimization
 > cmake .. -DCMAKE_BUILD_TYPE=Release
 
- 
+## Running the code
 
+We will have 3 executables after the code is built
 
-# ToDo List:
-1. Explostion Simulation <-- minimize distance between particles
-2. Dynamic boundary
+    ./save_simulation
+        output the serialized simulation data
+    ./save_fluid_mesh
+        take the output from above as input and outputs the serialized mesh data
+    ./visualizer
+        visualize the serialized simulation data only, OR visualize the serialized simulation and mesh data at the same time. Inputting multiple sets of data is available.
 
-
-Google Doc URL:
-Our lab notebook, used to record all questions we meet and the solution we use.
-https://docs.google.com/document/d/1vwjm4u57QHEDLY0mnqmElpk1lRHk23cDDwYXLNkdrLE/edit?usp=sharing
+add the flag below for more details
+> -h, --help
