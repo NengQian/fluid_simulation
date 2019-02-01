@@ -258,6 +258,14 @@ namespace Simulator
                 Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
                 frame.draw_particle(Particle(p+shift).with_radius(boundary_particle_size*0.5).with_color(Color(0.2f, 0.2f, 0.2f)));
             }
+            
+            std::vector<mParticle>& moving_boundary = sim_rec.states[sim_count].moving_boundary_particles;
+            for (size_t i =0;i<moving_boundary.size();++i)
+            {
+                Simulator::mParticle& mparticle = moving_boundary[i];
+                Eigen::Vector3f p(static_cast<float>(mparticle.position[0]), static_cast<float>(mparticle.position[1]), static_cast<float>(mparticle.position[2]));
+                frame.draw_particle(Particle(p+shift).with_radius(boundary_particle_size*0.5).with_color(Color(0.2f, 0.2f, 0.2f)));
+            }
         }
 
         if (!no_mesh) // show mesh

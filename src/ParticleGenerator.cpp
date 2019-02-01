@@ -30,7 +30,12 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
                          Eigen::Ref<RealVector3> v0,
                          mCuboid cuboid,   // each cuboid contains x,y,z number of particles, and origin;
                          Real radius,
-                         bool do_clear)
+                         bool do_clear, 
+                         bool side_open,
+                         bool rotate,
+                         Real angle,
+                         Real rotation_center_y,
+                         Real rotation_center_z)
 {
     if (do_clear)
         if (!particles.empty())
@@ -40,6 +45,7 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
     double y_half_extent = step_size*cuboid.y_n/2.0;
     double z_half_extent = step_size*cuboid.z_n/2.0;
     bool hollow = cuboid.is_hollow;
+    bool closed = cuboid.is_closed;
     //int idx_i = 0;
 
     for (int k=0; k<cuboid.z_n; ++k)
@@ -52,10 +58,27 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
                 {
                     int max_x_n = cuboid.x_n-1;
                     int max_y_n = cuboid.y_n-1;
-                    if ((k == 0) || (j == 0 || j == max_y_n) || (i == 0 || i == max_x_n))
-                        ;
-                    else
-                        continue;
+                    int max_z_n = cuboid.z_n-1;
+                    if (closed)
+                    {
+                        if ((k == 0 || k == max_z_n) || (j == 0 || j == max_y_n) || (i == 0 || i == max_x_n))
+                            ;
+                        else
+                            continue;
+                    } else {
+                        if (side_open)
+                        {
+                            if ((k == 0) || (j == max_y_n) || (i == 0 || i == max_x_n))
+                                ;
+                            else
+                                continue;                                
+                        } else {
+                            if ((k == 0) || (j == 0 || j == max_y_n) || (i == 0 || i == max_x_n))
+                                ;
+                            else
+                                continue;  
+                        }                      
+                    }
                 }
 
                 mParticle p;
@@ -63,6 +86,14 @@ void ParticleGenerator::generate_cuboid_box(std::vector<mParticle>& particles,
                 Real x = (i+0.5)*step_size-x_half_extent + cuboid.origin[0];
                 Real y = (j+0.5)*step_size-y_half_extent + cuboid.origin[1];
                 Real z = (k+0.5)*step_size + cuboid.origin[2];
+
+                if (rotate)
+                {
+                    Real rel_y = y-rotation_center_y;
+                    Real rel_z = z-rotation_center_z;
+                    y = cos(angle) * rel_y - sin(angle) * rel_z + rotation_center_y;
+                    z = sin(angle) * rel_y + cos(angle) * rel_z + rotation_center_z;
+                }
 
                 p.position = RealVector3(x,y,z);
                 p.mass = step_size * step_size * step_size * 1000.0;
@@ -157,48 +188,48 @@ void ParticleGenerator::generate_rigid_box(std::vector<mParticle>& particles, si
 }
 
 
-    void ParticleGenerator::generate_sphere(std::vector<mParticle>& particles,
-                         Eigen::Ref<RealVector3> v0,
-                         mSphere sp,   // each cuboid contains number of particles per x,y,z. and also origin;
-                         Real radius,
-                         bool do_clear){
-        if (do_clear)
-            if (!particles.empty())
-                particles.clear();
-        Real step_size = 2*radius;
+void ParticleGenerator::generate_sphere(std::vector<mParticle>& particles,
+                        Eigen::Ref<RealVector3> v0,
+                        mSphere sp,   // each cuboid contains number of particles per x,y,z. and also origin;
+                        Real radius,
+                        bool do_clear){
+    if (do_clear)
+        if (!particles.empty())
+            particles.clear();
+    Real step_size = 2*radius;
 //        double x_half_extent = step_size*sp.radius_n;
 //        double y_half_extent = step_size*sp.radius_n;
 //        double z_half_extent = step_size*sp.radius_n;
 
-        for (int z=-sp.radius_n; z<sp.radius_n; ++z)
+    for (int z=-sp.radius_n; z<sp.radius_n; ++z)
+    {
+        for (int y=-sp.radius_n; y<sp.radius_n; ++y)
         {
-            for (int y=-sp.radius_n; y<sp.radius_n; ++y)
+            for (int x=-sp.radius_n; x<sp.radius_n; ++x)
             {
-                for (int x=-sp.radius_n; x<sp.radius_n; ++x)
+                // we assume a x,y,z construct a voxel whose edge lengths are all 1;
+                double x_double = static_cast<double>(x)+0.5;  //take the center of this voxel!!
+                double y_double = static_cast<double>(y)+0.5;
+                double z_double = static_cast<double>(z)+0.5;
+                double dist_sqr = x_double*x_double + y_double*y_double + z_double*z_double;
+                double sphere_r_sqr = static_cast<double>(sp.radius_n*sp.radius_n);
+                cout<<"dist_sqr - sphere_r"<< dist_sqr-sphere_r_sqr<<endl;
+                if(abs(sqrt(dist_sqr) - sqrt(sphere_r_sqr))<=0.75+0.000001) // sqrt(3)/2 , the biggest error in this voxel
                 {
-                    // we assume a x,y,z construct a voxel whose edge lengths are all 1;
-                    double x_double = static_cast<double>(x)+0.5;  //take the center of this voxel!!
-                    double y_double = static_cast<double>(y)+0.5;
-                    double z_double = static_cast<double>(z)+0.5;
-                    double dist_sqr = x_double*x_double + y_double*y_double + z_double*z_double;
-                    double sphere_r_sqr = static_cast<double>(sp.radius_n*sp.radius_n);
-                    cout<<"dist_sqr - sphere_r"<< dist_sqr-sphere_r_sqr<<endl;
-                    if(abs(sqrt(dist_sqr) - sqrt(sphere_r_sqr))<=0.75+0.000001) // sqrt(3)/2 , the biggest error in this voxel
-                    {
-                        mParticle p;
-                        Real px = sp.Center[0]+x*step_size+0.5*step_size;
-                        Real py = sp.Center[1]+y*step_size+0.5*step_size;
-                        Real pz = sp.Center[2]+z*step_size+0.5*step_size;
-                        p.position = RealVector3(px,py,pz);
-                        p.mass = step_size * step_size * step_size * 1000.0;
-                        p.velocity[0] = v0[0];
-                        p.velocity[1] = v0[1];
-                        p.velocity[2] = v0[2];
-                        p.density = 0.0;
-                        particles.push_back(p);
-                    }
+                    mParticle p;
+                    Real px = sp.Center[0]+x*step_size+0.5*step_size;
+                    Real py = sp.Center[1]+y*step_size+0.5*step_size;
+                    Real pz = sp.Center[2]+z*step_size+0.5*step_size;
+                    p.position = RealVector3(px,py,pz);
+                    p.mass = step_size * step_size * step_size * 1000.0;
+                    p.velocity[0] = v0[0];
+                    p.velocity[1] = v0[1];
+                    p.velocity[2] = v0[2];
+                    p.density = 0.0;
+                    particles.push_back(p);
                 }
             }
         }
-        return;
     }
+    return;
+}

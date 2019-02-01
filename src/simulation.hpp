@@ -18,6 +18,11 @@
 #include "SPHSimulator_drop_on_water.hpp"
 #include "SPHSimulator_fluid_pillar.hpp"
 #include "SPHSimulator_mid_column.hpp"
+#include "SPHSimulator_wave_generator.hpp"
+#include "SPHSimulator_moving_dam_break.hpp"
+#include "SPHSimulator_watermill.hpp"
+#include "SPHSimulator_bullet.hpp"
+
 
 #include <string>
 

@@ -30,7 +30,7 @@ add_subdirectory(extern/CompactNSearch)
 set(TINY_OBJ_LOADER_INCLUDE ${CMAKE_SOURCE_DIR}/extern/tinyobjloader/include)
 
 set(CLI11_FILES
-	${PROJECT_SOURCE_DIR}/extern/CLI11/include/CLI11/CLI11.hpp)
+		${PROJECT_SOURCE_DIR}/extern/CLI11/include/CLI11/CLI11.hpp)
 
 set(IMGUI_FILES
         src/imgui/imgui.h
@@ -86,12 +86,18 @@ set(DERIVED_CLASS_FILES
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_drop_on_water.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_fluid_pillar.hpp
     ${DERIVED_CLASS_FOLDER}/SPHSimulator_mid_column.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_mobile_rigid_body.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_wave_generator.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_moving_dam_break.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_watermill.hpp
+    ${DERIVED_CLASS_FOLDER}/SPHSimulator_bullet.hpp
+
    
 # when we have new simulation scenero, we do derive it from sphsimulator class, and add file here.
 )
 
 set(VISUAL_SOURCE_FILES
-	${CLI11_FILES}
+        ${CLI11_FILES}
         ${IMGUI_FILES}
         ${UTIL_FILES}
         src/math_types.hpp
