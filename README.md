@@ -17,7 +17,7 @@ This is the repo for the fluid simulation lab in 2018 SS, made by Chu-I Chao and
 
 ## Running the code
 
-We will have 3 executables after the code is built
+We will have 3 executables after the code is built.
 
     ./save_simulation
         output the serialized simulation data
