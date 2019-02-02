@@ -1,4 +1,3 @@
-
 # 2018 SS Fluid Simulation Lab Repo
 
 ## Description
@@ -13,7 +12,7 @@ This is the repo for the fluid simulation lab in 2018 SS, made by Chu-I Chao and
     (make clean)
     make
 
-(Optional) use the following command to enable O3 optimization
+(Optional) Compile in Release mode to get the best performance
 > cmake .. -DCMAKE_BUILD_TYPE=Release
 
 ## Running the code
