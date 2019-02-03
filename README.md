@@ -28,3 +28,20 @@ We will have 3 executables after the code is built.
 
 add the flag below for more details
 > -h, --help
+
+## Selective test scenarios
+
+To reproduce the results we've mentioned in the final report, we suggest some terminal commands here.
+Here we assume that the program is built successfully and you are in the ./build directory.
+
+#### 2-cube collision
+
+    Using WCSPH
+        ./save_simulation -n 5 -m 4 -f 5000 -o <your_simulation_data_file> -c 0 -t 0.001 -z 10
+        ./visualizer -s <your_simulation_data_file> -x 0
+    Using PBF
+        ./save_simulation -n 5 -m 4 -f 500 -o <your_simulation_data_file> -c 1 -t 0.01 -z 1
+        ./visualizer -s <your_simulation_data_file> -x 0    
+
+#### Dropping single particle on the boundary
+#### Dropping a chunk of water inside a pillar
