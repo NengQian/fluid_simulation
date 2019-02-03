@@ -53,3 +53,10 @@ Here we assume that the program is built successfully and you are in the ./build
         ./visualizer -s <your_simulation_data_file> -x 0
         
 #### Dropping a chunk of water inside a pillar
+
+    Using WCSPH 
+        ./save_simulation -n 10 -m 8 -f 3000 -o <your_simulation_data_file> -c 0 -t 0.001 -z 10 -s 5000
+        ./visualizer -s <your_simulation_data_file> -x 0
+    Using PBF
+        ./save_simulation -n 10 -m 8 -f 300 -o <your_simulation_data_file> -c 1 -t 0.01 -z 1
+        ./visualizer -s <your_simulation_data_file> -x 0       
