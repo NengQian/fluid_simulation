@@ -122,9 +122,6 @@ target_include_directories(sim_visual_lib PUBLIC ${CMAKE_SOURCE_DIR}/src ${TINY_
 add_executable(visualizer src/visualizer.cpp)
 target_link_libraries(visualizer sim_visual_lib)
 
-add_executable(output_density src/output_density.cpp)
-target_link_libraries(output_density sim_visual_lib)
-
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 
 # # Add source files for unit tests here.
@@ -175,9 +172,3 @@ target_link_libraries(test_marching_cube marching_cube_lib)
 add_executable(save_fluid_mesh src/save_fluid_mesh.cpp)
 target_link_libraries(save_fluid_mesh CompactNSearch merely3d  simulator_lib marching_cube_lib)
 target_include_directories(save_fluid_mesh PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
-
-add_executable(output_bounding_box src/output_bounding_box_info.cpp)
-target_link_libraries(output_bounding_box CompactNSearch merely3d  simulator_lib marching_cube_lib)
-target_include_directories(output_bounding_box PRIVATE ${EIGEN3_ROOT} ${EIGEN_ROOT} ${CEREALS_ROOT} ${CLI11_ROOT})
-
-
