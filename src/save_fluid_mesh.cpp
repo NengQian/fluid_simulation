@@ -41,7 +41,7 @@ using std::cout;
 using std::endl;
 #include <array>
 
-
+/*
 ////////////////////////////////////////////////////
 std::atomic<bool> quit(false);    // signal flag
 void got_signal(int)
@@ -49,7 +49,7 @@ void got_signal(int)
     quit.store(true);
 }
 /////////////////////////////////////////////////////
-
+*/
 int main(int argc, char* argv[])
 {
     CLI::App CLIapp{"serialize fluid mesh using marching cube"};
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
     ms.unit_voxel_length = unit_voxel_length;
 
     fluid.count += skip;
-
+    /*
     ////////////////////////////////////////////////////////////////
     // code allow we use ctrl-c to quit the simulation while it still store data.
     struct sigaction sa;
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
     sigfillset(&sa.sa_mask);
     sigaction(SIGINT,&sa,NULL);
     //////////////////////////////////////////////////////////////////////////
-
+    */
     while (!fluid.end)
     {
         fluid.update_marching_cube();
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
         fluid.count += skip;
         cout<<"iteration "<<fluid.count<<endl;
         ////////////////////////////////////////////////////////////
-        if( quit.load() ) break;    // exit normally after SIGINT
+        //if( quit.load() ) break;    // exit normally after SIGINT
         ////////////////////////////////////////////////////////////
     }
 
