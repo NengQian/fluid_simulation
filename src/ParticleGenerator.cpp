@@ -170,7 +170,7 @@ void ParticleGenerator::generate_two_freefall_cubes(std::vector<mParticle>& part
 void ParticleGenerator::generate_two_colliding_cubes(std::vector<mParticle>& particles, size_t N, Real radius)
 {
 	RealVector3 o1(0.0, 0.0, 0.0);
-	RealVector3 o2(2.5, 0.0, 0.0);
+	RealVector3 o2(3.0*radius, 0.0, 0.0);
 
 	RealVector3 v1_init(0.25, 0.0, 0.0);
     RealVector3 v2_init(0.00, 0.0, 0.0);
