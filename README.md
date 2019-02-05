@@ -29,6 +29,16 @@ We will have 3 executables after the code is built.
 add the flag below for more details
 > -h, --help
 
+## Test programs
+
+Two test programs will be also built. 
+
+    ./test_marching_cube
+        test the marching cube on some basic geometrical primitives
+    
+    ./kernel_test
+        unit tests for kernel functions
+
 ## Selective test scenarios
 
 To reproduce the results we've mentioned in the final report, we suggest some terminal commands here.
@@ -52,11 +62,47 @@ Here we assume that the program is built successfully and you are in the ./build
         ./save_simulation -n 1 -m 2 -f 300 -o <your_simulation_data_file> -c 1 -t 0.01 -z 1 
         ./visualizer -s <your_simulation_data_file> -x 0
         
-#### Dropping a chunk of water inside a pillar
+#### Dropping a chunk of water inside a pillar (choose smaller n for shorter waiting time, n=5 for example)
 
     Using WCSPH 
         ./save_simulation -n 10 -m 8 -f 3000 -o <your_simulation_data_file> -c 0 -t 0.001 -z 10 -s 5000
         ./visualizer -s <your_simulation_data_file> -x 0
     Using PBF
         ./save_simulation -n 10 -m 8 -f 300 -o <your_simulation_data_file> -c 1 -t 0.01 -z 1
-        ./visualizer -s <your_simulation_data_file> -x 0       
+        ./visualizer -s <your_simulation_data_file> -x 0     
+        
+### Narrow Dam break
+
+    Using WCSPH
+        ./save_simulation -n 10 -m 5 -f 30000 -o <your_simulation_data_file> -c 0 -t 0.001 -z 100
+        ./visualizer -s <your_simulation_data_file> -x 0
+    Using PBF
+        ./save_simulation -n 10 -m 5 -f 3000 -o <your_simulation_data_file> -c 1 -t 0.01 -z 10
+        ./visualizer -s <your_simulation_data_file> -x 0
+
+### Dropping a chunk of water on a spherical boundary
+    
+    Using WCSPH
+        ./save_simulation -n 10 -m 9 -f 3000 -o <your_simulation_data_file> -c 0 -t 0.001 -z 10
+        ./visualizer -s <your_simulation_data_file> -x 0    
+    Using PBF
+        ./save_simulation -n 10 -m 9 -f 300 -o <your_simulation_data_file> -c 1 -t 0.01 -z 1
+        ./visualizer -s <your_simulation_data_file> -x 0
+
+### Wave simulation
+
+    Using WCSPH
+        ./save_simulation -n 10 -m 10 -f 30000 -o <your_simulation_data_file> -c 0 -t 0.001 -z 50
+        ./visualizer -s <your_simulation_data_file> -x 0    
+    Using PBF
+        ./save_simulation -n 10 -m 10 -f 3000 -o <your_simulation_data_file> -c 1 -t 0.01 -z 5
+        ./visualizer -s <your_simulation_data_file> -x 0
+
+### Watermill simulation
+
+    Using WCSPH
+        ./save_simulation -n 10 -m 12 -f 30000 -o <your_simulation_data_file> -c 0 -t 0.001 -z 50
+        ./visualizer -s <your_simulation_data_file> -x 0    
+    Using PBF
+        ./save_simulation -n 10 -m 12 -f 3000 -o <your_simulation_data_file> -c 1 -t 0.01 -z 5
+        ./visualizer -s <your_simulation_data_file> -x 0
