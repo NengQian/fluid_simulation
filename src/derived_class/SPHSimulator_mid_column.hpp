@@ -39,6 +39,7 @@ public:
             out_box.y_n = N+20;
             out_box.z_n = 3*N;
             out_box.is_hollow = true;
+            out_box.is_closed = false;
             particleGenerator.generate_cuboid_box(boundary_particles,zero,out_box,particle_radius,false);
 
             // generate the mid thin column cuboid boundary
