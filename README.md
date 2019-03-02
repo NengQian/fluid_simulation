@@ -1,5 +1,9 @@
 # 2018 SS Fluid Simulation Lab Repo
 
+## ToDo
+Clean and restructure code.
+Add licence.
+
 ## Description
 
 This is the repo for the fluid simulation lab in 2018 SS, made by Chu-I Chao and Neng Qian. It has been tested on Linux(Ubuntu) and Mac OS.
