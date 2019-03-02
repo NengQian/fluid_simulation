@@ -6,7 +6,8 @@ Add licence.
 
 ## Description
 
-This is the repo for the fluid simulation lab in 2018 SS, made by Chu-I Chao and Neng Qian. It has been tested on Linux(Ubuntu) and Mac OS.
+This is the repo for the fluid simulation lab in 2018 SS at RWTH, made by Chu-I Chao and Neng Qian. It has been tested on Linux(Ubuntu) and Mac OS.
+It includes PBF and WCSPH solvers, and a visualization program based on Merely3D. It applys Marching cubes to reconstruct fluid surface.
 
 ## Building
 
