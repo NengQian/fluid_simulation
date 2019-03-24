@@ -111,7 +111,7 @@ Here we assume that the program is built successfully and you are in the ./build
         ./save_simulation -n 10 -m 12 -f 3000 -o <your_simulation_data_file> -c 1 -t 0.01 -z 5
         ./visualizer -s <your_simulation_data_file> -x 0
         
-## DEMO IMAGE AND VIDEO LINK
+## Demo Image And Video Link
 ### Sphere boundary
 ![alt text](https://github.com/NengQian/fluid_simulation/blob/master/images/shpere_boundary.png )
 
