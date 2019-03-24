@@ -2,12 +2,11 @@
 
 ## ToDo
 Clean and restructure code.
-Add licence.
 
 ## Description
 
-This is the repo for the fluid simulation lab in 2018 SS at RWTH, made by Chu-I Chao and Neng Qian. It has been tested on Linux(Ubuntu) and Mac OS.
-It includes PBF and WCSPH solvers, and a visualization program based on Merely3D. It applys Marching cubes to reconstruct fluid surface.
+This is the repo for the fluid simulation lab in 2018 SS at RWTH, made by Chu-I Chao and Neng Qian. It has been tested on Linux(Ubuntu 16.04) and Mac OS.
+It includes PBF and WCSPH solvers, and a visualization program based on Merely3D and imgui. It applys Marching cubes to reconstruct fluid surface.
 
 ## Building
 
@@ -111,3 +110,28 @@ Here we assume that the program is built successfully and you are in the ./build
     Using PBF
         ./save_simulation -n 10 -m 12 -f 3000 -o <your_simulation_data_file> -c 1 -t 0.01 -z 5
         ./visualizer -s <your_simulation_data_file> -x 0
+        
+## DEMO IMAGE AND VIDEO LINK
+### Sphere boundary
+![alt text](https://github.com/NengQian/fluid_simulation/blob/master/images/shpere_boundary.png )
+
+### Wave simulation
+![alt text](https://github.com/NengQian/fluid_simulation/blob/master/images/wave1.png )
+![alt text](https://github.com/NengQian/fluid_simulation/blob/master/images/wave2.png )
+
+### Video of Dam Break  
+<a href="https://www.youtube.com/watch?feature=player_embedded&v=EG6p_86yMe4
+" target="_blank"><img src="http://img.youtube.com/vi/EG6p_86yMe4/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="640" height="480" border="100" /></a>
+
+## Reference
+* Nadir Akinci et al. “Versatile rigid-fluid coupling for incompressible SPH”.
+* Markus Becker and Matthias Teschner. “Weakly compressible SPH for free surface flows”. 
+* Miles Macklin and Matthias M ̈uller. “Position based fluids”. 
+* Daniel J Price. “Smoothed particle hydrodynamics and magnetohydrodynamics”. 
+
+* Merely3D (https://github.com/Andlon/merely3d)
+* Cereal (https://github.com/USCiLab/cereal)
+* CompactNSearch (https://github.com/InteractiveComputerGraphics/CompactNSearch)
+* CLI11 (https://github.com/CLIUtils/CLI11)
+* Dear imgui (https://github.com/ocornut/imgui)
